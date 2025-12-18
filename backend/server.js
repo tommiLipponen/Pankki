@@ -8,6 +8,7 @@ const express = require('express');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./src/config/swagger');
 const corsMiddleware = require('./src/middleware/cors');
+const { apiLimiter } = require('./src/middleware/rateLimiter');
 const errorHandler = require('./src/middleware/errorHandler');
 const customerRoutes = require('./src/routes/customerRoutes');
 
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(corsMiddleware);
+app.use(apiLimiter); // Rate limiting
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
