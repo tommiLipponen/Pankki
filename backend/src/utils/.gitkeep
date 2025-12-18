@@ -1,0 +1,7 @@
+# Utils folder
+# Helper functions and utilities
+# Files to create:
+# - bcryptHelper.js  : PIN hashing and verification helpers
+# - validators.js    : Input validation functions
+# - responseHelper.js: Standardized API response format
+# - constants.js     : Application constants (error codes, status codes)

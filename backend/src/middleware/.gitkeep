@@ -1,0 +1,7 @@
+# Middleware folder
+# Contains Express middleware functions
+# Files to create:
+# - cors.js          : CORS configuration for Qt app communication
+# - errorHandler.js  : Centralized error handling
+# - validator.js     : Request validation middleware
+# - logger.js        : Request logging (optional, for bonus points)

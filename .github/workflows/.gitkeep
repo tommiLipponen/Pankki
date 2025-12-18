@@ -1,0 +1,14 @@
+# GitHub Actions Workflows
+# CI/CD pipelines (bonus feature: +1 grade impact)
+
+# Files to create:
+# - azure-deploy.yml   : Deploy to Azure App Service
+# - ci.yml             : Run tests on pull requests
+# - build-qt.yml       : Build Qt application (optional)
+
+# Example workflow triggers:
+# - On push to main branch
+# - On pull request creation
+# - Manual workflow dispatch
+
+# Reference: Course lecture on CI/CD (13.1.2025)

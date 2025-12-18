@@ -1,0 +1,6 @@
+# Config folder
+# Configuration files
+# Files to create:
+# - database.js  : Prisma client singleton instance
+# - app.js       : Application configuration
+# - env.js       : Environment variable validation

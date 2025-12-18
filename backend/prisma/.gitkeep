@@ -1,0 +1,6 @@
+# Prisma folder
+# Contains database schema and migrations
+# Files to create:
+# - schema.prisma  : Database schema definition (Customer, Account, Card, Transaction models)
+# - seed.js        : Optional test data seeding script
+# migrations/      : Auto-generated migration files (DO NOT edit manually)

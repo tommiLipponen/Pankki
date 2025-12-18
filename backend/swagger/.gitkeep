@@ -1,0 +1,6 @@
+# Swagger folder
+# OpenAPI/Swagger documentation (bonus feature: +1 grade impact)
+# Files to create:
+# - swagger.yaml or swagger.json : API specification
+# Auto-generated file: swagger-output.json (created by swagger-autogen)
+# Access Swagger UI: http://localhost:3000/api-docs

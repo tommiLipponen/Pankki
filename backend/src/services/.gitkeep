@@ -1,0 +1,9 @@
+# Services folder
+# Contains business logic and database operations using Prisma
+# Separates database logic from controllers (MVC pattern requirement)
+# Files to create:
+# - authService.js        : PIN validation, card locking logic
+# - accountService.js     : Balance checks, account operations
+# - transactionService.js : Withdrawals, transaction history
+# - customerService.js    : Customer CRUD operations
+# - cardService.js        : Card CRUD operations

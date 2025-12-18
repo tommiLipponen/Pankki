@@ -1,0 +1,5 @@
+# Routes folder
+# Defines API endpoints and maps them to controllers
+# Each file handles routes for a specific resource
+# Example: authRoutes.js, accountRoutes.js, transactionRoutes.js, cardRoutes.js
+# Routes follow RESTful conventions: GET, POST, PUT, DELETE
