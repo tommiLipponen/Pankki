@@ -21,12 +21,12 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
-        description: 'Development server'
+        url: 'https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net',
+        description: 'Production server (Azure)'
       },
       {
-        url: 'https://your-app.azurewebsites.net',
-        description: 'Production server (Azure)'
+        url: 'http://localhost:3000',
+        description: 'Development server'
       }
     ],
     tags: [
