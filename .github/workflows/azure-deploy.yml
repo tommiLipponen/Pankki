@@ -23,7 +23,7 @@ jobs:
 
     - name: Install dependencies
       working-directory: ./backend
-      run: npm ci
+      run: npm ci --production
 
     - name: Generate Prisma Client
       working-directory: ./backend
@@ -32,7 +32,7 @@ jobs:
     - name: Create deployment package
       run: |
         cd backend
-        zip -r ../deploy.zip . -x "node_modules/*" -x ".env" -x "*.http"
+        zip -r ../deploy.zip . -x ".env" -x "*.http" -x ".git/*"
         cd ..
         unzip -l deploy.zip
 
