@@ -75,12 +75,14 @@ app.use((req, res) => {
 // Error handler (must be last)
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`� API Documentation: http://localhost:${PORT}/api-docs`);
-  console.log(`�📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🗄️  Database: Connected to Azure MySQL`);
-});
+// Start server only if this file is run directly (not imported for testing)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🗄️  Database: Connected to Azure MySQL`);
+  });
+}
 
 module.exports = app;

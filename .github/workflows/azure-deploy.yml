@@ -35,6 +35,12 @@ jobs:
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+    - name: Run tests
+      working-directory: ./backend
+      run: npm test
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
     - name: Create deployment package
       run: |
         cd backend
