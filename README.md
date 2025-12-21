@@ -41,13 +41,14 @@ A simulated ATM (Automated Teller Machine) banking system with a Qt desktop appl
 ## 🛠️ Tech Stack
 
 ### Backend
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **ORM:** Prisma
-- **Database:** Azure MySQL
-- **Documentation:** Swagger UI / OpenAPI
-- **Deployment:** Azure App Service
-- **CI/CD:** GitHub Actions
+- **Runtime:** Node.js 22 LTS
+- **Framework:** Express.js 5.2
+- **ORM:** Prisma 5.22.0
+- **Database:** Azure MySQL Flexible Server
+- **Testing:** Node:test (native) + supertest
+- **Documentation:** Swagger UI / OpenAPI 3.0
+- **Deployment:** Azure App Service (Basic B1)
+- **CI/CD:** GitHub Actions (with automated testing & migrations)
 
 ### Frontend
 - **Framework:** Qt 6 (C++)
@@ -102,8 +103,8 @@ Pankki/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js v18+
-- MySQL 8.0+
+- Node.js v22+ (LTS)
+- MySQL 8.0+ (or Azure MySQL)
 - Qt 6.x with CMake
 - Visual Studio 2026 Professional (with Qt extension)
 - VS Code
@@ -131,6 +132,7 @@ npm run dev
 
 Backend will run at: `http://localhost:3000`
 API Documentation: `http://localhost:3000/api-docs`
+OpenAPI Spec (for Qt): `http://localhost:3000/api-docs.json`
 
 ### Frontend Setup
 
@@ -184,16 +186,32 @@ Full CRUD for: Customers, Accounts, Cards, Transactions
 cd backend
 npm test
 
-# Run with coverage
+# Run tests in watch mode
 npm run test:watch
 ```
+
+**Testing Stack:**
+- Node:test (native test runner)
+- supertest (HTTP assertions)
+- Tests run automatically in CI/CD pipeline
 
 ---
 
 ## 🚢 Deployment
 
 ### Backend (Azure App Service)
-<!-- TODO: Add deployment instructions -->
+**Live API:** https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net
+
+**CI/CD Pipeline (GitHub Actions):**
+1. Runs on every push to `main` branch
+2. Installs dependencies
+3. Generates Prisma Client
+4. Deploys database migrations
+5. Runs automated tests
+6. Deploys to Azure App Service
+
+**Manual Deployment:**
+Triggered automatically via GitHub Actions. No manual steps required.
 
 ### Frontend
 Compiled executables available in GitHub Releases
@@ -257,7 +275,17 @@ MIT License - Educational Project
 **Week 1:**
 - [x] Repository initialized
 - [x] Project structure created
-- [ ] ER diagram approved
+- [x] Azure MySQL database provisioned
+- [x] Prisma ORM integrated
+- [x] Customer CRUD API implemented
+- [x] Swagger/OpenAPI documentation added
+- [x] Azure App Service deployment configured
+- [x] GitHub Actions CI/CD pipeline setup
+- [x] Rate limiting implemented
+- [x] Node.js upgraded to v22 LTS
+- [x] Automated testing framework (Node:test + supertest)
+- [x] Automated database migrations in CI/CD
+- [x] OpenAPI JSON endpoint for Qt client generation
 
 **Week 2:**
 - [ ] ...
@@ -267,4 +295,4 @@ MIT License - Educational Project
 
 ---
 
-**Last Updated:** December 18, 2025
+**Last Updated:** December 21, 2025
