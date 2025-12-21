@@ -61,6 +61,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// OpenAPI JSON specification for client code generation
+app.get('/api-docs.json', (req, res) => {
+  res.json(swaggerSpec);
+});
+
 // API Routes
 app.use('/api/customers', customerRoutes);
 
