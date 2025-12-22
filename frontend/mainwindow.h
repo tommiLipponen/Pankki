@@ -1,3 +1,18 @@
+/**
+ * MainWindow - ATM Banking Application Main Window
+ * 
+ * This will become the main ATM interface with:
+ * - PIN entry screen
+ * - Balance inquiry
+ * - Cash withdrawal options
+ * - Transaction history
+ * - Receipt generation
+ * 
+ * TODO: Add QtNetwork for REST API communication
+ * TODO: Create data models (Customer, Account, Transaction)
+ * TODO: Implement HTTP client to connect to backend API
+ */
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -19,5 +34,10 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    
+    // TODO: Add private members for:
+    // - API client
+    // - Current customer/account state
+    // - Transaction data
 };
 #endif // MAINWINDOW_H
