@@ -77,6 +77,11 @@ CMakeFiles/
 cmake_install.cmake
 Makefile
 *.cmake
+CMakeUserPresets.json
+CMakePresets.json
+
+# CMake User Presets (user-specific, contains absolute paths)
+CMakeUserPresets.json
 
 # Qt moc/uic/rcc generated files
 moc_*.cpp
