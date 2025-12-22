@@ -55,11 +55,19 @@ bank-automat/build/
 bank-automat/build-*/
 bank-automat/cmake-build-*/
 bank-automat/out/
+frontend/build/
+frontend/build-*/
+frontend/cmake-build-*/
+frontend/out/
 
 # Qt Creator specific
 bank-automat/*.user
 bank-automat/*.user.*
 bank-automat/.qtc_clangd/
+frontend/*.user
+frontend/*.user.*
+frontend/.qtc_clangd/
+frontend/.qtcreator/
 .qtcreator/
 
 # CMake
