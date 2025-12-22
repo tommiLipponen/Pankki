@@ -81,11 +81,13 @@ Pankki/
 │   ├── tests/            # Unit & integration tests
 │   └── server.js         # Application entry point
 │
-├── bank-automat/         # Qt C++ desktop application
-│   ├── src/              # Source files
-│   ├── ui/               # UI forms (.ui files)
+├── frontend/             # Qt C++ desktop application ✅ ACTIVE
+│   ├── main.cpp          # Application entry
+│   ├── mainwindow.*      # Main window (test UI)
+│   ├── apiclient.*       # REST API HTTP client
+│   ├── customer.*        # Customer data model
 │   ├── CMakeLists.txt    # Build configuration
-│   └── README.md
+│   └── README.md         # Frontend documentation
 │
 ├── documents/            # Course documentation
 │   ├── projektidokumentti.docx
@@ -136,11 +138,24 @@ OpenAPI Spec (for Qt): `http://localhost:3000/api-docs.json`
 
 ### Frontend Setup
 
+**Prerequisites:**
+- Qt 6.8.5 with MSVC 2022
+- Visual Studio 2026 Professional (with Qt Tools extension)
+- OpenSSL 3.x for HTTPS support
+
+**Quick Start:**
+
 1. Open Visual Studio 2026
 2. File → Open → Folder
-3. Select `bank-automat` folder
-4. Configure Qt kit if prompted
+3. Select `frontend` folder
+4. Select configuration: **vs-debug** or **vs-release**
 5. Build and run (F5)
+
+**Detailed instructions:** See [Frontend README](./frontend/README.md)
+
+**Testing API Connection:**
+- Run the app and click "Health Check" button
+- Then click "Get All Customers" to verify Azure connection
 
 ---
 
@@ -221,7 +236,7 @@ Compiled executables available in GitHub Releases
 ## 📚 Documentation
 
 - [Backend API Documentation](./backend/README.md)
-- [Frontend Documentation](./bank-automat/README.md)
+- [Frontend Documentation](./frontend/README.md) ✅ **Updated**
 - [Database Schema](./documents/er-diagram.png)
 - [Technical Specification](./documents/tekninen-maarittely.docx)
 - [Project Plan](./documents/projektidokumentti.docx)
@@ -288,7 +303,17 @@ MIT License - Educational Project
 - [x] OpenAPI JSON endpoint for Qt client generation
 
 **Week 2:**
-- [ ] ...
+- [x] Qt 6.8.5 frontend project setup
+- [x] Visual Studio 2026 compatibility configured
+- [x] CMake build system with automatic DLL deployment
+- [x] OpenSSL integration for HTTPS/TLS
+- [x] REST API client (`ApiClient` class) implemented
+- [x] Customer data model with JSON serialization
+- [x] Successfully connected frontend to Azure backend
+- [x] API connection test UI created
+- [x] UTF-8 support for Scandinavian characters verified
+- [ ] ATM user interface design (in progress)
+- [ ] Account & Card data models (planned)
 
 ### Team Meetings
 <!-- Add meeting notes -->

@@ -1,22 +1,26 @@
 /**
  * MainWindow - ATM Banking Application Main Window
  * 
- * This will become the main ATM interface with:
+ * Currently includes API connection testing interface.
+ * 
+ * Future ATM interface features:
  * - PIN entry screen
  * - Balance inquiry
  * - Cash withdrawal options
  * - Transaction history
  * - Receipt generation
  * 
- * TODO: Add QtNetwork for REST API communication
- * TODO: Create data models (Customer, Account, Transaction)
- * TODO: Implement HTTP client to connect to backend API
+ * Completed:
+ * ? QtNetwork for REST API communication
+ * ? Customer data model
+ * ? HTTP client connected to Azure backend API
  */
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "apiclient.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -32,12 +36,18 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void onTestConnectionClicked();
+    void onHealthCheckClicked();
+    void onCustomersReceived(const QList<Customer> &customers);
+    void onHealthCheckSuccess(const QString &status);
+    void onApiError(const QString &errorMessage);
+
 private:
     Ui::MainWindow *ui;
+    ApiClient *apiClient;
     
-    // TODO: Add private members for:
-    // - API client
-    // - Current customer/account state
-    // - Transaction data
+    void setupUI();
+    void setupConnections();
 };
 #endif // MAINWINDOW_H
