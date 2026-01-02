@@ -2,7 +2,12 @@
 
 REST API for Bank ATM System using Node.js, Express, and Prisma ORM.
 
-## 📁 Project Structure
+## � For Developers
+
+**New to the project?** Start here:
+- 📖 [DEVELOPMENT.md](DEVELOPMENT.md) - Complete guide for adding new features and database tables
+
+## �📁 Project Structure
 
 ```
 backend/
