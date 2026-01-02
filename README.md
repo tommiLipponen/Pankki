@@ -10,10 +10,10 @@ A simulated ATM (Automated Teller Machine) banking system with a Qt desktop appl
 
 | Name | Role | Responsibilities |
 |------|------|-----------------|
-| Member 1 | Backend Developer | API, Database, Prisma |
-| Member 2 | Backend Developer | API, Testing, Deployment |
-| Member 3 | Frontend Developer | Qt UI, User Experience |
-| Member 4 | Frontend Developer | Qt Logic, API Integration |
+| Iisa Metsola | Full Stack Developer | UX, Documentation, Full Stack |
+| Topi Pietilänaho | Full Stack Developer | Qt Logic, API Integration |
+| Tommi Lipponen | Full Stack Developer | Prisma, Deployment |
+| TBD | Full Stack Developer | TBD |
 
 ---
 
