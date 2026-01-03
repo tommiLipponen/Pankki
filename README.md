@@ -13,7 +13,9 @@ A simulated ATM (Automated Teller Machine) banking system with a Qt desktop appl
 | Iisa Metsola | Full Stack Developer | UX, Documentation, Full Stack |
 | Topi Pietilänaho | Full Stack Developer | Qt Logic, API Integration |
 | Tommi Lipponen | Full Stack Developer | Prisma, Deployment |
-| TBD | Full Stack Developer | TBD |
+| Tommy Näsänen | Full Stack Developer | Database Design, Middleware, Testing |
+
+*Note: In this course project, all team members contribute to both frontend and backend development to gain full-stack experience.*
 
 ---
 
