@@ -8,7 +8,7 @@
  * - Health check to verify Azure backend is responsive
  * - Customer data fetch from Azure MySQL database
  * - Real-time status updates and error handling
- * - UTF-8 support for Scandinavian characters (å, ä, ö)
+ * - UTF-8 support for international characters
  */
 
 #include "mainwindow.h"
@@ -269,7 +269,7 @@ void MainWindow::onHealthCheckSuccess(const QString &status)
  * - Each customer's ID, name (UTF-8), address, timestamp
  * - Empty state message if no customers
  * 
- * Note: Properly handles UTF-8 for Finnish names (e.g., "Meikäläinen")
+ * Note: Properly handles UTF-8 for Finnish names (e.g., "Meikï¿½lï¿½inen")
  */
 void MainWindow::onCustomersReceived(const QList<Customer> &customers)
 {

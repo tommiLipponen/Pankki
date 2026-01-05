@@ -71,7 +71,7 @@ QJsonObject Customer::toJson() const
  * Handles:
  * - Missing fields (uses defaults)
  * - ISO 8601 timestamp parsing
- * - UTF-8 encoded strings (Finnish characters: å, ä, ö)
+ * - UTF-8 encoded strings for international characters
  */
 void Customer::fromJson(const QJsonObject &json)
 {

@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.19)
 project(frontend LANGUAGES CXX)
 
+# Force UTF-8 encoding for MSVC to handle Scandinavian characters in file paths
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+
 # Set Qt path if not already set (for Visual Studio)
 if(NOT DEFINED CMAKE_PREFIX_PATH OR CMAKE_PREFIX_PATH STREQUAL "")
     if(EXISTS "C:/Qt/6.8.5/msvc2022_64")
