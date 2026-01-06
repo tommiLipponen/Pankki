@@ -8,14 +8,31 @@ endif()
 
 # Set Qt path if not already set (for Visual Studio)
 if(NOT DEFINED CMAKE_PREFIX_PATH OR CMAKE_PREFIX_PATH STREQUAL "")
+    # Try multiple Qt versions and compiler variants
     if(EXISTS "C:/Qt/6.9.3/msvc2022_64")
         set(CMAKE_PREFIX_PATH "C:/Qt/6.9.3/msvc2022_64")
+    elseif(EXISTS "C:/Qt/6.9.3/msvc2019_64")
+        set(CMAKE_PREFIX_PATH "C:/Qt/6.9.3/msvc2019_64")
     elseif(EXISTS "C:/Qt/6.8.5/msvc2022_64")
         set(CMAKE_PREFIX_PATH "C:/Qt/6.8.5/msvc2022_64")
     elseif(EXISTS "C:/Qt/6.8.3/msvc2022_64")
         set(CMAKE_PREFIX_PATH "C:/Qt/6.8.3/msvc2022_64")
+    else()
+        message(FATAL_ERROR 
+            "Qt 6 not found! Please install Qt 6.2+ or set CMAKE_PREFIX_PATH manually.\n"
+            "Expected locations checked:\n"
+            "  - C:/Qt/6.9.3/msvc2022_64\n"
+            "  - C:/Qt/6.9.3/msvc2019_64\n"
+            "  - C:/Qt/6.8.5/msvc2022_64\n"
+            "  - C:/Qt/6.8.3/msvc2022_64\n"
+            "\nTo fix:\n"
+            "  1. Install Qt from https://www.qt.io/download-qt-installer\n"
+            "  2. Or set CMAKE_PREFIX_PATH to your Qt installation path\n"
+            "     Example: cmake -DCMAKE_PREFIX_PATH=C:/Qt/6.9.3/msvc2022_64 ..")
     endif()
 endif()
+
+message(STATUS "Using Qt from: ${CMAKE_PREFIX_PATH}")
 
 find_package(Qt6 6.2 REQUIRED COMPONENTS Core Widgets Network)
 
