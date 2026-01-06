@@ -14,6 +14,28 @@
       }
     },
     {
+      "name": "qt-debug",
+      "displayName": "Qt Creator Debug",
+      "description": "Debug build for Qt Creator",
+      "inherits": "Qt",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "qt-release",
+      "displayName": "Qt Creator Release",
+      "description": "Release build for Qt Creator",
+      "inherits": "Qt",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
       "name": "vs-debug",
       "displayName": "Visual Studio Debug",
       "description": "Debug build using Visual Studio",
@@ -38,7 +60,7 @@
   ],
   "vendor": {
     "qt-project.org/Presets": {
-      "checksum": "tI/9Ob4D7hypxzpNua8N6Rlc/2Y="
+      "checksum": "UYkRlb/R2Q0vcCOlSf81KtjmaLU="
     }
   }
 }
