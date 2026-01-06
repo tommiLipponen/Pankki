@@ -1,0 +1,8 @@
+# Tests folder
+# Unit and integration tests (bonus feature: +1 grade impact)
+# Using Jest and Supertest
+# Files to create:
+# - auth.test.js
+# - account.test.js
+# - transaction.test.js
+# Run tests: npm test

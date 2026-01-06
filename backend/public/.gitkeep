@@ -1,0 +1,5 @@
+# Public folder
+# Static files accessible via HTTP
+# Used for image upload bonus feature (vaikutus arvosanaan +1)
+# Example: Customer profile images served to Qt application
+# Access pattern: http://localhost:3000/public/images/customer123.jpg

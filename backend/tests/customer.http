@@ -1,0 +1,58 @@
+### Bank ATM API - Customer CRUD Tests
+### Use REST Client extension to run these requests
+
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### Health Check
+GET {{baseUrl}}/health
+
+### Get All Customers
+GET {{baseUrl}}/api/customers
+
+### Create Customer 1
+POST {{baseUrl}}/api/customers
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Matti",
+  "lastName": "Meikäläinen",
+  "address": "Kauppurienkatu 1, 90100 Oulu"
+}
+
+### Create Customer 2
+POST {{baseUrl}}/api/customers
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Maija",
+  "lastName": "Virtanen",
+  "address": "Isokatu 5, 90100 Oulu"
+}
+
+### Get Customer by ID (change ID as needed)
+GET {{baseUrl}}/api/customers/1
+
+### Update Customer (change ID as needed)
+PUT {{baseUrl}}/api/customers/1
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Matti",
+  "lastName": "Meikäläinen",
+  "address": "Torikatu 10, 90100 Oulu"
+}
+
+### Delete Customer (change ID as needed)
+DELETE {{baseUrl}}/api/customers/2
+
+### Test Validation - Missing Fields
+POST {{baseUrl}}/api/customers
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Test"
+}
+
+### Test Not Found - Get Invalid ID
+GET {{baseUrl}}/api/customers/999

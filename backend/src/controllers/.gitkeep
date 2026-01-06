@@ -1,0 +1,4 @@
+# Controllers folder
+# Contains business logic for handling HTTP requests
+# Each controller handles operations for a specific resource (customers, accounts, cards, transactions)
+# Example: authController.js, accountController.js, transactionController.js
