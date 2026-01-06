@@ -10,6 +10,8 @@ endif()
 if(NOT DEFINED CMAKE_PREFIX_PATH OR CMAKE_PREFIX_PATH STREQUAL "")
     if(EXISTS "C:/Qt/6.8.5/msvc2022_64")
         set(CMAKE_PREFIX_PATH "C:/Qt/6.8.5/msvc2022_64")
+    elseif(EXISTS "C:/Qt/6.8.3/msvc2022_64")
+        set(CMAKE_PREFIX_PATH "C:/Qt/6.8.3/msvc2022_64")
     endif()
 endif()
 
