@@ -9,7 +9,7 @@ const customerController = require('../controllers/customerController');
  * @swagger
  * /api/customers:
  *   get:
- *     summary: Get all customers
+ *     summary: Get all customers now
  *     tags: [Customers]
  *     description: Retrieve a list of all customers from the database
  *     responses:
