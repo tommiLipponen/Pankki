@@ -17,9 +17,18 @@
 - ✅ API connection test UI
 - ✅ UTF-8 support for Scandinavian characters (å, ä, ö)
 
-### In Progress
+### Week 3 In Progress
+- 🔄 Account data model
+- 🔄 Card data model (without authentication)
+- 🔄 Transaction data model
 - 🔄 ATM user interface design
-- 🔄 Account & Card data models
+
+### Week 4 Planned
+- 📋 JWT authentication flow
+- 📋 Card insertion screen
+- 📋 PIN entry screen
+- 📋 Token management
+- 📋 Protected API requests
 
 ---
 

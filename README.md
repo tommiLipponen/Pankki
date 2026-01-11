@@ -23,20 +23,29 @@ A simulated ATM (Automated Teller Machine) banking system with a Qt desktop appl
 
 **Target Grade:** [1-5]
 
-**Features Implemented:**
-- [ ] Debit card support
-- [ ] Credit card support (grade 3+)
-- [ ] Dual cards (grade 5)
+**Current Progress:**
+
+✅ **Week 2 Complete:**
+- Customer CRUD operations
+- Swagger API documentation
+- CI/CD pipeline with GitHub Actions
+- Azure MySQL + Prisma ORM
+- Qt C++ frontend connected to API
+
+🔄 **Week 3 In Progress:**
+- Accounts, Cards, Transactions tables
+- Basic banking operations
+
+📋 **Upcoming Features:**
+- [ ] JWT authentication (Week 4) - Card + PIN verification
 - [ ] PIN validation with timeout
 - [ ] Card locking after 3 failed attempts
 - [ ] Balance inquiry
-- [ ] Cash withdrawal (fixed amounts)
-- [ ] Custom withdrawal amounts (grade 3+)
+- [ ] Cash withdrawal operations
 - [ ] Transaction history
-- [ ] Transaction browsing (grade 4+)
-- [ ] All CRUD operations (grade 2+)
-- [ ] Swagger documentation (bonus +1)
-- [ ] CI/CD pipeline (bonus +1)
+- [ ] Debit card support
+- [ ] Credit card support (grade 3+)
+- [ ] Dual cards (grade 5)
 
 ---
 
@@ -44,19 +53,20 @@ A simulated ATM (Automated Teller Machine) banking system with a Qt desktop appl
 
 ### Backend
 - **Runtime:** Node.js 22 LTS
-- **Framework:** Express.js 5.2
+- **Framework:** Express.js
 - **ORM:** Prisma 5.22.0
-- **Database:** Azure MySQL Flexible Server
-- **Testing:** Node:test (native) + supertest
-- **Documentation:** Swagger UI / OpenAPI 3.0
-- **Deployment:** Azure App Service (Basic B1)
-- **CI/CD:** GitHub Actions (with automated testing & migrations)
+- **Database:** Azure MySQL
+- **Authentication:** JWT (Week 4)
+- **Testing:** Jest
+- **Documentation:** Swagger/OpenAPI
+- **CI/CD:** GitHub Actions
+- **Deployment:** Azure App Service
 
 ### Frontend
 - **Framework:** Qt 6 (C++)
 - **Build System:** CMake
 - **HTTP Client:** Qt Network module
-- **IDE:** Visual Studio 2026 Professional
+- **IDE:** Visual Studio 2026 Pro / Qt Creator
 
 ### Development Tools
 - **Version Control:** Git + GitHub
@@ -180,19 +190,20 @@ OpenAPI Spec (for Qt): `http://localhost:3000/api-docs.json`
 
 ## 📡 API Endpoints
 
-### Authentication
-- `POST /api/auth/validate-pin` - Validate card and PIN
+### Current (Week 2)
+- **Customers:** Full CRUD operations
+- **Health Check:** `/health`
+- **API Docs:** `/api-docs`
 
-### Accounts
-- `GET /api/accounts/:id` - Get account details
-- `GET /api/accounts/:id/balance` - Check balance
-- `GET /api/accounts/:id/transactions` - Transaction history
+### Planned Week 3
+- **Accounts:** Full CRUD + balance management
+- **Cards:** Full CRUD (without auth)
+- **Transactions:** Create and view history
 
-### Transactions
-- `POST /api/transactions/withdraw` - Withdraw money
-
-### CRUD Operations
-Full CRUD for: Customers, Accounts, Cards, Transactions
+### Planned Week 4 - Authentication
+- `POST /api/auth/insert-card` - Step 1: Validate card number
+- `POST /api/auth/verify-pin` - Step 2: Verify PIN, get JWT token
+- All endpoints protected with: `Authorization: Bearer {token}`
 
 ---
 
@@ -247,16 +258,16 @@ Compiled executables available in GitHub Releases
 
 ## 📅 Project Timeline
 
-| Week | Milestone |
-|------|-----------|
-| 1 | Project setup, ER diagram approved |
-| 2 | CRUD operations demo, project document complete |
-| 3 | Technical specification complete |
-| 4 | Authentication & basic transactions |
-| 5 | Full transaction system |
-| 6 | UI polish & testing |
-| 7 | Poster & demo video |
-| 8 | Final presentation |
+| Week | Milestone | Status |
+|------|-----------|--------|
+| 1 | Project setup, ER diagram approved | ✅ Complete |
+| 2 | CRUD operations demo, project document complete | ✅ Complete |
+| 3 | Accounts/Cards/Transactions tables & APIs | 🔄 In Progress |
+| 4 | JWT authentication (card + PIN) | 📋 Planned |
+| 5 | Full transaction system & error handling | 📋 Planned |
+| 6 | UI polish & comprehensive testing | 📋 Planned |
+| 7 | Technical documentation & poster | 📋 Planned |
+| 8 | Final presentation & demo | 📋 Planned |
 
 ---
 
@@ -314,12 +325,26 @@ MIT License - Educational Project
 - [x] Successfully connected frontend to Azure backend
 - [x] API connection test UI created
 - [x] UTF-8 support for Scandinavian characters verified
-- [ ] ATM user interface design (in progress)
-- [ ] Account & Card data models (planned)
+- [x] Repository migrated to professor's organization
+- [x] Team expanded to 4 members
+- [x] Local MySQL development environment setup
+
+**Week 3 (Current):**
+- [ ] Accounts table and API endpoints
+- [ ] Cards table (without authentication)
+- [ ] Transactions table
+- [ ] Qt models for Account, Card, Transaction
+- [ ] Basic ATM UI design
+
+**Week 4 (Planned):**
+- [ ] JWT authentication implementation
+- [ ] Card + PIN verification flow
+- [ ] Protected API endpoints
+- [ ] Qt authentication screens
 
 ### Team Meetings
 <!-- Add meeting notes -->
 
 ---
 
-**Last Updated:** December 22, 2025
+**Last Updated:** January 11, 2026
