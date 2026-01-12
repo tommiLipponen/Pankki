@@ -40,7 +40,7 @@ model Account {
 
   customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   cards       Card[]
-
+  transactions Transactions[]
   @@map("accounts")
 }
 
@@ -58,6 +58,34 @@ model Card {
 
   customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-
+ 
   @@map("cards")
+}
+
+// Transactions model
+model Transactions {
+  id          Int      @id @default(autoincrement())
+  accountId   Int     @map("account_id")
+  transactionType TransactionType @map("transaction_type")
+  cardMode    CardMode  @map("card_mode")
+  amount      Decimal    @db.Decimal(10, 2)
+  balanceAfter Decimal    @map("balance_after")@db.Decimal(10, 2)
+  description String?   @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+// Transaction types
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER_IN
+  TRANSFER_OUT
+}
+
+// Cardmode
+enum CardMode {
+  DEBIT
+  CREDIT
 }
