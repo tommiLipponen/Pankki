@@ -21,6 +21,8 @@ model Customer {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   accounts  Account[]
+  cards     Card[]
+  
   
   @@map("customers")
 }
@@ -37,6 +39,25 @@ model Account {
   isActive    Boolean  @map("is_active") @default(true)
 
   customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  cards       Card[]
 
   @@map("accounts")
+}
+
+// Card model
+model Card {
+  id          Int      @id @default(autoincrement())
+  cardNumber  String   @map("card_number") @db.VarChar(16)
+  pinHash     String   @map("pin_hash") @db.VarChar(255)
+  customerId   Int      @map("customer_id")
+  accountId   Int      @map("account_id")
+  isLocked    DateTime @map("is_locked")
+  isActive    Boolean  @map("is_active") @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("cards")
 }
