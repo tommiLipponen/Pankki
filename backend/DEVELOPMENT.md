@@ -4,6 +4,16 @@
 
 This guide explains how to add new database tables and API endpoints to the Bank ATM system.
 
+## 📅 Current Focus (Week 3)
+
+**Priority Tasks:**
+1. Add Accounts table (follow this guide)
+2. Add Cards table (no authentication yet)
+3. Add Transactions table
+4. Test all endpoints
+
+**Week 4:** JWT authentication will be added as enhancement to working system
+
 ---
 
 ## 📋 Table of Contents
