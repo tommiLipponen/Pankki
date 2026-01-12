@@ -20,5 +20,23 @@ model Customer {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  accounts  Account[]
+  
   @@map("customers")
+}
+
+// Accounts model
+model Account {
+  id          Int      @id @default(autoincrement())
+  customerId  Int      @map("customer_id")
+  accountNumber String   @map("account_number") @db.VarChar(20)
+  balance     Decimal    @db.Decimal(10, 2)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  creditLimit  Decimal    @map("credit_limit") @db.Decimal(10, 2) @default(0.00)
+  isActive    Boolean  @map("is_active") @default(true)
+
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
 }
