@@ -44,7 +44,7 @@ model Account {
   @@map("accounts")
 }
 
-// Card modell
+// Card model
 model Card {
   id          Int      @id @default(autoincrement())
   cardNumber  String   @map("card_number") @db.VarChar(16)
