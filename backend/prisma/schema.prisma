@@ -20,5 +20,44 @@ model Customer {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  accounts  Account[]
+  cards     Card[]
+  
+  
   @@map("customers")
+}
+
+// Accounts model
+model Account {
+  id          Int      @id @default(autoincrement())
+  customerId  Int      @map("customer_id")
+  accountNumber String   @map("account_number") @db.VarChar(20)
+  balance     Decimal    @db.Decimal(10, 2)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  creditLimit  Decimal    @map("credit_limit") @db.Decimal(10, 2) @default(0.00)
+  isActive    Boolean  @map("is_active") @default(true)
+
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  cards       Card[]
+
+  @@map("accounts")
+}
+
+// Card model
+model Card {
+  id          Int      @id @default(autoincrement())
+  cardNumber  String   @map("card_number") @db.VarChar(16)
+  pinHash     String   @map("pin_hash") @db.VarChar(255)
+  customerId   Int      @map("customer_id")
+  accountId   Int      @map("account_id")
+  isLocked    DateTime @map("is_locked")
+  isActive    Boolean  @map("is_active") @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("cards")
 }
