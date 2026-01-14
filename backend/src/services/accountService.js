@@ -23,9 +23,11 @@ class AccountService {
     async createAccount(data) {
         return await prisma.account.create({
             data: {
-                username: data.username,
-                email: data.email,
-                passwordHash: data.passwordHash
+                customerId: data.customerId,
+                accountNumber: data.accountNumber,
+                balance: data.balance || 0.00,
+                creditLimit: data.creditLimit || 0.00,
+                isActive: data.isActive !== undefined ? data.isActive : true
             }
         });
     }
@@ -35,9 +37,10 @@ class AccountService {
         return await prisma.account.update({
             where: { id: parseInt(id) },
             data: {
-                username: data.username,
-                email: data.email,
-                passwordHash: data.passwordHash
+                accountNumber: data.accountNumber,
+                balance: data.balance,
+                creditLimit: data.creditLimit,
+                isActive: data.isActive
             }
         });
     }
