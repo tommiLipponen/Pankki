@@ -70,7 +70,7 @@ async function createTransaction(accountId, cardId, transactionType, cardMode, a
       }
     } else if (cardMode === 'CREDIT') {
       const creditLimit = parseFloat(account.creditLimit);
-      if (newBalance < -creditLimit) {
+      if (newBalance < account.creditLimit) {
         throw new Error(`Insufficient credit. Limit: ${creditLimit}, New balance would be: ${newBalance}`);
       }
     } else {
