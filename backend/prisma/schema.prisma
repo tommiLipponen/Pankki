@@ -31,7 +31,7 @@ model Customer {
 model Account {
   id          Int      @id @default(autoincrement())
   customerId  Int      @map("customer_id")
-  accountNumber String   @map("account_number") @db.VarChar(20)
+  accountNumber String   @unique @map("account_number") @db.VarChar(20)
   balance     Decimal    @db.Decimal(10, 2)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -40,40 +40,52 @@ model Account {
 
   customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   cards       Card[]
-  transactions Transactions[]
+  transactions Transaction[]
+  
+  @@index([customerId])
   @@map("accounts")
 }
 
 // Card model
 model Card {
   id          Int      @id @default(autoincrement())
-  cardNumber  String   @map("card_number") @db.VarChar(16)
+  cardNumber  String   @unique @map("card_number") @db.VarChar(16)
   pinHash     String   @map("pin_hash") @db.VarChar(255)
   customerId   Int      @map("customer_id")
   accountId   Int      @map("account_id")
-  isLocked    DateTime @map("is_locked")
+  expiryDate  DateTime @map("expiry_date")
+  isLocked    Boolean  @map("is_locked") @default(false)
   isActive    Boolean  @map("is_active") @default(true)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
- 
+  transactions Transaction[]
+  
+  @@index([customerId])
+  @@index([accountId])
   @@map("cards")
 }
 
 // Transactions model
-model Transactions {
+model Transaction {
   id          Int      @id @default(autoincrement())
   accountId   Int     @map("account_id")
+  cardId      Int     @map("card_id")
   transactionType TransactionType @map("transaction_type")
   cardMode    CardMode  @map("card_mode")
   amount      Decimal    @db.Decimal(10, 2)
-  balanceAfter Decimal    @map("balance_after")@db.Decimal(10, 2)
+  balanceAfter Decimal    @map("balance_after") @db.Decimal(10, 2)
   description String?   @db.VarChar(255)
   createdAt   DateTime  @default(now()) @map("created_at")
 
   account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  card        Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  
+  @@index([accountId])
+  @@index([cardId])
+  @@map("transactions")
 }
 
 // Transaction types
