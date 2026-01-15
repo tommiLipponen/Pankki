@@ -40,7 +40,7 @@ class CardController {
     // POST /api/cards
     async createCard(req, res, next) {
         try {
-            const { cardNumber, pinHash, customerId, accountId, expiryDate, isLocked, isActive } = req.body;
+            const { cardNumber, pinHash, customerId, accountId, expiryDate} = req.body;
 
             // Basic validation
             if (!cardNumber || !pinHash || !expiryDate || !customerId || !accountId) {
@@ -48,7 +48,14 @@ class CardController {
                     success: false,
                     message: "Missing required fields: cardNumber, pinHash, expiryDate, customerId, accountId"
                 });
-            } 
+            }
+            // Validate card number length
+            if (cardNumber.length !== 16) {
+                return res.status(400).json({
+                    success: false,
+                    message: "cardNumber must be 16 digits long"
+                });
+            }
             const card = await cardService.createCard(req.body);
 
             res.status(201).json({
@@ -57,10 +64,18 @@ class CardController {
                 message: "Card created successfully"
             });
         } catch (error) {
+            // Handle unique constraint violation for cardNumber
             if (error.code === 'P2002') {
                 return res.status(409).json({
                     success: false,
                     message: "Card with this cardNumber already exists"
+                });
+            }
+            //Handle foreign key constraint violation for customerId and accountId
+            if (error.code === 'P2003') {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid customerId or accountId does not exist"
                 });
             }
             next(error);
@@ -70,4 +85,71 @@ class CardController {
     // PUT /api/cards/:id
     async updateCard(req, res, next) {
         try {
-            const { cardNumber, pinHash, expiryDate, isLocked, isActive } = req.body;
+            const { cardNumber, pinHash,customerId,accountId, expiryDate, isLocked, isActive } = req.body;
+
+            // At least one field must be provided for update
+            if (!cardNumber && !pinHash && !customerId && !accountId && !expiryDate && isLocked === undefined && isActive === undefined) {
+                return res.status(400).json({
+                    success: false,
+                    message: "At least one field must be provided for update: cardNumber, pinHash, customerId, accountId, expiryDate, isLocked, isActive"
+                });
+            }
+            //Validate card number length if provided
+            if (cardNumber && cardNumber.length !== 16) {
+                return res.status(400).json({
+                    success: false,
+                    message: "cardNumber must be 16 digits long"
+                });
+            }
+            const card = await cardService.updateCard(req.params.id, req.body);
+
+            res.json({
+                success: true,
+                data: card,
+                message: "Card updated successfully"
+            });
+        } catch (error) {
+            if (error.code === 'P2025') {
+                return res.status(404).json({
+                    success: false,
+                    message: "Card not found"
+                });
+            }
+            if (error.code === 'P2002') {
+                return res.status(409).json({
+                    success: false,
+                    message: "Card with this cardNumber already exists"
+                });
+
+        }
+        if (error.code === 'P2003') {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid customerId or accountId does not exist"
+            });
+        }
+        next(error);
+    }
+            
+    }
+
+    // DELETE /api/cards/:id
+    async deleteCard(req, res, next) {
+        try {
+            await cardService.deleteCard(req.params.id);
+            res.json({
+                success: true,
+                message: "Card deleted successfully"
+            });
+        } catch (error) {
+            if (error.code === 'P2025') {
+                return res.status(404).json({
+                    success: false,
+                    message: "Card not found"
+                });
+            }
+            next(error);
+        }
+    }
+}
+module.exports = new CardController();
