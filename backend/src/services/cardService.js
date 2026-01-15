@@ -24,13 +24,11 @@ class CardService {
       data: { 
         cardNumber: data.cardNumber,
         pinHash: data.pinHash,
+        customerId: data.customerId,
+        accountId: data.accountId,
         expiryDate: data.expiryDate,
-        isActive: data.isActive,
-        isLocked: data.isLocked,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-
-       
+        isActive: data.isActive !== undefined ? data.isActive : true,
+        isLocked: data.isLocked !== undefined ? data.isLocked : false
       }
     });
     }
@@ -41,12 +39,11 @@ class CardService {
         data: {
         cardNumber: data.cardNumber,
         pinHash: data.pinHash,
+        customerId: data.customerId,
+        accountId: data.accountId,
         expiryDate: data.expiryDate,
         isActive: data.isActive,
-        isLocked: data.isLocked, 
-        updatedAt: new Date(),
-
-      
+        isLocked: data.isLocked
       }
     });
   }
