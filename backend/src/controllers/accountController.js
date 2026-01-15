@@ -61,6 +61,7 @@ class AccountController {
 
         } catch (error) {
             //Handle unique constraint violation for accountNumber
+            
             if (error.code === 'P2002') {
                 return res.status(409).json({
                     success: false,
