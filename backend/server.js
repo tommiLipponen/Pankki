@@ -11,6 +11,7 @@ const corsMiddleware = require('./src/middleware/cors');
 const { apiLimiter } = require('./src/middleware/rateLimiter');
 const errorHandler = require('./src/middleware/errorHandler');
 const customerRoutes = require('./src/routes/customerRoutes');
+const accountRoutes = require('./src/routes/accountRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -68,6 +69,7 @@ app.get('/api-docs.json', (req, res) => {
 
 // API Routes
 app.use('/api/customers', customerRoutes);
+app.use('/api/accounts', accountRoutes);
 
 // 404 handler
 app.use((req, res) => {
