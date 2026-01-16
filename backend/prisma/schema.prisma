@@ -28,6 +28,7 @@ model Customer {
 }
 
 // Accounts model
+// Supports dual card mode: DEBIT (balance >= 0) and CREDIT (balance >= -creditLimit)
 model Account {
   id          Int      @id @default(autoincrement())
   customerId  Int      @map("customer_id")
@@ -36,6 +37,8 @@ model Account {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
   creditLimit  Decimal    @map("credit_limit") @db.Decimal(10, 2) @default(0.00)
+  // Soft delete flag: false = account closed/suspended, transactions blocked
+  // Used for closing accounts without losing transaction history (regulatory requirement)
   isActive    Boolean  @map("is_active") @default(true)
 
   customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
@@ -47,6 +50,7 @@ model Account {
 }
 
 // Card model
+// Each card belongs to one account and can operate in DEBIT or CREDIT mode
 model Card {
   id          Int      @id @default(autoincrement())
   cardNumber  String   @unique @map("card_number") @db.VarChar(16)
@@ -54,7 +58,9 @@ model Card {
   customerId   Int      @map("customer_id")
   accountId   Int      @map("account_id")
   expiryDate  DateTime @map("expiry_date")
-  isLocked    Boolean  @map("is_locked") @default(false)
+  isLocked    Boolean  @map("is_locked") @default(false) // Temporary lock (wrong PIN attempts, fraud alert)
+  // Soft delete flag: false = card permanently deactivated (lost/stolen/expired)
+  // Checked in transactionService before allowing transactions
   isActive    Boolean  @map("is_active") @default(true)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -69,12 +75,14 @@ model Card {
 }
 
 // Transactions model
+// Immutable audit log of all account activity
+// cardMode tracks whether transaction used DEBIT or CREDIT mode for compliance
 model Transaction {
   id          Int      @id @default(autoincrement())
   accountId   Int     @map("account_id")
   cardId      Int     @map("card_id")
   transactionType TransactionType @map("transaction_type")
-  cardMode    CardMode  @map("card_mode")
+  cardMode    CardMode  @map("card_mode") // Records DEBIT/CREDIT mode used at transaction time
   amount      Decimal    @db.Decimal(10, 2)
   balanceAfter Decimal    @map("balance_after") @db.Decimal(10, 2)
   description String?   @db.VarChar(255)
@@ -90,14 +98,14 @@ model Transaction {
 
 // Transaction types
 enum TransactionType {
-  DEPOSIT
-  WITHDRAWAL
-  TRANSFER_IN
-  TRANSFER_OUT
+  DEPOSIT       // Money added to account (ATM deposit, bank transfer in)
+  WITHDRAWAL    // Money removed from account (ATM withdrawal)
+  TRANSFER_IN   // Money received from another account
+  TRANSFER_OUT  // Money sent to another account
 }
 
-// Cardmode
+// Card mode - determines balance validation rules
 enum CardMode {
-  DEBIT
-  CREDIT
+  DEBIT   // Balance cannot go negative (balance >= 0)
+  CREDIT  // Balance can go negative up to creditLimit (balance >= -creditLimit)
 }
