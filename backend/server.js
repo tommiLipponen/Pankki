@@ -12,6 +12,7 @@ const { apiLimiter } = require('./src/middleware/rateLimiter');
 const errorHandler = require('./src/middleware/errorHandler');
 const customerRoutes = require('./src/routes/customerRoutes');
 const accountRoutes = require('./src/routes/accountRoutes');
+const cardRoutes = require('./src/routes/cardRoutes');
 const transactionRoutes = require('./src/routes/transactionRoutes');
 
 const app = express();
@@ -76,6 +77,7 @@ app.get('/api-docs.json', (req, res) => {
 // API Routes
 app.use('/api/customers', customerRoutes);
 app.use('/api/accounts', accountRoutes);
+app.use('/api/cards', cardRoutes);
 app.use('/api/transactions', transactionRoutes);
 
 // 404 handler

@@ -1,5 +1,5 @@
 // Transaction Routes
-// API endpoints for transaction operations
+// Defines all REST API endpoints for transaction operations
 
 const express = require('express');
 const router = express.Router();
@@ -7,83 +7,141 @@ const transactionController = require('../controllers/transactionController');
 
 /**
  * @swagger
- * /api/transactions/{accountId}:
- *   get:
- *     summary: Get transaction by accountId
- *     tags: [Transactions]
- *     description: Retrieve a specific transaction by their accountId
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Transaction accountId
- *     responses:
- *       200:
- *         description: Transaction found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
- *       404:
- *         description: Transaction not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
+ * tags:
+ *   name: Transactions
+ *   description: Transaction management endpoints with DEBIT/CREDIT card mode support
  */
-router.get('/:accountId', transactionController.getTransactionsByAccount.bind(transactionController));
 
 /**
  * @swagger
- * /api/transactions/{cardId}:
+ * /api/transactions/account/{accountId}:
  *   get:
- *     summary: Get transaction by cardId
+ *     summary: Get all transactions for a specific account
+ *     description: Retrieve transaction history for an account with optional limit. Supports DEBIT (balance >= 0) and CREDIT (balance >= -creditLimit) modes.
  *     tags: [Transactions]
- *     description: Retrieve a specific transaction by their cardId
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: accountId
  *         required: true
  *         schema:
  *           type: integer
- *         description: Transaction cardId
+ *         description: Account ID
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *         description: Maximum number of transactions to return
  *     responses:
  *       200:
- *         description: Transaction found
+ *         description: Transactions retrieved successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
- *       404:
- *         description: Transaction not found
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Transaction'
+ *                 count:
+ *                   type: integer
+ *                   example: 25
+ *       400:
+ *         description: Invalid accountId
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid accountId"
  *       500:
  *         description: Server error
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Server error"
  */
-router.get('/:cardId', transactionController.getTransactionsByCard.bind(transactionController));
+router.get('/account/:accountId', transactionController.getTransactionsByAccount.bind(transactionController));
+
+/**
+ * @swagger
+ * /api/transactions/card/{cardId}:
+ *   get:
+ *     summary: Get all transactions for a specific card
+ *     description: Retrieve transaction history for a card with optional limit
+ *     tags: [Transactions]
+ *     parameters:
+ *       - in: path
+ *         name: cardId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Card ID
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *         description: Maximum number of transactions to return
+ *     responses:
+ *       200:
+ *         description: Transactions retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Transaction'
+ *                 count:
+ *                   type: integer
+ *                   example: 15
+ *       400:
+ *         description: Invalid cardId
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid cardId"
+ *       500:
+ *         description: Server error
+ */
+router.get('/card/:cardId', transactionController.getTransactionsByCard.bind(transactionController));
 
 /**
  * @swagger
  * /api/transactions/{id}:
  *   get:
- *     summary: Get transaction by ID
+ *     summary: Get a specific transaction by ID
+ *     description: Retrieve details of a single transaction
  *     tags: [Transactions]
- *     description: Retrieve a specific transaction by their ID
  *     parameters:
  *       - in: path
  *         name: id
@@ -93,23 +151,32 @@ router.get('/:cardId', transactionController.getTransactionsByCard.bind(transact
  *         description: Transaction ID
  *     responses:
  *       200:
- *         description: Transaction found
+ *         description: Transaction retrieved successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Transaction'
  *       404:
  *         description: Transaction not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Transaction not found"
  *       500:
  *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/:id', transactionController.getTransactionById.bind(transactionController));
 
@@ -117,71 +184,168 @@ router.get('/:id', transactionController.getTransactionById.bind(transactionCont
  * @swagger
  * /api/transactions:
  *   post:
- *     summary: Create new transaction
+ *     summary: Create a new transaction
+ *     description: Create a new transaction (DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT). DEBIT mode requires balance >= 0. CREDIT mode allows balance >= -creditLimit.
  *     tags: [Transactions]
- *     description: Create a new transaction in the database
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/TransactionInput'
+ *             type: object
+ *             required:
+ *               - accountId
+ *               - cardId
+ *               - transactionType
+ *               - cardMode
+ *               - amount
+ *             properties:
+ *               accountId:
+ *                 type: integer
+ *                 example: 1
+ *                 description: Account ID
+ *               cardId:
+ *                 type: integer
+ *                 example: 1
+ *                 description: Card ID used for transaction
+ *               transactionType:
+ *                 type: string
+ *                 enum: [DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT]
+ *                 example: "WITHDRAWAL"
+ *                 description: Type of transaction
+ *               cardMode:
+ *                 type: string
+ *                 enum: [DEBIT, CREDIT]
+ *                 example: "DEBIT"
+ *                 description: "DEBIT: balance must stay >= 0. CREDIT: balance can go to -creditLimit"
+ *               amount:
+ *                 type: number
+ *                 format: decimal
+ *                 example: 50.00
+ *                 description: Transaction amount (positive number)
+ *               description:
+ *                 type: string
+ *                 maxLength: 255
+ *                 example: "ATM withdrawal"
+ *                 description: Optional transaction description
  *     responses:
  *       201:
  *         description: Transaction created successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Transaction'
+ *                 message:
+ *                   type: string
+ *                   example: "Transaction created successfully"
  *       400:
- *         description: Invalid input - missing required fields
+ *         description: Validation error or business logic error (insufficient funds, locked card, invalid mode, etc.)
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Insufficient funds for DEBIT transaction"
  *       500:
  *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/', transactionController.createTransaction.bind(transactionController));
 
 /**
  * @swagger
- * /api/transactions/{transfer}:
- *   get:
- *     summary: Transfer money between accounts
+ * /api/transactions/transfer:
+ *   post:
+ *     summary: Transfer funds between accounts
+ *     description: Transfer funds from one account to another. Creates two transactions (TRANSFER_OUT and TRANSFER_IN). Validates card belongs to source account and respects DEBIT/CREDIT mode rules.
  *     tags: [Transactions]
- *     description: Transfer money between two accounts
- *     parameters:
- *       - in: path
- *         name: transfer
- *         required: true
- *         schema:
- *           type: integer
- *         description: Transaction ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - fromAccountId
+ *               - toAccountId
+ *               - cardId
+ *               - cardMode
+ *               - amount
+ *             properties:
+ *               fromAccountId:
+ *                 type: integer
+ *                 example: 1
+ *                 description: Source account ID (funds withdrawn from)
+ *               toAccountId:
+ *                 type: integer
+ *                 example: 2
+ *                 description: Destination account ID (funds deposited to)
+ *               cardId:
+ *                 type: integer
+ *                 example: 1
+ *                 description: Card ID used for transfer (must belong to source account)
+ *               cardMode:
+ *                 type: string
+ *                 enum: [DEBIT, CREDIT]
+ *                 example: "DEBIT"
+ *                 description: "DEBIT: balance must stay >= 0. CREDIT: balance can go to -creditLimit"
+ *               amount:
+ *                 type: number
+ *                 format: decimal
+ *                 example: 100.00
+ *                 description: Transfer amount (positive number)
+ *               description:
+ *                 type: string
+ *                 maxLength: 255
+ *                 example: "Transfer to savings account"
+ *                 description: Optional transfer description
  *     responses:
- *       200:
- *         description: Transaction found
+ *       201:
+ *         description: Transfer completed successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
- *       404:
- *         description: Transaction not found
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     transferOut:
+ *                       $ref: '#/components/schemas/Transaction'
+ *                     transferIn:
+ *                       $ref: '#/components/schemas/Transaction'
+ *                 message:
+ *                   type: string
+ *                   example: "Transfer completed successfully"
+ *       400:
+ *         description: Validation error or business logic error (cannot transfer to same account, insufficient funds, locked card, etc.)
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Cannot transfer to the same account"
  *       500:
  *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:transfer', transactionController.transfer.bind(transactionController));
+router.post('/transfer', transactionController.transfer.bind(transactionController));
 
 module.exports = router;
