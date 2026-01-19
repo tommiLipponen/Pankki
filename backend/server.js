@@ -16,6 +16,11 @@ const accountRoutes = require('./src/routes/accountRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy - Required for Azure App Service
+// Allows Express to trust X-Forwarded-* headers from nginx proxy
+// Enables correct client IP detection for rate limiting and logging
+app.set('trust proxy', true);
+
 // Middleware
 app.use(corsMiddleware);
 app.use(apiLimiter); // Rate limiting

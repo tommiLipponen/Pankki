@@ -13,6 +13,9 @@ const apiLimiter = rateLimit({
   },
   standardHeaders: true, // Return rate limit info in headers
   legacyHeaders: false,
+  // Use standard IP from req.ip (works with trust proxy)
+  // Express sets req.ip from X-Forwarded-For when trust proxy is enabled
+  standardHeaders: 'draft-7',
   // Skip rate limiting for health check
   skip: (req) => req.path === '/health'
 });
@@ -25,7 +28,7 @@ const writeOperationsLimiter = rateLimit({
     success: false,
     message: 'Too many create/update/delete requests, please try again later.'
   },
-  standardHeaders: true,
+  standardHeaders: 'draft-7',
   legacyHeaders: false
 });
 
