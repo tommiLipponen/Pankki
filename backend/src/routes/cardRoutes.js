@@ -1,5 +1,5 @@
 // Card Routes
-// API endpoints for card operations
+// API endpoints for card management
 
 const express = require('express');
 const router = express.Router();
@@ -7,34 +7,49 @@ const cardController = require('../controllers/cardController');
 
 /**
  * @swagger
+ * tags:
+ *   name: Cards
+ *   description: Card management endpoints
+ */
+
+/**
+ * @swagger
  * /api/cards:
- *  get:
- *   summary: Retrieve a list of cards
- *   tags: [Cards]
- *   responses:
- *     200:
- *       description: A list of cards
- *       content:
- *         application/json:
- *           schema:
- *            type: object
- *            properties:
- *             success:
- *              type: boolean
- *              example: true
- *             data:
- *              type: array
- *              items:
- *                $ref: '#/components/schemas/Card'
- *            count:
- *             type: integer
- *             example: 5
- *     500:
- *       description: Server error
- *       content:
- *        application/json:
- *         schema:
- *          $ref: '#/components/schemas/ErrorResponse'
+ *   get:
+ *     summary: Get all cards
+ *     description: Retrieve a list of all cards in the system
+ *     tags: [Cards]
+ *     responses:
+ *       200:
+ *         description: List of cards retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Card'
+ *                 count:
+ *                   type: integer
+ *                   example: 5
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
  */
 router.get('/', cardController.getAllCards.bind(cardController));
 
@@ -42,9 +57,9 @@ router.get('/', cardController.getAllCards.bind(cardController));
  * @swagger
  * /api/cards/{id}:
  *   get:
- *     summary: Retrieve a specific card by its ID
- *     tags: [Cards]
+ *     summary: Get card by ID
  *     description: Retrieve a specific card by its ID
+ *     tags: [Cards]
  *     parameters:
  *       - in: path
  *         name: id
@@ -62,7 +77,7 @@ router.get('/', cardController.getAllCards.bind(cardController));
  *               properties:
  *                 success:
  *                   type: boolean
- *                 example: true
+ *                   example: true
  *                 data:
  *                   $ref: '#/components/schemas/Card'
  *       404:
@@ -74,16 +89,12 @@ router.get('/', cardController.getAllCards.bind(cardController));
  *               properties:
  *                 success:
  *                   type: boolean
- *                 example: false
+ *                   example: false
  *                 message:
  *                   type: string
- *                 example: Card not found
+ *                   example: Card not found
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
+ *         description: Internal server error
  */
 router.get('/:id', cardController.getCardById.bind(cardController));
 
@@ -92,8 +103,8 @@ router.get('/:id', cardController.getCardById.bind(cardController));
  * /api/cards:
  *   post:
  *     summary: Create a new card
+ *     description: Create a new card in the system
  *     tags: [Cards]
- *     description: Create a new card with the provided details
  *     requestBody:
  *       required: true
  *       content:
@@ -111,33 +122,33 @@ router.get('/:id', cardController.getCardById.bind(cardController));
  *                 type: string
  *                 minLength: 16
  *                 maxLength: 16
- *                 example: "1111111111111111"
- *                 description: 16-digit card number(UNIQUE)
+ *                 example: "1234567890123456"
+ *                 description: 16-digit card number (unique)
  *               pinHash:
  *                 type: string
- *                 example: "$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lui/9p2uJ8k7G2a"
- *                 description: Bcrypt hashed PIN code
+ *                 example: "$2b$10$abcd..."
+ *                 description: Hashed PIN for security
  *               customerId:
  *                 type: integer
  *                 example: 1
- *                 description: ID of the customer owning the card
+ *                 description: ID of the customer who owns this card
  *               accountId:
  *                 type: integer
  *                 example: 1
- *                 description: ID of the account associated with the card
+ *                 description: ID of the account linked to this card
  *               expiryDate:
  *                 type: string
  *                 format: date-time
- *                 example: "2025-12-31"
- *                 description: Expiry date of the card
+ *                 example: "2028-12-31T23:59:59.999Z"
+ *                 description: Card expiry date
  *               isLocked:
  *                 type: boolean
  *                 example: false
- *                 description: Lock status of the card(default: false)
+ *                 description: Lock status (default false)
  *               isActive:
  *                 type: boolean
  *                 example: true
- *                 description: Activation status of the card(default: true)
+ *                 description: Active status (default true)
  *     responses:
  *       201:
  *         description: Card created successfully
@@ -155,7 +166,7 @@ router.get('/:id', cardController.getCardById.bind(cardController));
  *                   type: string
  *                   example: Card created successfully
  *       400:
- *         description: Invalid input - missing required fields
+ *         description: Bad request - Missing fields or invalid customerId/accountId
  *         content:
  *           application/json:
  *             schema:
@@ -166,7 +177,7 @@ router.get('/:id', cardController.getCardById.bind(cardController));
  *                   example: false
  *                 message:
  *                   type: string
- *                   example: Missing required fields
+ *                   example: Missing required fields or cardNumber must be 16 digits long
  *       409:
  *         description: Card number already exists
  *         content:
@@ -179,11 +190,9 @@ router.get('/:id', cardController.getCardById.bind(cardController));
  *                   example: false
  *                 message:
  *                   type: string
- *                   example: Card number already exists
+ *                   example: Card with this cardNumber already exists
  *       500:
- *         description: Server error
- *         content:
- *           application/json:
+ *         description: Internal server error
  */
 router.post('/', cardController.createCard.bind(cardController));
 
@@ -215,7 +224,7 @@ router.post('/', cardController.createCard.bind(cardController));
  *                 example: "1234567890123456"
  *               pinHash:
  *                 type: string
- *                 example: "$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lui/9p2uJ8k7G2a"
+ *                 example: "$2b$10$newHash..."
  *               customerId:
  *                 type: integer
  *                 example: 1
@@ -229,11 +238,11 @@ router.post('/', cardController.createCard.bind(cardController));
  *               isLocked:
  *                 type: boolean
  *                 example: true
- *                 description: Lock card (after wrong PIN attempts)
+ *                 description: Lock card (e.g., after wrong PIN attempts)
  *               isActive:
  *                 type: boolean
  *                 example: false
- *                 description: Deactivate card (lost/stolen)
+ *                 description: Deactivate card (e.g., lost/stolen)
  *             description: At least one field must be provided
  *     responses:
  *       200:
@@ -300,8 +309,8 @@ router.put('/:id', cardController.updateCard.bind(cardController));
  * /api/cards/{id}:
  *   delete:
  *     summary: Delete a card
+ *     description: Delete a card from the system (cascade deletes related transactions)
  *     tags: [Cards]
- *     description: Delete a card from the database(cascade deletes related transactions)
  *     parameters:
  *       - in: path
  *         name: id
@@ -319,10 +328,10 @@ router.put('/:id', cardController.updateCard.bind(cardController));
  *               properties:
  *                 success:
  *                   type: boolean
- *                 example: true
+ *                   example: true
  *                 message:
  *                   type: string
- *                 example: Card deleted successfully
+ *                   example: Card deleted successfully
  *       404:
  *         description: Card not found
  *         content:
@@ -332,15 +341,13 @@ router.put('/:id', cardController.updateCard.bind(cardController));
  *               properties:
  *                 success:
  *                   type: boolean
- *                 example: false
+ *                   example: false
  *                 message:
  *                   type: string
- *                 example: Card not found
+ *                   example: Card not found
  *       500:
- *         description: Server error
+ *         description: Internal server error
  */
 router.delete('/:id', cardController.deleteCard.bind(cardController));
 
 module.exports = router;
-
-// End of Card Routes
