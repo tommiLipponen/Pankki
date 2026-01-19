@@ -166,7 +166,7 @@ const options = {
             data: {
               oneOf: [
                 { $ref: '#/components/schemas/Customer' },
-                { 
+                {
                   type: 'array',
                   items: { $ref: '#/components/schemas/Customer' }
                 }
@@ -202,7 +202,95 @@ const options = {
       }
     }
   },
-  apis: ['./src/routes/*.js', './server.js']
+
+  Transaction: {
+    type: 'object',
+    required: ['accountId', 'amount', 'type'],
+    properties: {
+      id: {
+        type: 'integer',
+        description: 'Auto-generated transaction ID',
+        example: 1
+      },
+      accountId: {
+        type: 'integer',
+        description: 'Account ID associated with this transaction',
+        example: 1
+      },
+      cardId: {
+        type: 'integer',
+        description: 'Card ID associated with this transaction (NULL for system transactions)',
+        example: 1
+      },
+      amount: {
+        type: 'number',
+        format: 'decimal',
+        description: 'Transaction amount (positive for credit, negative for debit)',
+        example: -50.00
+      },
+      type: {
+        type: 'string',
+        enum: ['DEBIT', 'CREDIT'],
+        description: 'Transaction type (DEBIT or CREDIT)',
+        example: 'DEBIT'
+      },
+      createdAt: {
+        type: 'string',
+        format: 'date-time',
+        description: 'Timestamp when transaction occurred'
+      },
+      balanceAfter: {
+        type: 'number',
+        format: 'decimal',
+        description: 'Account balance after transaction',
+        example: 950.00
+      }
+    }
+  },
+  SuccessResponse: {
+    type: 'object',
+    properties: {
+      success: {
+        type: 'boolean',
+        example: true
+      },
+      data: {
+        oneOf: [
+          { $ref: '#/components/schemas/Customer' },
+          {
+            type: 'array',
+            items: { $ref: '#/components/schemas/Customer' }
+          }
+        ]
+      },
+      message: {
+        type: 'string',
+        example: 'Operation successful'
+      },
+      count: {
+        type: 'integer',
+        example: 10
+      }
+    },
+    ErrorResponse: {
+      type: 'object',
+      properties: {
+        success: {
+          type: 'boolean',
+          example: false
+        },
+        message: {
+          type: 'string',
+          example: 'Error message'
+        },
+        error: {
+          type: 'string',
+          description: 'Detailed error (development only)'
+        }
+      }
+    }
+  },
+  apis: ['./src/routes/*.js', 'server.js']
 };
 
 module.exports = swaggerJsdoc(options);
