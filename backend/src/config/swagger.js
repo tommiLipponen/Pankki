@@ -35,6 +35,10 @@ const options = {
         description: 'Customer management endpoints'
       },
       {
+        name: 'Accounts',
+        description: 'Account management endpoints'
+      },
+      {
         name: 'Health',
         description: 'System health check'
       }
@@ -101,6 +105,54 @@ const options = {
               description: 'Customer address',
               maxLength: 255,
               example: 'Kauppurienkatu 1, 90100 Oulu'
+            }
+          }
+        },
+        Account: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              description: 'Auto-generated account ID',
+              example: 1
+            },
+            customerId: {
+              type: 'integer',
+              description: 'Customer ID who owns this account',
+              example: 1
+            },
+            accountNumber: {
+              type: 'string',
+              description: 'Unique account number',
+              maxLength: 20,
+              example: 'FI1234567890123456'
+            },
+            balance: {
+              type: 'number',
+              format: 'decimal',
+              description: 'Current account balance',
+              example: 1000.00
+            },
+            creditLimit: {
+              type: 'number',
+              format: 'decimal',
+              description: 'Credit limit for CREDIT mode transactions',
+              example: 500.00
+            },
+            isActive: {
+              type: 'boolean',
+              description: 'Account active status (soft delete)',
+              example: true
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Timestamp when account was created'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Timestamp when account was last updated'
             }
           }
         },
