@@ -198,94 +198,65 @@ const options = {
               description: 'Detailed error (development only)'
             }
           }
-        }
-      }
-    }
-  },
-
-  Transaction: {
-    type: 'object',
-    required: ['accountId', 'amount', 'type'],
-    properties: {
-      id: {
-        type: 'integer',
-        description: 'Auto-generated transaction ID',
-        example: 1
-      },
-      accountId: {
-        type: 'integer',
-        description: 'Account ID associated with this transaction',
-        example: 1
-      },
-      cardId: {
-        type: 'integer',
-        description: 'Card ID associated with this transaction (NULL for system transactions)',
-        example: 1
-      },
-      amount: {
-        type: 'number',
-        format: 'decimal',
-        description: 'Transaction amount (positive for credit, negative for debit)',
-        example: -50.00
-      },
-      type: {
-        type: 'string',
-        enum: ['DEBIT', 'CREDIT'],
-        description: 'Transaction type (DEBIT or CREDIT)',
-        example: 'DEBIT'
-      },
-      createdAt: {
-        type: 'string',
-        format: 'date-time',
-        description: 'Timestamp when transaction occurred'
-      },
-      balanceAfter: {
-        type: 'number',
-        format: 'decimal',
-        description: 'Account balance after transaction',
-        example: 950.00
-      }
-    }
-  },
-  SuccessResponse: {
-    type: 'object',
-    properties: {
-      success: {
-        type: 'boolean',
-        example: true
-      },
-      data: {
-        oneOf: [
-          { $ref: '#/components/schemas/Customer' },
-          {
-            type: 'array',
-            items: { $ref: '#/components/schemas/Customer' }
+        },
+        Transaction: {
+          type: 'object',
+          required: ['accountId', 'transactionType', 'amount'],
+          properties: {
+            id: {
+              type: 'integer',
+              description: 'Auto-generated transaction ID',
+              example: 1
+            },
+            accountId: {
+              type: 'integer',
+              description: 'Account ID associated with transaction',
+              example: 1
+            },
+            cardId: {
+              type: 'integer',
+              nullable: true,
+              description: 'Card ID used for transaction (null for system transactions)',
+              example: 1
+            },
+            transactionType: {
+              type: 'string',
+              enum: ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER_IN', 'TRANSFER_OUT'],
+              description: 'Type of transaction',
+              example: 'WITHDRAWAL'
+            },
+            cardMode: {
+              type: 'string',
+              enum: ['DEBIT', 'CREDIT'],
+              nullable: true,
+              description: 'Card mode at time of transaction. DEBIT: balance >= 0. CREDIT: balance >= -creditLimit',
+              example: 'DEBIT'
+            },
+            amount: {
+              type: 'number',
+              format: 'decimal',
+              description: 'Transaction amount (always positive)',
+              example: 50.00
+            },
+            balanceAfter: {
+              type: 'number',
+              format: 'decimal',
+              description: 'Account balance after transaction',
+              example: 450.00
+            },
+            description: {
+              type: 'string',
+              maxLength: 255,
+              nullable: true,
+              description: 'Optional transaction description',
+              example: 'ATM withdrawal'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Timestamp when transaction was created'
+            }
           }
-        ]
-      },
-      message: {
-        type: 'string',
-        example: 'Operation successful'
-      },
-      count: {
-        type: 'integer',
-        example: 10
-      }
-    },
-    ErrorResponse: {
-      type: 'object',
-      properties: {
-        success: {
-          type: 'boolean',
-          example: false
-        },
-        message: {
-          type: 'string',
-          example: 'Error message'
-        },
-        error: {
-          type: 'string',
-          description: 'Detailed error (development only)'
         }
       }
     }
