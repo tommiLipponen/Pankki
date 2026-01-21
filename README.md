@@ -330,9 +330,9 @@ MIT License - Educational Project
 - [x] Local MySQL development environment setup
 
 **Week 3 (Current):**
-- [ ] Accounts table and API endpoints
-- [ ] Cards table (without authentication)
-- [ ] Transactions table
+- [x] Accounts table and API endpoints
+- [x] Cards table (without authentication)
+- [x] Transactions table
 - [ ] Qt models for Account, Card, Transaction
 - [ ] Basic ATM UI design
 
