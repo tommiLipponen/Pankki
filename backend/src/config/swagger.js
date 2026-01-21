@@ -39,6 +39,14 @@ const options = {
         description: 'Account management endpoints'
       },
       {
+        name: 'Cards',
+        description: 'Card management endpoints'
+      },
+      {
+        name: 'Transactions',
+        description: 'Transaction processing endpoints with debit/credit mode support'
+      },
+      {
         name: 'Health',
         description: 'System health check'
       }
