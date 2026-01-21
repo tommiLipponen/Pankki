@@ -199,6 +199,67 @@ const options = {
             }
           }
         },
+
+        Card: {
+          type: 'object',
+          required: ['accountId', 'cardNumber', 'customerId','pinHash','expiryDate'],
+          properties: {
+            id: {
+              type: 'integer',
+              description: 'Auto-generated card ID',
+              example: 1
+            },
+            accountId: {
+              type: 'integer',
+              description: 'Account ID associated with this card',
+              example: 1
+            },
+            cardNumber: {
+              type: 'string',
+              description: 'Unique card number',
+              maxLength: 16,
+              minLength: 16,
+              example: '1234567812345678'
+            },
+            customerId: {
+              type: 'integer',
+              description: 'Customer ID who owns this card',
+              example: 1
+            },
+            pinHash: {
+              type: 'string',
+              description: 'Hashed PIN code for card authentication',
+              example: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'
+            },
+            expiryDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Card expiry date',
+              example: '2025-12-31T23:59:59Z'
+            },
+            isLocked: {
+              type: 'boolean',
+              description: 'Card lock status',
+              example: false
+            },
+            isActive: {
+              type: 'boolean',
+              description: 'Card active status (soft delete)',
+              example: true
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Timestamp when card was created'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Timestamp when card was last updated'
+            }
+          }
+        },
+
         Transaction: {
           type: 'object',
           required: ['accountId', 'transactionType', 'amount'],
