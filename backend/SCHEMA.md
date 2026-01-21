@@ -138,9 +138,9 @@ Account  ──< Transaction (One account has many transactions)
 ║                    IMPLEMENTATION TIMELINE                                 ║
 ╚════════════════════════════════════════════════════════════════════════════╝
 
-✅ Week 2 (Done):        customers
-🔨 Week 3 (In Progress): accounts, cards (with pinHash), transactions
-🔐 Week 4 (Planned):     Implement JWT auth (hash PINs, verify, generate tokens)
+✅ Week 2 (Complete):    customers
+✅ Week 3 (Complete):    accounts, cards (with pinHash), transactions
+🔨 Week 4 (In Progress): Implement JWT auth (hash PINs, verify, generate tokens)
 
 
 ╔════════════════════════════════════════════════════════════════════════════╗
@@ -214,33 +214,36 @@ Table Name Mapping:
 
 ## Implementation Checklist
 
-### Week 3 Tasks:
+### Week 3 Tasks: ✅ (Complete)
 
-- [ ] **Accounts Table**
-  - [ ] Add model to schema.prisma
-  - [ ] Run migration
-  - [ ] Create accountService.js
-  - [ ] Create accountRoutes.js
-  - [ ] Test all CRUD endpoints in Swagger
-  - [ ] Verify cascade deletion
+- ✅ **Accounts Table**
+  - ✅ Add model to schema.prisma
+  - ✅ Run migration
+  - ✅ Create accountService.js
+  - ✅ Create accountController.js
+  - ✅ Create accountRoutes.js
+  - ✅ Test all CRUD endpoints in Swagger
+  - ✅ Verify cascade deletion
 
-- [ ] **Cards Table**
-  - [ ] Add model with pinHash field
-  - [ ] Run migration
-  - [ ] Create cardService.js
-  - [ ] Create cardRoutes.js
-  - [ ] Test all CRUD endpoints in Swagger
-  - [ ] Verify cascade deletion
+- ✅ **Cards Table**
+  - ✅ Add model with pinHash field
+  - ✅ Run migration
+  - ✅ Create cardService.js
+  - ✅ Create cardController.js
+  - ✅ Create cardRoutes.js
+  - ✅ Test all CRUD endpoints in Swagger
+  - ✅ Verify cascade deletion
 
-- [ ] **Transactions Table**
-  - [ ] Add model with cardMode enum
-  - [ ] Run migration
-  - [ ] Create transactionService.js
-  - [ ] Create transactionRoutes.js
-  - [ ] Implement balance validation logic
-  - [ ] Test debit mode (can't go negative)
-  - [ ] Test credit mode (can go to -creditLimit)
-  - [ ] Verify cascade deletion
+- ✅ **Transactions Table**
+  - ✅ Add model with cardMode enum
+  - ✅ Run migration
+  - ✅ Create transactionService.js
+  - ✅ Create transactionController.js
+  - ✅ Create transactionRoutes.js
+  - ✅ Implement balance validation logic (DEBIT/CREDIT modes)
+  - ✅ Test debit mode (balance must stay >= 0)
+  - ✅ Test credit mode (balance can go to -creditLimit)
+  - ✅ Verify cascade deletion
 
 ### Week 4 Tasks:
 

@@ -4,15 +4,19 @@
 
 This guide explains how to add new database tables and API endpoints to the Bank ATM system.
 
-## 📅 Current Focus (Week 3)
+## 📅 Current Status
 
-**Priority Tasks:**
-1. Add Accounts table (follow this guide)
-2. Add Cards table (no authentication yet)
-3. Add Transactions table
-4. Test all endpoints
+**Week 3 Complete ✅:**
+1. ✅ Accounts table with DEBIT/CREDIT support
+2. ✅ Cards table with pinHash field
+3. ✅ Transactions table with cardMode tracking
+4. ✅ All endpoints tested and documented in Swagger
 
-**Week 4:** JWT authentication will be added as enhancement to working system
+**Week 4 Focus (Current):**
+- Implement JWT authentication
+- Add bcryptjs for PIN hashing
+- Create auth middleware
+- Two-step auth flow (card → PIN → JWT token)
 
 ---
 
