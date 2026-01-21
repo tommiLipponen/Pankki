@@ -1,12 +1,15 @@
 # Bank ATM Backend API
 
 REST API for Bank ATM System using Node.js, Express, and Prisma ORM.
-## 🚀 Current Status (Week 2 Complete)
+## 🚀 Current Status (Week 3 Complete)
 
 ✅ **Completed:**
 - Customer management (CRUD operations)
+- Account management with DEBIT/CREDIT modes
+- Card management with PIN hashing support
+- Transaction history with dual card mode tracking
+- Complete Swagger API documentation
 - MySQL database with Prisma ORM
-- API documentation with Swagger
 - Automated testing with Jest
 - CI/CD pipeline with GitHub Actions
 - Azure deployment
@@ -14,15 +17,15 @@ REST API for Bank ATM System using Node.js, Express, and Prisma ORM.
 
 ## 📋 Development Roadmap
 
-### Week 3: Core Banking Features (In Progress)
-- [ ] **Accounts Table** - Bank accounts linked to customers
-- [ ] **Cards Table** - ATM card information (without auth)
-- [ ] **Transactions Table** - Transaction history
-- [ ] **Account Operations** - Deposit, withdrawal, transfer endpoints
-- [ ] **Balance Management** - Account balance tracking
-- [ ] **Frontend Integration** - Connect Qt app to new endpoints
+### Week 3: Core Banking Features ✅ (Complete)
+- ✅ **Accounts Table** - Bank accounts with creditLimit support
+- ✅ **Cards Table** - ATM cards with pinHash field
+- ✅ **Transactions Table** - Full transaction history with cardMode
+- ✅ **Account Operations** - Deposit, withdrawal, transfer endpoints
+- ✅ **Balance Management** - DEBIT (balance >= 0) and CREDIT (balance >= -creditLimit) modes
+- ✅ **API Documentation** - Complete Swagger docs for all endpoints
 
-### Week 4: Security & Authentication
+### Week 4: Security & Authentication (Current Focus)
 - [ ] **JWT Authentication** - Two-step auth (card + PIN)
   - Card insertion simulation (validate card number)
   - PIN verification (4-digit code)
@@ -162,22 +165,37 @@ GET /api/customers → Authorization: Bearer {token}
 
 ## 📚 API Endpoints
 
-### Authentication
-- `POST /api/auth/validate-pin` - Validate card and PIN
+### Customers
+- `GET /api/customers` - List all customers
+- `GET /api/customers/:id` - Get customer by ID
+- `POST /api/customers` - Create new customer
+- `PUT /api/customers/:id` - Update customer
+- `DELETE /api/customers/:id` - Delete customer
 
 ### Accounts
-- `GET /api/accounts/:id` - Get account details
-- `GET /api/accounts/:id/balance` - Check balance
-- `GET /api/accounts/:id/transactions` - Get transaction history
+- `GET /api/accounts` - List all accounts
+- `GET /api/accounts/:id` - Get account by ID
+- `POST /api/accounts` - Create new account
+- `PUT /api/accounts/:id` - Update account
+- `DELETE /api/accounts/:id` - Delete account
+
+### Cards
+- `GET /api/cards` - List all cards
+- `GET /api/cards/:id` - Get card by ID
+- `POST /api/cards` - Create new card
+- `PUT /api/cards/:id` - Update card
+- `DELETE /api/cards/:id` - Delete card
 
 ### Transactions
-- `POST /api/transactions/withdraw` - Withdraw money
+- `GET /api/transactions/account/:accountId` - Get account transactions
+- `GET /api/transactions/card/:cardId` - Get card transactions
+- `GET /api/transactions/:id` - Get transaction by ID
+- `POST /api/transactions` - Create transaction (DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT)
+- `POST /api/transactions/transfer` - Transfer between accounts
 
-### CRUD Operations (Required for grade 2+)
-- Customers: GET, POST, PUT, DELETE
-- Accounts: GET, POST, PUT, DELETE
-- Cards: GET, POST, PUT, DELETE
-- Transactions: GET, POST
+### Authentication (Week 4)
+- `POST /api/auth/insert-card` - Validate card number
+- `POST /api/auth/verify-pin` - Verify PIN and get JWT token
 
 ## 🧪 Testing
 
