@@ -131,14 +131,13 @@ npm run prisma:studio
 
 ## 🗃️ Database Schema
 
-<!-- TODO: Add ER diagram image here after creating it -->
+**See [SCHEMA.md](SCHEMA.md) for complete database documentation with diagrams and relationships.**
 
-### Main Tables
-- `customers` - Customer information
-- `accounts` - Bank accounts (debit/credit)
-- `cards` - ATM cards with PIN
-- `transactions` - Transaction history
-- `card_accounts` - Linking table for dual cards (grade 5)
+### Main Tables (4 Total)
+- `customers` - Customer information (firstName, lastName, address)
+- `accounts` - Bank accounts with creditLimit for DEBIT/CREDIT modes
+- `cards` - ATM cards with hashed PINs (bcrypt) and expiry dates
+- `transactions` - Immutable transaction history with cardMode tracking
 
 ## � Authentication (Week 4)
 
