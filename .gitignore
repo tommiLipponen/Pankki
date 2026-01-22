@@ -28,6 +28,7 @@ backend/build/
 # Prisma
 backend/prisma/migrations/.migrate_lock
 backend/.prisma/
+backend/prisma/seed.js
 
 # Swagger/OpenAPI
 backend/swagger-output.json
@@ -56,9 +57,11 @@ bank-automat/build-*/
 bank-automat/cmake-build-*/
 bank-automat/out/
 frontend/build/                   # Qt Creator default build folder
+frontend/build/**                 # Everything inside build directory
 frontend/build-*/                 # Qt Creator with config suffix (build-Desktop-Debug, etc.)
 frontend/cmake-build-*/           # CLion build folders
 frontend/out/                     # Visual Studio build folder
+frontend/out/**                   # Everything inside out directory
 
 # Qt Creator specific files
 bank-automat/*.user
@@ -72,6 +75,7 @@ frontend/.qtcreator/
 
 # CMake generated files
 CMakeLists.txt.user              # Qt Creator CMake project settings
+**/CMakeUserPresets.json         # User-specific CMake presets (any location)
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
@@ -79,7 +83,6 @@ Makefile
 *.cmake                          # Generated .cmake files (not CMakeLists.txt or CMakePresets.json)
 !CMakeLists.txt                  # Keep CMakeLists.txt (not matched by *.cmake anyway)
 !CMakePresets.json               # Keep CMakePresets.json (shared team presets)
-CMakeUserPresets.json            # User-specific presets (absolute paths, don't commit)
 
 # Qt generated files (moc/uic/rcc)
 moc_*.cpp
@@ -111,7 +114,7 @@ qrc_*.cpp
 *.vsix
 
 # ==============================================================================
-# Visual Studio 2026 Professional
+# Visual Studio 2026 (Professional, Community, Enterprise)
 # ==============================================================================
 ## User-specific files
 *.rsuser
@@ -135,6 +138,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+out/
 
 ## Visual Studio cache/options directory
 .vs/
