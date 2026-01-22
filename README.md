@@ -342,9 +342,86 @@ MIT License - Educational Project
 - [ ] Protected API endpoints
 - [ ] Qt authentication screens
 
+---
+
+## 🔨 Remaining Backend Work
+
+### 🔴 Critical Priority (Week 4)
+
+#### 1. Authentication System
+- **Auth Routes:**
+  - `POST /api/auth/insert-card` - Validate card number exists
+  - `POST /api/auth/verify-pin` - Verify PIN hash, return JWT token
+- **JWT Middleware:**
+  - Token generation with expiry (e.g., 30 minutes)
+  - Token verification middleware for protected routes
+  - Optional: Refresh token logic
+- **Security:**
+  - bcrypt PIN hashing in seed.js (10 rounds)
+  - PIN verification using bcrypt.compare()
+  - JWT secret in environment variables
+
+#### 2. Protected Routes
+- Add JWT authentication middleware to all routes
+- Verify user owns the resource they're accessing
+- Middleware checks: `Authorization: Bearer {token}`
+
+### 🟡 Important Priority (Business Logic)
+
+#### 3. Transaction Business Logic
+- **POST Routes:**
+  - `POST /api/transactions/withdraw` - Check balance + credit limit
+  - `POST /api/transactions/deposit` - Add funds
+  - `POST /api/transactions/transfer` - Between accounts
+- **Validation:**
+  - Sufficient balance check (balance + credit_limit)
+  - Credit limit enforcement
+  - Update account balance after transaction
+- **Recording:**
+  - Create transaction record with `balance_after`
+  - Atomic operations (use Prisma transactions)
+
+#### 4. Card Security Features
+- **PIN Attempt Tracking:**
+  - Track failed PIN attempts (consider separate table or cache)
+  - Lock card after 3 consecutive failures
+  - Update `is_locked` timestamp
+- **Endpoints:**
+  - `POST /api/cards/:id/lock` - Manual lock
+  - `POST /api/cards/:id/unlock` - Admin unlock
+  - `GET /api/cards/:id/attempts` - Check attempt count
+
+### 🟢 Nice to Have
+
+#### 5. Validation & Error Handling
+- **Input Validation:**
+  - Use express-validator or Joi
+  - Sanitization for SQL injection prevention
+  - Custom validators for account numbers, card numbers
+- **Error Handler Middleware:**
+  - Centralized error handler
+  - Consistent JSON error responses
+  - Error logging
+
+#### 6. Seed File Implementation
+- Create `backend/prisma/seed.js` with:
+  - Multiple test customers
+  - Accounts (debit + credit types)
+  - Cards with bcrypt-hashed PINs (e.g., "1234")
+  - Sample transactions with correct balances
+- Document test credentials in README
+
+#### 7. Testing
+- Unit tests for business logic functions
+- Integration tests for auth flow
+- Transaction endpoint tests
+- Card locking mechanism tests
+
+---
+
 ### Team Meetings
 <!-- Add meeting notes -->
 
 ---
 
-**Last Updated:** January 11, 2026
+**Last Updated:** January 22, 2026
