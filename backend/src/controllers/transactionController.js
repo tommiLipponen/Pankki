@@ -91,6 +91,13 @@ class TransactionController {
         limit
       );
 
+      if (!transactions || transactions.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Transaction not found'
+        });
+      }
+
       res.json({
         success: true,
         data: transactions,
@@ -118,6 +125,13 @@ class TransactionController {
         parseInt(cardId),
         limit
       );
+
+      if (!transactions || transactions.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Transaction not found'
+        });
+      }
 
       res.json({
         success: true,
