@@ -32,12 +32,14 @@ A simulated ATM (Automated Teller Machine) banking system with a Qt desktop appl
 - Azure MySQL + Prisma ORM
 - Qt C++ frontend connected to API
 
-🔄 **Week 3 In Progress:**
+✅ **Week 3 Complete:**
 - Accounts, Cards, Transactions tables
 - Basic banking operations
+  
+🔄**Week 4 In Prosess:**
+- [ ] JWT authentication (Week 4) - Card + PIN verification
 
 📋 **Upcoming Features:**
-- [ ] JWT authentication (Week 4) - Card + PIN verification
 - [ ] PIN validation with timeout
 - [ ] Card locking after 3 failed attempts
 - [ ] Balance inquiry
@@ -262,8 +264,8 @@ Compiled executables available in GitHub Releases
 |------|-----------|--------|
 | 1 | Project setup, ER diagram approved | ✅ Complete |
 | 2 | CRUD operations demo, project document complete | ✅ Complete |
-| 3 | Accounts/Cards/Transactions tables & APIs | 🔄 In Progress |
-| 4 | JWT authentication (card + PIN) | 📋 Planned |
+| 3 | Accounts/Cards/Transactions tables & APIs | ✅ Complete |
+| 4 | JWT authentication (card + PIN) | 🔄 In Progress |
 | 5 | Full transaction system & error handling | 📋 Planned |
 | 6 | UI polish & comprehensive testing | 📋 Planned |
 | 7 | Technical documentation & poster | 📋 Planned |
