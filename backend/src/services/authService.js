@@ -94,7 +94,7 @@ class AuthService {
             { expiresIn: process.env.JWT_EXPIRES_IN || '60d' }
         );
 
-        // Return token and user information
+        // return token and user information
         return {
             token,
             expiresIn: process.env.JWT_EXPIRES_IN || '60d',
