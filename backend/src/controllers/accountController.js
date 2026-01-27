@@ -22,19 +22,19 @@ class AccountController {
     // GET /api/accounts/:id
     async getAccountById(req, res, next) {
         try {
-            // Authorization: User can only access their own account
-            if (req.user.accountId !== parseInt(req.params.id)) {
-                return res.status(403).json({
-                    success: false,
-                    message: "Access denied: You can only access your own account"
-                });
-            }
-
             const account = await accountService.getAccountById(req.params.id);
             if (!account) {
                 return res.status(404).json({
                     success: false,
                     message: "Account not found"
+                });
+            }
+
+            // Authorization: User can only access their own account
+            if (req.user.accountId !== account.id) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only access your own account"
                 });
             }
             res.json({
@@ -83,14 +83,6 @@ class AccountController {
     // PUT /api/accounts/:id
     async updateAccount(req, res, next) {
         try {
-            // Authorization: User can only update their own account
-            if (req.user.accountId !== parseInt(req.params.id)) {
-                return res.status(403).json({
-                    success: false,
-                    message: "Access denied: You can only update your own account"
-                });
-            }
-
             const {  accountNumber, balance, creditLimit, isActive } = req.body;
 
             // Atleast one field must be provided for update
@@ -98,6 +90,14 @@ class AccountController {
                 return res.status(400).json({
                     success: false,
                     message: "At least one field must be provided for update: accountNumber, balance, creditLimit, isActive"
+                });
+            }
+
+            // Authorization: User can only update their own account
+            if (req.user.accountId !== parseInt(req.params.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only update your own account"
                 });
             }       
             const account = await accountService.updateAccount(req.params.id, req.body);
