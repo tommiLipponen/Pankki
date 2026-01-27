@@ -3,13 +3,18 @@ const assert = require('node:assert');
 const request = require('supertest');
 
 const app = require('../server.js');
+const { getAuthToken } = require('./helpers/auth.helper');
 
 describe('Transaction API - Read Operations', () => {
   let testTransactionId;
   let testTransactionAccountId;
   let testTransactionCardId;
+  let authToken;
 
   before(async () => {
+    // Get JWT token for authentication
+    authToken = await getAuthToken(app);
+    
     // DYNAMIC TEST DATA FETCHING APPROACH
     // ====================================
     // This approach avoids hardcoding transaction IDs (e.g., assuming transaction ID 1 exists)
@@ -31,12 +36,16 @@ describe('Transaction API - Read Operations', () => {
     // - Require manual seed data management
     // - Create brittle tests dependent on external state
 
-    const accountsResponse = await request(app).get('/api/accounts');
+    const accountsResponse = await request(app)
+      .get('/api/accounts')
+      .set('Authorization', `Bearer ${authToken}`);
     if (accountsResponse.body.data && accountsResponse.body.data.length > 0) {
       const accountId = accountsResponse.body.data[0].id;
       
       // Try to get transactions for this account
-      const transactionsResponse = await request(app).get(`/api/transactions/account/${accountId}`);
+      const transactionsResponse = await request(app)
+        .get(`/api/transactions/account/${accountId}`)
+        .set('Authorization', `Bearer ${authToken}`);
       if (transactionsResponse.body.data && transactionsResponse.body.data.length > 0) {
         // Store whatever transaction data we find (IDs are dynamic, not hardcoded)
         testTransactionId = transactionsResponse.body.data[0].id;
@@ -54,13 +63,17 @@ describe('Transaction API - Read Operations', () => {
                 return;
             }
 
-            const response = await request(app).get(`/api/transactions/${testTransactionId}`);
+            const response = await request(app)
+              .get(`/api/transactions/${testTransactionId}`)
+              .set('Authorization', `Bearer ${authToken}`);
             assert.strictEqual(response.status, 200);
             assert.ok(response.body.data);
         });
 
         it('should return 404 for non-existent transaction id', async () => {
-            const response = await request(app).get('/api/transactions/99999');
+            const response = await request(app)
+              .get('/api/transactions/99999')
+              .set('Authorization', `Bearer ${authToken}`);
             assert.strictEqual(response.status, 404);
             assert.strictEqual(response.body.success, false);
             assert.ok(response.body.message.includes('not found'));
@@ -74,13 +87,17 @@ describe('Transaction API - Read Operations', () => {
                 return;
             }
 
-            const response = await request(app).get(`/api/transactions/account/${testTransactionAccountId}`);
+            const response = await request(app)
+              .get(`/api/transactions/account/${testTransactionAccountId}`)
+              .set('Authorization', `Bearer ${authToken}`);
             assert.strictEqual(response.status, 200);
             assert.ok(response.body.data);
         });
 
         it('should return 404 for non-existent account id', async () => {
-            const response = await request(app).get('/api/transactions/account/99999');
+            const response = await request(app)
+              .get('/api/transactions/account/99999')
+              .set('Authorization', `Bearer ${authToken}`);
             assert.strictEqual(response.status, 404);
             assert.strictEqual(response.body.success, false);
             assert.ok(response.body.message.includes('not found'));
@@ -94,13 +111,17 @@ describe('Transaction API - Read Operations', () => {
                 return;
             }
 
-            const response = await request(app).get(`/api/transactions/card/${testTransactionCardId}`);
+            const response = await request(app)
+              .get(`/api/transactions/card/${testTransactionCardId}`)
+              .set('Authorization', `Bearer ${authToken}`);
             assert.strictEqual(response.status, 200);
             assert.ok(response.body.data);
         });
 
         it('should return 404 for non-existent card id', async () => {
-            const response = await request(app).get('/api/transactions/card/99999');
+            const response = await request(app)
+              .get('/api/transactions/card/99999')
+              .set('Authorization', `Bearer ${authToken}`);
             assert.strictEqual(response.status, 404);
             assert.strictEqual(response.body.success, false);
             assert.ok(response.body.message.includes('not found'));

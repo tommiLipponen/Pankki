@@ -68,7 +68,7 @@ class AuthService {
         }
 
         // verify PIN using bcrypt
-        const isPinValid = await bcrypt.compare(pin, card.hashedPin);
+        const isPinValid = await bcrypt.compare(pin, card.pinHash);
 
         if (!isPinValid) {
             throw new Error("Invalid PIN");
