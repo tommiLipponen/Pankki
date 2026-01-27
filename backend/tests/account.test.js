@@ -59,8 +59,8 @@ describe('Account API - Read Operations', () => {
 
     it('should return 404 for non-existent account', async () => {
       const response = await request(app)
-        .set('Authorization', `Bearer ${authToken}`)
         .get('/api/accounts/99999')
+        .set('Authorization', `Bearer ${authToken}`)
         .expect('Content-Type', /json/)
         .expect(404);
 
