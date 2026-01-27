@@ -89,7 +89,7 @@ class AuthService {
         };
 
         const token = jwt.sign(
-            Payload,
+            tokenPayload,
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN || '60d' }
         );
@@ -103,7 +103,6 @@ class AuthService {
                 firstName: card.customer.firstName,
                 lastName: card.customer.lastName
             },
-
             account: {
                 id: card.account.id,
                 accountNumber: card.account.accountNumber,
@@ -111,8 +110,9 @@ class AuthService {
                 creditLimit: card.account.creditLimit ? parseFloat(card.account.creditLimit) : null
             }
         };
-    }}
+    }
+}
 
-        module.exports = new AuthService();
+module.exports = new AuthService();
 
 
