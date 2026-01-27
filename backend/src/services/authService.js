@@ -74,7 +74,7 @@ class AuthService {
             throw new Error("Invalid PIN");
         }
 
-        // validate card mode (ensure credit mode is availble if selected)
+        // Validate card mode (ensure credit mode is availble if selected)
 
         if (cardMode === "CREDIT" && (!card.account.creditLimit || card.account.creditLimit <= 0)) {
             throw new Error("CREDIT mode is not available for this card");
@@ -94,7 +94,7 @@ class AuthService {
             { expiresIn: process.env.JWT_EXPIRES_IN || '60d' }
         );
 
-        // Return token and user information
+        // return token and user information
         return {
             token,
             expiresIn: process.env.JWT_EXPIRES_IN || '60d',
@@ -103,7 +103,6 @@ class AuthService {
                 firstName: card.customer.firstName,
                 lastName: card.customer.lastName
             },
-
             account: {
                 id: card.account.id,
                 accountNumber: card.account.accountNumber,
@@ -111,8 +110,9 @@ class AuthService {
                 creditLimit: card.account.creditLimit ? parseFloat(card.account.creditLimit) : null
             }
         };
-    }}
+    }
+}
 
-        module.exports = new AuthService();
+module.exports = new AuthService();
 
 
