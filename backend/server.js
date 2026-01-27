@@ -9,7 +9,9 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./src/config/swagger');
 const corsMiddleware = require('./src/middleware/cors');
 const { apiLimiter } = require('./src/middleware/rateLimiter');
+const { authenticateToken } = require('./src/middleware/authMiddleware');
 const errorHandler = require('./src/middleware/errorHandler');
+const authRoutes = require('./src/routes/authRoutes');
 const customerRoutes = require('./src/routes/customerRoutes');
 const accountRoutes = require('./src/routes/accountRoutes');
 const cardRoutes = require('./src/routes/cardRoutes');
@@ -74,11 +76,22 @@ app.get('/api-docs.json', (req, res) => {
   res.json(swaggerSpec);
 });
 
-// API Routes
+// ========================================
+// API ROUTES
+// ========================================
+
+// Public routes (no authentication required)
+app.use('/api/auth', authRoutes); // Insert card & verify PIN
+
+// Protected routes (JWT authentication required)
+// Frontend must include: Authorization: Bearer <token>
+app.use('/api/accounts', authenticateToken, accountRoutes);
+app.use('/api/transactions', authenticateToken, transactionRoutes);
+app.use('/api/cards', authenticateToken, cardRoutes);
+
+// Semi-protected (optional - depends if you want admin-only access)
+// For ATM frontend, customers endpoint is not needed
 app.use('/api/customers', customerRoutes);
-app.use('/api/accounts', accountRoutes);
-app.use('/api/cards', cardRoutes);
-app.use('/api/transactions', transactionRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -98,6 +111,7 @@ if (require.main === module) {
     console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🗄️  Database: Connected to Azure MySQL`);
+    console.log(`🔐 JWT Authentication: Enabled`);
   });
 }
 
