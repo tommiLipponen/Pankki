@@ -21,6 +21,14 @@ class CardController {
     // GET /api/cards/:id
     async getCardById(req, res, next) {
         try {
+            // Authorization: User can only view their own card
+            if (req.user.cardId !== parseInt(req.params.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only view your own card"
+                });
+            }
+
             const card = await cardService.getCardById(req.params.id);
             if (!card) {
                 return res.status(404).json({
@@ -85,6 +93,14 @@ class CardController {
     // PUT /api/cards/:id
     async updateCard(req, res, next) {
         try {
+            // Authorization: User can only update their own card
+            if (req.user.cardId !== parseInt(req.params.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only update your own card"
+                });
+            }
+
             const { cardNumber, pinHash,customerId,accountId, expiryDate, isLocked, isActive } = req.body;
 
             // At least one field must be provided for update
@@ -136,6 +152,14 @@ class CardController {
     // DELETE /api/cards/:id
     async deleteCard(req, res, next) {
         try {
+            // Authorization: User can only delete their own card
+            if (req.user.cardId !== parseInt(req.params.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only delete your own card"
+                });
+            }
+
             await cardService.deleteCard(req.params.id);
             res.json({
                 success: true,

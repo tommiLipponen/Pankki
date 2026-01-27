@@ -19,6 +19,8 @@ const cardController = require('../controllers/cardController');
  *     summary: Get all cards
  *     description: Retrieve a list of all cards in the system
  *     tags: [Cards]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of cards retrieved successfully
@@ -60,6 +62,8 @@ router.get('/', cardController.getAllCards.bind(cardController));
  *     summary: Get card by ID
  *     description: Retrieve a specific card by its ID
  *     tags: [Cards]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -105,6 +109,8 @@ router.get('/:id', cardController.getCardById.bind(cardController));
  *     summary: Create a new card
  *     description: Create a new card in the system
  *     tags: [Cards]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -203,6 +209,8 @@ router.post('/', cardController.createCard.bind(cardController));
  *     summary: Update a card
  *     description: Update an existing card's information
  *     tags: [Cards]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -311,6 +319,8 @@ router.put('/:id', cardController.updateCard.bind(cardController));
  *     summary: Delete a card
  *     description: Delete a card from the system (cascade deletes related transactions)
  *     tags: [Cards]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
