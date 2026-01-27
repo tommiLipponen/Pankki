@@ -74,7 +74,7 @@ class AuthService {
             throw new Error("Invalid PIN");
         }
 
-        // validate card mode (ensure credit mode is availble if selected)
+        // Validate card mode (ensure credit mode is availble if selected)
 
         if (cardMode === "CREDIT" && (!card.account.creditLimit || card.account.creditLimit <= 0)) {
             throw new Error("CREDIT mode is not available for this card");
