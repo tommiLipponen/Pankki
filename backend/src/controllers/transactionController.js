@@ -17,6 +17,14 @@ class TransactionController {
         });
       }
 
+      // Authorization: User can only create transactions for their own account and card
+      if (req.user.accountId !== parseInt(accountId) || req.user.cardId !== parseInt(cardId)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied: You can only create transactions for your own account'
+        });
+      }
+
       // Validate transactionType
       const validTypes = ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER_IN', 'TRANSFER_OUT'];
       if (!validTypes.includes(transactionType)) {
@@ -86,6 +94,14 @@ class TransactionController {
         });
       }
 
+      // Authorization: User can only view transactions for their own account
+      if (req.user.accountId !== parseInt(accountId)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied: You can only view your own transactions'
+        });
+      }
+
       const transactions = await transactionService.getTransactionsByAccount(
         parseInt(accountId),
         limit
@@ -118,6 +134,14 @@ class TransactionController {
         return res.status(400).json({
           success: false,
           message: 'Invalid cardId'
+        });
+      }
+
+      // Authorization: User can only view transactions for their own card
+      if (req.user.cardId !== parseInt(cardId)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied: You can only view transactions for your own card'
         });
       }
 
@@ -157,6 +181,14 @@ class TransactionController {
         });
       }
 
+      // Authorization: User can only view transactions for their own account
+      if (req.user.accountId !== transaction.accountId) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied: You can only view your own transactions'
+        });
+      }
+
       res.json({
         success: true,
         data: transaction
@@ -176,6 +208,14 @@ class TransactionController {
         return res.status(400).json({
           success: false,
           message: 'Missing required fields: fromAccountId, toAccountId, cardId, cardMode, amount'
+        });
+      }
+
+      // Authorization: User can only transfer from their own account using their own card
+      if (req.user.accountId !== parseInt(fromAccountId) || req.user.cardId !== parseInt(cardId)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied: You can only transfer from your own account'
         });
       }
 

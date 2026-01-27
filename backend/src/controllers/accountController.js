@@ -22,6 +22,14 @@ class AccountController {
     // GET /api/accounts/:id
     async getAccountById(req, res, next) {
         try {
+            // Authorization: User can only access their own account
+            if (req.user.accountId !== parseInt(req.params.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only access your own account"
+                });
+            }
+
             const account = await accountService.getAccountById(req.params.id);
             if (!account) {
                 return res.status(404).json({
@@ -75,6 +83,14 @@ class AccountController {
     // PUT /api/accounts/:id
     async updateAccount(req, res, next) {
         try {
+            // Authorization: User can only update their own account
+            if (req.user.accountId !== parseInt(req.params.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only update your own account"
+                });
+            }
+
             const {  accountNumber, balance, creditLimit, isActive } = req.body;
 
             // Atleast one field must be provided for update
@@ -113,6 +129,14 @@ class AccountController {
     // DELETE /api/accounts/:id
     async deleteAccount(req, res, next) {
         try {
+            // Authorization: User can only delete their own account
+            if (req.user.accountId !== parseInt(req.params.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only delete your own account"
+                });
+            }
+
             await accountService.deleteAccount(req.params.id);
            
             res.json({

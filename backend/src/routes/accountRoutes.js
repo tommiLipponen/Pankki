@@ -12,6 +12,8 @@ const accountController = require('../controllers/accountController');
  *     summary: Retrieve a list of accounts
  *     tags: [Accounts]
  *     description: Retrieve a list of all user accounts from the database
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of accounts retrieved successfully
@@ -46,6 +48,8 @@ router.get('/', accountController.getAllAccounts.bind(accountController));
  *     summary: Retrieve a specific account by its ID
  *     tags: [Accounts]
  *     description: Retrieve a specific account by its ID
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -88,6 +92,8 @@ router.get('/:id', accountController.getAccountById.bind(accountController));
  *     summary: Create a new account
  *     tags: [Accounts]
  *     description: Create a new account in the database
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -162,6 +168,8 @@ router.post('/', accountController.createAccount.bind(accountController));
  *     summary: Update an existing account
  *     tags: [Accounts]
  *     description: Update an existing account in the database
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -240,6 +248,8 @@ router.put('/:id', accountController.updateAccount.bind(accountController));
  *     summary: Delete account
  *     tags: [Accounts]
  *     description: Delete an account from the database (cascade deletes related cards and transactions)
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
