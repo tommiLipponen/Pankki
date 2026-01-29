@@ -31,7 +31,7 @@ class AccountController {
             }
 
             // Authorization: User can only access their own account
-            if (req.user.accountId !== account.id) {
+            if (parseInt(req.user.accountId) !== parseInt(account.id)) {
                 return res.status(403).json({
                     success: false,
                     message: "Access denied: You can only access your own account"

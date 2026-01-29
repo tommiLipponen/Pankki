@@ -30,7 +30,7 @@ class CardController {
             }
 
             // Authorization: User can only view their own card
-            if (req.user.cardId !== card.id) {
+            if (parseInt(req.user.cardId) !== parseInt(card.id)) {
                 return res.status(403).json({
                     success: false,
                     message: "Access denied: You can only view your own card"
