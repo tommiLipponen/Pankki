@@ -50,6 +50,19 @@ qt_add_executable(frontend
     customer.h
 )
 
+# Add OpenAPI specification as documentation (not compiled, for reference only)
+# Source: https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net/api-docs.json
+# Update command: curl <url> -o api-docs.json
+set(API_DOCS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/api-docs.json")
+if(EXISTS "${API_DOCS_FILE}")
+    message(STATUS "OpenAPI documentation found: ${API_DOCS_FILE}")
+    # Make it visible in IDE (VS/Qt Creator) but don't compile it
+    set_source_files_properties(${API_DOCS_FILE} PROPERTIES HEADER_FILE_ONLY TRUE)
+    target_sources(frontend PRIVATE ${API_DOCS_FILE})
+else()
+    message(WARNING "OpenAPI documentation not found. Download from backend /api-docs.json endpoint.")
+endif()
+
 target_link_libraries(frontend
     PRIVATE
         Qt::Core
