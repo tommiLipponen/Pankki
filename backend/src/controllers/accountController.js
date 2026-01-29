@@ -31,6 +31,15 @@ class AccountController {
             }
 
             // Authorization: User can only access their own account
+            console.log('Authorization check:', {
+                userAccountId: req.user.accountId,
+                userAccountIdType: typeof req.user.accountId,
+                accountId: account.id,
+                accountIdType: typeof account.id,
+                parsedUserAccountId: parseInt(req.user.accountId),
+                parsedAccountId: parseInt(account.id),
+                areEqual: parseInt(req.user.accountId) === parseInt(account.id)
+            });
             if (parseInt(req.user.accountId) !== parseInt(account.id)) {
                 return res.status(403).json({
                     success: false,
