@@ -36,8 +36,13 @@ A simulated ATM (Automated Teller Machine) banking system with a Qt desktop appl
 - Accounts, Cards, Transactions tables
 - Basic banking operations
   
-🔄**Week 4 In Prosess:**
-- [ ] JWT authentication (Week 4) - Card + PIN verification
+✅ **Week 4 Complete:**
+- JWT authentication with card + PIN verification
+- PIN attempt tracking (auto-lock after 3 failures)
+- Customer-based authorization
+
+🔄 **Week 5 In Progress:**
+- [ ] Enhanced transaction operations
 
 📋 **Upcoming Features:**
 - [ ] PIN validation with timeout
@@ -202,10 +207,382 @@ OpenAPI Spec (for Qt): `http://localhost:3000/api-docs.json`
 - **Cards:** Full CRUD (without auth)
 - **Transactions:** Create and view history
 
-### Planned Week 4 - Authentication
+### Week 4 - Authentication ✅ IMPLEMENTED
 - `POST /api/auth/insert-card` - Step 1: Validate card number
 - `POST /api/auth/verify-pin` - Step 2: Verify PIN, get JWT token
 - All endpoints protected with: `Authorization: Bearer {token}`
+
+---
+
+## 🔐 Authentication Flow
+
+### Overview
+The system uses a two-step authentication process with JWT (JSON Web Tokens) for secure ATM operations.
+
+### Step-by-Step Process
+
+#### **Step 1: Insert Card** (`POST /api/auth/insert-card`)
+
+**Path:** `backend/src/routes/authRoutes.js` → `backend/src/controllers/authController.js` → `backend/src/services/authService.js`
+
+**User Action:** User inserts card (enters 16-digit card number)
+
+**Request:**
+```http
+POST /api/auth/insert-card
+Content-Type: application/json
+
+{
+  "cardNumber": "1234567890123456"
+}
+```
+
+**Backend Process:**
+1. **Route Handler** (`authRoutes.js`):
+   - Receives POST request at `/api/auth/insert-card`
+   - Calls `authController.insertCard()`
+
+2. **Controller** (`authController.js`):
+   - Validates card number format (16 digits)
+   - Calls `authService.validateCard(cardNumber)`
+
+3. **Service** (`authService.js`):
+   - Queries database: `prisma.card.findFirst()` with `cardNumber`
+   - Includes related data: `account` and `customer`
+   - Performs validation checks:
+     - ❌ Card doesn't exist → Error: "Card not found"
+     - ❌ `isActive = false` → Error: "Card is not active"
+     - ❌ `isLocked = true` → Error: "Card is locked"
+     - ❌ `expiryDate < now` → Error: "Card has expired"
+   - Determines available card modes:
+     - DEBIT: Always available
+     - CREDIT: Only if `account.creditLimit > 0`
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "message": "Card validated successfully",
+  "cardMode": ["DEBIT", "CREDIT"]
+}
+```
+
+**Response (Error):**
+```json
+{
+  "success": false,
+  "message": "Card is locked due to multiple failed PIN attempts"
+}
+```
+
+**No JWT token yet** - just validates that the card exists and is usable.
+
+---
+
+#### **Step 2: Verify PIN** (`POST /api/auth/verify-pin`)
+
+**Path:** `backend/src/routes/authRoutes.js` → `backend/src/controllers/authController.js` → `backend/src/services/authService.js`
+
+**User Action:** User enters 4-digit PIN and selects card mode (DEBIT or CREDIT)
+
+**Request:**
+```http
+POST /api/auth/verify-pin
+Content-Type: application/json
+
+{
+  "cardNumber": "1234567890123456",
+  "pin": "1234",
+  "cardMode": "DEBIT"
+}
+```
+
+**Backend Process:**
+
+1. **Route Handler** (`authRoutes.js`):
+   - Receives POST request at `/api/auth/verify-pin`
+   - Calls `authController.verifyPin()`
+
+2. **Controller** (`authController.js`):
+   - Validates PIN format (4 digits)
+   - Calls `authService.verifyPinAndGenerateToken(cardNumber, pin, cardMode)`
+
+3. **Service - PIN Verification** (`authService.js`):
+   
+   a. **Fetch Card Data:**
+   ```javascript
+   const card = await prisma.card.findFirst({
+     where: { cardNumber },
+     include: {
+       account: true,   // Related account
+       customer: true   // Card owner
+     }
+   });
+   ```
+
+   b. **Security Checks:**
+   - ❌ Card not found → Error
+   - ❌ `card.isLocked = true` → Error: "Card is locked due to multiple failed PIN attempts"
+
+   c. **PIN Verification:**
+   ```javascript
+   const isPinValid = await bcrypt.compare(pin, card.pinHash);
+   ```
+   
+   **If PIN is WRONG:**
+   ```javascript
+   // Increment failed attempt counter
+   const newFailedAttempts = card.failedPinAttempts + 1;
+   const shouldLock = newFailedAttempts >= 3;
+
+   await prisma.card.update({
+     where: { id: card.id },
+     data: {
+       failedPinAttempts: newFailedAttempts,
+       lastFailedAttempt: new Date(),
+       isLocked: shouldLock  // Lock after 3 attempts
+     }
+   });
+
+   // Return error with remaining attempts
+   throw new Error(`Invalid PIN. ${3 - newFailedAttempts} attempts remaining.`);
+   ```
+
+   **If PIN is CORRECT:**
+   ```javascript
+   // Reset failed attempts counter
+   if (card.failedPinAttempts > 0) {
+     await prisma.card.update({
+       where: { id: card.id },
+       data: {
+         failedPinAttempts: 0,
+         lastFailedAttempt: null
+       }
+     });
+   }
+   ```
+
+   d. **Validate Card Mode:**
+   ```javascript
+   if (cardMode === "CREDIT" && (!card.account.creditLimit || card.account.creditLimit <= 0)) {
+     throw new Error("CREDIT mode is not available for this card");
+   }
+   ```
+
+   e. **Generate JWT Token:**
+   ```javascript
+   const tokenPayload = {
+     cardId: card.id,           // Which card is being used
+     accountId: card.account.id,  // Which account card is linked to
+     customerId: card.customer.id, // Who owns the card
+     cardMode: cardMode          // Transaction mode (DEBIT/CREDIT)
+   };
+
+   const token = jwt.sign(
+     tokenPayload,
+     process.env.JWT_SECRET,      // Secret key from .env
+     { expiresIn: '60d' }         // Token expires in 60 days
+   );
+   ```
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "message": "PIN verified successfully",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYXJkSWQiOjEsImFjY291bnRJZCI6MSwiY3VzdG9tZXJJZCI6MSwiY2FyZE1vZGUiOiJERUJJVCIsImlhdCI6MTczODA4MDAwMCwiZXhwIjoxNzQzMjY0MDAwfQ.signature",
+  "expiresIn": "60d",
+  "customer": {
+    "id": 1,
+    "firstName": "Matti",
+    "lastName": "Virtanen"
+  },
+  "account": {
+    "id": 1,
+    "accountNumber": "FI1234567890123456",
+    "balance": 1500.00,
+    "creditLimit": 0.00
+  },
+  "cardMode": "DEBIT"
+}
+```
+
+**Response (Wrong PIN - 1st/2nd attempt):**
+```json
+{
+  "success": false,
+  "message": "Invalid PIN. 2 attempts remaining."
+}
+```
+
+**Response (Wrong PIN - 3rd attempt):**
+```json
+{
+  "success": false,
+  "message": "Card is now locked due to 3 failed PIN attempts. Please contact customer service."
+}
+```
+
+---
+
+#### **Step 3: Using the JWT Token**
+
+**Path:** `backend/src/middleware/authMiddleware.js` → Controller
+
+**User Action:** Makes any authenticated request (e.g., check balance, withdraw)
+
+**Request:**
+```http
+GET /api/accounts/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Backend Process:**
+
+1. **Authentication Middleware** (`authMiddleware.js`):
+   
+   a. **Extract Token:**
+   ```javascript
+   const authHeader = req.headers['authorization'];
+   const token = authHeader && authHeader.split(' ')[1]; // Get "Bearer <token>"
+   ```
+
+   b. **Verify Token:**
+   ```javascript
+   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+     if (err) {
+       return res.status(403).json({
+         success: false,
+         message: 'Invalid or expired token'
+       });
+     }
+     
+     // Attach decoded payload to request
+     req.user = decoded; // { cardId, accountId, customerId, cardMode }
+     next(); // Continue to controller
+   });
+   ```
+
+2. **Authorization Check in Controller:**
+   ```javascript
+   // Example: accountController.getAccountById()
+   
+   // Fetch the requested account
+   const account = await accountService.getAccountById(req.params.id);
+   
+   // Check if account belongs to the authenticated customer
+   if (parseInt(req.user.customerId) !== parseInt(account.customerId)) {
+     return res.status(403).json({
+       success: false,
+       message: "Access denied: You can only access your own accounts"
+     });
+   }
+   
+   // Customer owns this account - allow access
+   return res.json({ success: true, data: account });
+   ```
+
+**JWT Payload Structure:**
+```javascript
+req.user = {
+  cardId: 1,        // The card being used for this session
+  accountId: 1,     // The account linked to this card
+  customerId: 1,    // The customer who owns the card
+  cardMode: "DEBIT", // Transaction mode
+  iat: 1738080000,  // Issued at timestamp
+  exp: 1743264000   // Expiration timestamp
+}
+```
+
+---
+
+### Security Features
+
+#### 🔒 **PIN Attempt Tracking**
+- **Database Fields:**
+  - `failedPinAttempts` (INT, default: 0) - Counts consecutive failures
+  - `lastFailedAttempt` (DATETIME, nullable) - Timestamp of last failure
+  - `isLocked` (BOOLEAN, default: false) - Lock status
+
+- **Logic:**
+  1. Wrong PIN → increment `failedPinAttempts`
+  2. `failedPinAttempts >= 3` → set `isLocked = true`
+  3. Correct PIN → reset `failedPinAttempts = 0`
+  4. Locked card → reject all PIN attempts until unlocked by admin
+
+#### 🛡️ **Customer-Based Authorization**
+- Users can access **all accounts and cards** they own
+- Not limited to just the account their current card is linked to
+- Example: Customer has 2 accounts and 2 cards:
+  - Card A linked to Account 1
+  - Card B linked to Account 2
+  - Authenticating with Card A allows access to **both** Account 1 and Account 2
+
+#### ⏱️ **Token Expiration**
+- Tokens expire after 60 days
+- Frontend must handle 401/403 responses and re-authenticate
+
+#### 🔑 **bcrypt PIN Hashing**
+- PINs stored as bcrypt hashes with 10 rounds
+- Verification uses `bcrypt.compare()` - timing-safe comparison
+- Raw PINs never stored in database
+
+---
+
+### Testing Credentials
+
+From `backend/prisma/seed.js`:
+
+| Card Number | PIN | Customer | Account | Status | Failed Attempts |
+|------------|-----|----------|---------|--------|----------------|
+| 1234567890123456 | 1234 | Matti Virtanen | FI1234567890123456 (Debit) | ✅ Active | 0 |
+| 1234567890123457 | 1234 | Matti Virtanen | FI1234567890123457 (Credit) | ✅ Active | 0 |
+| 2345678901234567 | 1234 | Liisa Korhonen | FI2345678901234567 (Debit) | ✅ Active | 0 |
+| 2345678901234568 | 1234 | Liisa Korhonen | FI2345678901234568 (Credit) | 🔒 **Locked** | 3 |
+| 3456789012345678 | 1234 | Jukka Nieminen | FI3456789012345678 (Debit) | ✅ Active | 0 |
+| 4567890123456789 | 5678 | Anna Mäkinen | FI4567890123456789 (Debit) | ✅ Active | 0 |
+| 5678901234567890 | 5678 | Mikko Lahtinen | FI5678901234567890 (Debit) | ✅ Active | 0 |
+| 5678901234567891 | 9999 | Mikko Lahtinen | FI5678901234567891 (Credit) | 🔒 **Locked** | 3 |
+
+**Test Locked Card Feature:**
+- Use card `2345678901234568` or `5678901234567891` to see locked card error
+
+---
+
+### Error Handling
+
+| Status Code | Error | Cause |
+|------------|-------|-------|
+| 400 | Bad Request | Invalid card/PIN format |
+| 401 | Unauthorized | Missing token |
+| 403 | Forbidden | Invalid/expired token, or accessing another customer's resources |
+| 404 | Not Found | Card doesn't exist |
+| 500 | Internal Server Error | Database/server error |
+
+---
+
+### File Locations
+
+**Authentication Routes:**
+- `backend/src/routes/authRoutes.js` - Defines `/api/auth/insert-card` and `/api/auth/verify-pin`
+
+**Controllers:**
+- `backend/src/controllers/authController.js` - Handles request validation and calls services
+
+**Services:**
+- `backend/src/services/authService.js` - Business logic for card validation, PIN verification, JWT generation
+
+**Middleware:**
+- `backend/src/middleware/authMiddleware.js` - Verifies JWT tokens and attaches `req.user`
+
+**Database Schema:**
+- `backend/prisma/schema.prisma` - Card model with `failedPinAttempts`, `lastFailedAttempt`, `isLocked`
+
+**Seed Data:**
+- `backend/prisma/seed.js` - Test cards with bcrypt-hashed PINs
+
+**Environment:**
+- `backend/.env` - Contains `JWT_SECRET` and `JWT_EXPIRES_IN`
 
 ---
 
@@ -265,8 +642,8 @@ Compiled executables available in GitHub Releases
 | 1 | Project setup, ER diagram approved | ✅ Complete |
 | 2 | CRUD operations demo, project document complete | ✅ Complete |
 | 3 | Accounts/Cards/Transactions tables & APIs | ✅ Complete |
-| 4 | JWT authentication (card + PIN) | 🔄 In Progress |
-| 5 | Full transaction system & error handling | 📋 Planned |
+| 4 | JWT authentication (card + PIN), auto-lock security | ✅ Complete |
+| 5 | Full transaction system & error handling | 🔄 In Progress |
 | 6 | UI polish & comprehensive testing | 📋 Planned |
 | 7 | Technical documentation & poster | 📋 Planned |
 | 8 | Final presentation & demo | 📋 Planned |
@@ -331,44 +708,66 @@ MIT License - Educational Project
 - [x] Team expanded to 4 members
 - [x] Local MySQL development environment setup
 
-**Week 3 (Current):**
+**Week 3:**
 - [x] Accounts table and API endpoints
 - [x] Cards table (without authentication)
 - [x] Transactions table
+- [x] Basic transaction operations
 - [ ] Qt models for Account, Card, Transaction
 - [ ] Basic ATM UI design
 
-**Week 4 (Planned):**
-- [ ] JWT authentication implementation
-- [ ] Card + PIN verification flow
-- [ ] Protected API endpoints
+**Week 4 (Current):**
+- [x] JWT authentication implementation ✅
+- [x] Card + PIN verification flow ✅
+- [x] PIN attempt tracking (lock after 3 failures) ✅
+- [x] Protected API endpoints ✅
+- [x] Customer-based authorization ✅
 - [ ] Qt authentication screens
 
 ---
 
 ## 🔨 Remaining Backend Work
 
-### 🔴 Critical Priority (Week 4)
+### � Completed Features
 
-#### 1. Authentication System
+#### ✅ Authentication System (Week 4)
 - **Auth Routes:**
-  - `POST /api/auth/insert-card` - Validate card number exists
-  - `POST /api/auth/verify-pin` - Verify PIN hash, return JWT token
+  - ✅ `POST /api/auth/insert-card` - Validate card number exists
+  - ✅ `POST /api/auth/verify-pin` - Verify PIN hash, return JWT token
 - **JWT Middleware:**
-  - Token generation with expiry (e.g., 30 minutes)
-  - Token verification middleware for protected routes
-  - Optional: Refresh token logic
+  - ✅ Token generation with expiry (60 days)
+  - ✅ Token verification middleware for protected routes
+  - ✅ JWT secret in environment variables
 - **Security:**
-  - bcrypt PIN hashing in seed.js (10 rounds)
-  - PIN verification using bcrypt.compare()
-  - JWT secret in environment variables
+  - ✅ bcrypt PIN hashing in seed.js (10 rounds)
+  - ✅ PIN verification using bcrypt.compare()
+  - ✅ Auto-lock after 3 failed PIN attempts
+  - ✅ Failed attempt tracking (failedPinAttempts, lastFailedAttempt)
 
-#### 2. Protected Routes
-- Add JWT authentication middleware to all routes
-- Verify user owns the resource they're accessing
-- Middleware checks: `Authorization: Bearer {token}`
+#### ✅ Protected Routes
+- ✅ JWT authentication middleware on all routes
+- ✅ Customer-based authorization (users can access all their accounts/cards)
+- ✅ Middleware checks: `Authorization: Bearer {token}`
 
-### 🟡 Important Priority (Business Logic)
+#### ✅ Card Security Features
+- **PIN Attempt Tracking:**
+  - ✅ Track failed PIN attempts in database
+  - ✅ Lock card after 3 consecutive failures
+  - ✅ Update `is_locked` and `last_failed_attempt` timestamp
+  - ✅ Reset counter on successful login
+
+#### ✅ Seed File Implementation
+- ✅ Multiple test customers with realistic data
+- ✅ Accounts (debit + credit types)
+- ✅ Cards with bcrypt-hashed PINs
+- ✅ Sample transactions with correct balances
+- ✅ Test locked cards for security testing
+
+---
+
+### 🟡 Remaining Backend Work
+
+### 🔴 Critical Priority (Week 5)
 
 #### 3. Transaction Business Logic
 - **POST Routes:**
@@ -383,19 +782,7 @@ MIT License - Educational Project
   - Create transaction record with `balance_after`
   - Atomic operations (use Prisma transactions)
 
-#### 4. Card Security Features
-- **PIN Attempt Tracking:**
-  - Track failed PIN attempts (consider separate table or cache)
-  - Lock card after 3 consecutive failures
-  - Update `is_locked` timestamp
-- **Endpoints:**
-  - `POST /api/cards/:id/lock` - Manual lock
-  - `POST /api/cards/:id/unlock` - Admin unlock
-  - `GET /api/cards/:id/attempts` - Check attempt count
-
-### 🟢 Nice to Have
-
-#### 5. Validation & Error Handling
+#### 3. Transaction Business Logic
 - **Input Validation:**
   - Use express-validator or Joi
   - Sanitization for SQL injection prevention
@@ -405,17 +792,8 @@ MIT License - Educational Project
   - Consistent JSON error responses
   - Error logging
 
-#### 6. Seed File Implementation
-- Create `backend/prisma/seed.js` with:
-  - Multiple test customers
-  - Accounts (debit + credit types)
-  - Cards with bcrypt-hashed PINs (e.g., "1234")
-  - Sample transactions with correct balances
-- Document test credentials in README
-
-#### 7. Testing
-- Unit tests for business logic functions
-- Integration tests for auth flow
+#### 4. Validation & Error Handling
+#### 5. Testing
 - Transaction endpoint tests
 - Card locking mechanism tests
 
@@ -426,4 +804,4 @@ MIT License - Educational Project
 
 ---
 
-**Last Updated:** January 22, 2026
+**Last Updated:** January 29, 2026
