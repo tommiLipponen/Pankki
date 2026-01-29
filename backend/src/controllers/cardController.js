@@ -29,11 +29,11 @@ class CardController {
                 });
             }
 
-            // Authorization: User can only view their own card
-            if (parseInt(req.user.cardId) !== parseInt(card.id)) {
+            // Authorization: User can only view cards belonging to their customer
+            if (parseInt(req.user.customerId) !== parseInt(card.customerId)) {
                 return res.status(403).json({
                     success: false,
-                    message: "Access denied: You can only view your own card"
+                    message: "Access denied: You can only view your own cards"
                 });
             }
             res.json({
@@ -103,13 +103,23 @@ class CardController {
                 });
             }
 
-            // Authorization: User can only update their own card
-            if (req.user.cardId !== parseInt(req.params.id)) {
-                return res.status(403).json({
+            // First fetch the card to check ownership
+            const existingCard = await cardService.getCardById(req.params.id);
+            if (!existingCard) {
+                return res.status(404).json({
                     success: false,
-                    message: "Access denied: You can only update your own card"
+                    message: "Card not found"
                 });
             }
+
+            // Authorization: User can only update cards belonging to their customer
+            if (parseInt(req.user.customerId) !== parseInt(existingCard.customerId)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only update your own cards"
+                });
+            }
+
             //Validate card number length if provided
             if (cardNumber && cardNumber.length !== 16) {
                 return res.status(400).json({
@@ -152,11 +162,20 @@ class CardController {
     // DELETE /api/cards/:id
     async deleteCard(req, res, next) {
         try {
-            // Authorization: User can only delete their own card
-            if (req.user.cardId !== parseInt(req.params.id)) {
+            // First fetch the card to check ownership
+            const existingCard = await cardService.getCardById(req.params.id);
+            if (!existingCard) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Card not found"
+                });
+            }
+
+            // Authorization: User can only delete cards belonging to their customer
+            if (parseInt(req.user.customerId) !== parseInt(existingCard.customerId)) {
                 return res.status(403).json({
                     success: false,
-                    message: "Access denied: You can only delete your own card"
+                    message: "Access denied: You can only delete your own cards"
                 });
             }
 
