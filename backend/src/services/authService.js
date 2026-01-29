@@ -67,11 +67,44 @@ class AuthService {
             throw new Error("Card not found");
         }
 
+        // Check if card is locked due to failed PIN attempts
+        if (card.isLocked) {
+            throw new Error("Card is locked due to multiple failed PIN attempts. Please contact customer service.");
+        }
+
         // verify PIN using bcrypt
         const isPinValid = await bcrypt.compare(pin, card.pinHash);
 
         if (!isPinValid) {
-            throw new Error("Invalid PIN");
+            // Increment failed PIN attempts
+            const newFailedAttempts = card.failedPinAttempts + 1;
+            const shouldLock = newFailedAttempts >= 3;
+
+            await prisma.card.update({
+                where: { id: card.id },
+                data: {
+                    failedPinAttempts: newFailedAttempts,
+                    lastFailedAttempt: new Date(),
+                    isLocked: shouldLock
+                }
+            });
+
+            if (shouldLock) {
+                throw new Error("Card is now locked due to 3 failed PIN attempts. Please contact customer service.");
+            }
+
+            throw new Error(`Invalid PIN. ${3 - newFailedAttempts} attempts remaining.`);
+        }
+
+        // Reset failed PIN attempts on successful login
+        if (card.failedPinAttempts > 0) {
+            await prisma.card.update({
+                where: { id: card.id },
+                data: {
+                    failedPinAttempts: 0,
+                    lastFailedAttempt: null
+                }
+            });
         }
 
         // Validate card mode (ensure credit mode is availble if selected)
