@@ -29,6 +29,14 @@ class AccountController {
                     message: "Account not found"
                 });
             }
+
+            // Authorization: User can only access their own account
+            if (req.user.accountId !== account.id) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only access your own account"
+                });
+            }
             res.json({
                 success: true,
                 data: account
@@ -83,6 +91,14 @@ class AccountController {
                     success: false,
                     message: "At least one field must be provided for update: accountNumber, balance, creditLimit, isActive"
                 });
+            }
+
+            // Authorization: User can only update their own account
+            if (req.user.accountId !== parseInt(req.params.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only update your own account"
+                });
             }       
             const account = await accountService.updateAccount(req.params.id, req.body);
 
@@ -113,6 +129,14 @@ class AccountController {
     // DELETE /api/accounts/:id
     async deleteAccount(req, res, next) {
         try {
+            // Authorization: User can only delete their own account
+            if (req.user.accountId !== parseInt(req.params.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only delete your own account"
+                });
+            }
+
             await accountService.deleteAccount(req.params.id);
            
             res.json({

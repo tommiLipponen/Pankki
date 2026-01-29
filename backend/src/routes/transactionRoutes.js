@@ -19,6 +19,8 @@ const transactionController = require('../controllers/transactionController');
  *     summary: Get all transactions for a specific account
  *     description: Retrieve transaction history for an account with optional limit. Supports DEBIT (balance >= 0) and CREDIT (balance >= -creditLimit) modes.
  *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: accountId
@@ -86,6 +88,8 @@ router.get('/account/:accountId', transactionController.getTransactionsByAccount
  *     summary: Get all transactions for a specific card
  *     description: Retrieve transaction history for a card with optional limit
  *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: cardId
@@ -142,6 +146,8 @@ router.get('/card/:cardId', transactionController.getTransactionsByCard.bind(tra
  *     summary: Get a specific transaction by ID
  *     description: Retrieve details of a single transaction
  *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -187,6 +193,8 @@ router.get('/:id', transactionController.getTransactionById.bind(transactionCont
  *     summary: Create a new transaction
  *     description: Create a new transaction (DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT). DEBIT mode requires balance >= 0. CREDIT mode allows balance >= -creditLimit.
  *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -269,6 +277,8 @@ router.post('/', transactionController.createTransaction.bind(transactionControl
  *     summary: Transfer funds between accounts
  *     description: Transfer funds from one account to another. Creates two transactions (TRANSFER_OUT and TRANSFER_IN). Validates card belongs to source account and respects DEBIT/CREDIT mode rules.
  *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:

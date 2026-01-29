@@ -31,20 +31,24 @@ const options = {
     ],
     tags: [
       {
+        name: 'Authentication',
+        description: 'ATM authentication endpoints (2-step flow: insert card → verify PIN → get JWT token)'
+      },
+      {
         name: 'Customers',
         description: 'Customer management endpoints'
       },
       {
         name: 'Accounts',
-        description: 'Account management endpoints'
+        description: 'Account management endpoints (requires JWT authentication)'
       },
       {
         name: 'Cards',
-        description: 'Card management endpoints'
+        description: 'Card management endpoints (requires JWT authentication)'
       },
       {
         name: 'Transactions',
-        description: 'Transaction processing endpoints with debit/credit mode support'
+        description: 'Transaction processing endpoints with debit/credit mode support (requires JWT authentication)'
       },
       {
         name: 'Health',
@@ -52,6 +56,14 @@ const options = {
       }
     ],
     components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'JWT token obtained from POST /api/auth/verify-pin. Include as: Authorization: Bearer <token>'
+        }
+      },
       schemas: {
         Customer: {
           type: 'object',
