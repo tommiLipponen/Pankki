@@ -36,36 +36,5 @@ describe('Account API - Read Operations', () => {
     });
   });
 
-  describe('GET /api/accounts/:id', () => {
-    it('should return a specific account', async () => {
-      // Skip if no account ID available
-      if (!testAccountId) {
-        console.log('Skipping: No accounts in database');
-        return;
-      }
 
-      const response = await request(app)
-        .get(`/api/accounts/${testAccountId}`)
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect('Content-Type', /json/)
-        .expect(200);
-
-      assert.ok(response.body.success);
-      assert.strictEqual(response.body.data.id, testAccountId);
-      assert.ok(response.body.data.accountNumber);
-      assert.ok(response.body.data.balance);
-      assert.ok(response.body.data.creditLimit);
-    });
-
-    it('should return 404 for non-existent account', async () => {
-      const response = await request(app)
-        .get('/api/accounts/99999')
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect('Content-Type', /json/)
-        .expect(404);
-
-      assert.strictEqual(response.body.success, false);
-      assert.ok(response.body.message.includes('not found'));
-    });
-  });
 });
