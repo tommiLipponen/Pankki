@@ -259,8 +259,21 @@ const options = {
             },
             isLocked: {
               type: 'boolean',
-              description: 'Card lock status',
+              description: 'Card lock status (auto-locked after 3 failed PIN attempts)',
               example: false
+            },
+            failedPinAttempts: {
+              type: 'integer',
+              description: 'Number of consecutive failed PIN attempts',
+              minimum: 0,
+              example: 0
+            },
+            lastFailedAttempt: {
+              type: 'string',
+              format: 'date-time',
+              nullable: true,
+              description: 'Timestamp of last failed PIN attempt',
+              example: '2026-01-29T10:30:00Z'
             },
             isActive: {
               type: 'boolean',
@@ -280,6 +293,159 @@ const options = {
           }
         },
 
+        InsertCardRequest: {
+          type: 'object',
+          required: ['cardNumber'],
+          properties: {
+            cardNumber: {
+              type: 'string',
+              description: '16-digit card number',
+              minLength: 16,
+              maxLength: 16,
+              pattern: '^[0-9]{16}$',
+              example: '1234567890123456'
+            }
+          }
+        },
+        InsertCardResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true
+            },
+            message: {
+              type: 'string',
+              example: 'Card validated successfully'
+            },
+            cardMode: {
+              type: 'array',
+              items: {
+                type: 'string',
+                enum: ['DEBIT', 'CREDIT']
+              },
+              description: 'Available card modes. CREDIT only if creditLimit > 0',
+              example: ['DEBIT', 'CREDIT']
+            }
+          }
+        },
+        VerifyPinRequest: {
+          type: 'object',
+          required: ['cardNumber', 'pin', 'cardMode'],
+          properties: {
+            cardNumber: {
+              type: 'string',
+              description: '16-digit card number',
+              minLength: 16,
+              maxLength: 16,
+              pattern: '^[0-9]{16}$',
+              example: '1234567890123456'
+            },
+            pin: {
+              type: 'string',
+              description: '4-digit PIN code',
+              minLength: 4,
+              maxLength: 4,
+              pattern: '^[0-9]{4}$',
+              example: '1234'
+            },
+            cardMode: {
+              type: 'string',
+              enum: ['DEBIT', 'CREDIT'],
+              description: 'Transaction mode selection',
+              example: 'DEBIT'
+            }
+          }
+        },
+        VerifyPinResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true
+            },
+            message: {
+              type: 'string',
+              example: 'PIN verified successfully'
+            },
+            token: {
+              type: 'string',
+              description: 'JWT authentication token',
+              example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYXJkSWQiOjEsImFjY291bnRJZCI6MSwiY3VzdG9tZXJJZCI6MSwiY2FyZE1vZGUiOiJERUJJVCIsImlhdCI6MTczODA4MDAwMCwiZXhwIjoxNzQzMjY0MDAwfQ.signature'
+            },
+            expiresIn: {
+              type: 'string',
+              description: 'Token expiration time',
+              example: '60d'
+            },
+            customer: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'integer',
+                  example: 1
+                },
+                firstName: {
+                  type: 'string',
+                  example: 'Matti'
+                },
+                lastName: {
+                  type: 'string',
+                  example: 'Virtanen'
+                }
+              }
+            },
+            account: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'integer',
+                  example: 1
+                },
+                accountNumber: {
+                  type: 'string',
+                  example: 'FI1234567890123456'
+                },
+                balance: {
+                  type: 'number',
+                  format: 'decimal',
+                  example: 1500.00
+                },
+                creditLimit: {
+                  type: 'number',
+                  format: 'decimal',
+                  example: 0.00
+                }
+              }
+            },
+            cardMode: {
+              type: 'string',
+              enum: ['DEBIT', 'CREDIT'],
+              example: 'DEBIT'
+            }
+          }
+        },
+        AuthErrorResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: false
+            },
+            message: {
+              type: 'string',
+              description: 'Error message with remaining attempts or lock status',
+              examples: {
+                wrongPin: 'Invalid PIN. 2 attempts remaining.',
+                locked: 'Card is now locked due to 3 failed PIN attempts. Please contact customer service.',
+                alreadyLocked: 'Card is locked due to multiple failed PIN attempts. Please contact customer service.',
+                notFound: 'Card not found',
+                inactive: 'Card is not active',
+                expired: 'Card has expired'
+              }
+            }
+          }
+        },
         Transaction: {
           type: 'object',
           required: ['accountId', 'transactionType', 'amount'],
