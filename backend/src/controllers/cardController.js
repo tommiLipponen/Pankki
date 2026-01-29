@@ -21,19 +21,19 @@ class CardController {
     // GET /api/cards/:id
     async getCardById(req, res, next) {
         try {
-            // Authorization: User can only view their own card
-            if (req.user.cardId !== parseInt(req.params.id)) {
-                return res.status(403).json({
-                    success: false,
-                    message: "Access denied: You can only view your own card"
-                });
-            }
-
             const card = await cardService.getCardById(req.params.id);
             if (!card) {
                 return res.status(404).json({
                     success: false,
                     message: "Card not found"
+                });
+            }
+
+            // Authorization: User can only view their own card
+            if (req.user.cardId !== card.id) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only view your own card"
                 });
             }
             res.json({
@@ -93,14 +93,6 @@ class CardController {
     // PUT /api/cards/:id
     async updateCard(req, res, next) {
         try {
-            // Authorization: User can only update their own card
-            if (req.user.cardId !== parseInt(req.params.id)) {
-                return res.status(403).json({
-                    success: false,
-                    message: "Access denied: You can only update your own card"
-                });
-            }
-
             const { cardNumber, pinHash,customerId,accountId, expiryDate, isLocked, isActive } = req.body;
 
             // At least one field must be provided for update
@@ -108,6 +100,14 @@ class CardController {
                 return res.status(400).json({
                     success: false,
                     message: "At least one field must be provided for update: cardNumber, pinHash, customerId, accountId, expiryDate, isLocked, isActive"
+                });
+            }
+
+            // Authorization: User can only update their own card
+            if (req.user.cardId !== parseInt(req.params.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only update your own card"
                 });
             }
             //Validate card number length if provided
