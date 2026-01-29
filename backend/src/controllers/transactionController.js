@@ -2,6 +2,8 @@
 // HTTP request handling for transaction operations
 
 const transactionService = require('../services/transactionService');
+const accountService = require('../services/accountService');
+const cardService = require('../services/cardService');
 
 class TransactionController {
   // POST /api/transactions
@@ -94,6 +96,15 @@ class TransactionController {
         });
       }
 
+      // Check if account exists first
+      const account = await accountService.getAccountById(parseInt(accountId));
+      if (!account) {
+        return res.status(404).json({
+          success: false,
+          message: 'Account not found'
+        });
+      }
+
       // Authorization: User can only view transactions for their own account
       if (req.user.accountId !== parseInt(accountId)) {
         return res.status(403).json({
@@ -134,6 +145,15 @@ class TransactionController {
         return res.status(400).json({
           success: false,
           message: 'Invalid cardId'
+        });
+      }
+
+      // Check if card exists first
+      const card = await cardService.getCardById(parseInt(cardId));
+      if (!card) {
+        return res.status(404).json({
+          success: false,
+          message: 'Card not found'
         });
       }
 
