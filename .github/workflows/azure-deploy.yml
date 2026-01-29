@@ -29,9 +29,11 @@ jobs:
       working-directory: ./backend
       run: npx prisma generate
 
-    - name: Resolve failed migration
+    - name: Resolve failed migrations
       working-directory: ./backend
-      run: npx prisma migrate resolve --rolled-back 20260129000000_add_withdrawal_procedure_and_pin_tracking || true
+      run: |
+        npx prisma migrate resolve --rolled-back 20260129000000_add_withdrawal_procedure_and_pin_tracking || true
+        npx prisma migrate resolve --rolled-back 20260129120000_add_pin_tracking_fields || true
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
