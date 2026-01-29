@@ -28,6 +28,14 @@ class CardController {
                     message: "Card not found"
                 });
             }
+
+            // Authorization: User can only view their own card
+            if (req.user.cardId !== card.id) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only view your own card"
+                });
+            }
             res.json({
                 success: true,
                 data: card
@@ -94,6 +102,14 @@ class CardController {
                     message: "At least one field must be provided for update: cardNumber, pinHash, customerId, accountId, expiryDate, isLocked, isActive"
                 });
             }
+
+            // Authorization: User can only update their own card
+            if (req.user.cardId !== parseInt(req.params.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only update your own card"
+                });
+            }
             //Validate card number length if provided
             if (cardNumber && cardNumber.length !== 16) {
                 return res.status(400).json({
@@ -136,6 +152,14 @@ class CardController {
     // DELETE /api/cards/:id
     async deleteCard(req, res, next) {
         try {
+            // Authorization: User can only delete their own card
+            if (req.user.cardId !== parseInt(req.params.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Access denied: You can only delete your own card"
+                });
+            }
+
             await cardService.deleteCard(req.params.id);
             res.json({
                 success: true,
