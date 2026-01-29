@@ -189,7 +189,8 @@ async function main() {
         accountId: accounts[0].id,
         expiryDate: futureDate,
         isLocked: false,
-        isActive: true
+        isActive: true,
+        failedPinAttempts: 0
       }
     }),
     prisma.card.create({
@@ -200,7 +201,8 @@ async function main() {
         accountId: accounts[1].id,
         expiryDate: futureDate,
         isLocked: false,
-        isActive: true
+        isActive: true,
+        failedPinAttempts: 0
       }
     }),
     // Liisa's cards
@@ -212,7 +214,8 @@ async function main() {
         accountId: accounts[2].id,
         expiryDate: futureDate,
         isLocked: false,
-        isActive: true
+        isActive: true,
+        failedPinAttempts: 0
       }
     }),
     prisma.card.create({
@@ -223,7 +226,8 @@ async function main() {
         accountId: accounts[3].id,
         expiryDate: futureDate,
         isLocked: true, // Locked card for testing
-        isActive: true
+        isActive: true,
+        failedPinAttempts: 3 // Locked due to failed attempts
       }
     }),
     // Jukka's cards
@@ -235,7 +239,8 @@ async function main() {
         accountId: accounts[4].id,
         expiryDate: futureDate,
         isLocked: false,
-        isActive: true
+        isActive: true,
+        failedPinAttempts: 0
       }
     }),
     prisma.card.create({
@@ -246,7 +251,8 @@ async function main() {
         accountId: accounts[4].id,
         expiryDate: expiredDate, // Expired card
         isLocked: false,
-        isActive: false
+        isActive: false,
+        failedPinAttempts: 0
       }
     }),
     // Anna's cards
@@ -258,7 +264,8 @@ async function main() {
         accountId: accounts[5].id,
         expiryDate: futureDate,
         isLocked: false,
-        isActive: true
+        isActive: true,
+        failedPinAttempts: 0
       }
     }),
     prisma.card.create({
@@ -269,7 +276,8 @@ async function main() {
         accountId: accounts[5].id,
         expiryDate: futureDate,
         isLocked: false,
-        isActive: false // Deactivated card for testing
+        isActive: false, // Deactivated card for testing
+        failedPinAttempts: 0
       }
     }),
     // Mikko's cards
@@ -281,7 +289,8 @@ async function main() {
         accountId: accounts[6].id,
         expiryDate: futureDate,
         isLocked: false,
-        isActive: true
+        isActive: true,
+        failedPinAttempts: 0
       }
     }),
     prisma.card.create({
@@ -292,7 +301,8 @@ async function main() {
         accountId: accounts[6].id,
         expiryDate: futureDate,
         isLocked: true, // Locked for fraud
-        isActive: true
+        isActive: true,
+        failedPinAttempts: 3
       }
     }),
     // Extra cards for variety
@@ -304,7 +314,8 @@ async function main() {
         accountId: accounts[0].id,
         expiryDate: futureDate,
         isLocked: false,
-        isActive: true
+        isActive: true,
+        failedPinAttempts: 0
       }
     }),
     prisma.card.create({
@@ -315,7 +326,8 @@ async function main() {
         accountId: accounts[2].id,
         expiryDate: futureDate,
         isLocked: false,
-        isActive: true
+        isActive: true,
+        failedPinAttempts: 0
       }
     })
   ]);

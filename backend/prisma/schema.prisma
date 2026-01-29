@@ -62,6 +62,8 @@ model Card {
   // Soft delete flag: false = card permanently deactivated (lost/stolen/expired)
   // Checked in transactionService before allowing transactions
   isActive    Boolean  @map("is_active") @default(true)
+  failedPinAttempts Int @default(0) @map("failed_pin_attempts") // Count of consecutive failed PIN attempts
+  lastFailedAttempt DateTime? @map("last_failed_attempt") // Timestamp of last failed PIN attempt
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
