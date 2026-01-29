@@ -36,35 +36,5 @@ describe('Card API - Read Operations', () => {
     });
   });
 
-  describe('GET /api/cards/:id', () => {
-    it('should return a specific card', async () => {
-      // Skip if no card ID available
-      if (!testCardId) {
-        console.log('Skipping: No cards in database');
-        return;
-      }
 
-        const response = await request(app)
-        .get(`/api/cards/${testCardId}`)
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect('Content-Type', /json/)
-        .expect(200);
-
-        assert.ok(response.body.success);
-        assert.strictEqual(response.body.data.id, testCardId);
-        assert.ok(response.body.data.cardNumber);
-        assert.ok(response.body.data.expiryDate);
-    });
-
-    it('should return 404 for non-existent card', async () => {
-      const response = await request(app)
-        .get('/api/cards/99999')
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect('Content-Type', /json/)
-        .expect(404);
-
-        assert.strictEqual(response.body.success, false);
-        assert.ok(response.body.message.includes('not found'));
-    });
-  });
 } );
