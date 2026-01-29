@@ -30,20 +30,11 @@ class AccountController {
                 });
             }
 
-            // Authorization: User can only access their own account
-            console.log('Authorization check:', {
-                userAccountId: req.user.accountId,
-                userAccountIdType: typeof req.user.accountId,
-                accountId: account.id,
-                accountIdType: typeof account.id,
-                parsedUserAccountId: parseInt(req.user.accountId),
-                parsedAccountId: parseInt(account.id),
-                areEqual: parseInt(req.user.accountId) === parseInt(account.id)
-            });
-            if (parseInt(req.user.accountId) !== parseInt(account.id)) {
+            // Authorization: User can only access accounts belonging to their customer
+            if (parseInt(req.user.customerId) !== parseInt(account.customerId)) {
                 return res.status(403).json({
                     success: false,
-                    message: "Access denied: You can only access your own account"
+                    message: "Access denied: You can only access your own accounts"
                 });
             }
             res.json({
@@ -102,13 +93,23 @@ class AccountController {
                 });
             }
 
-            // Authorization: User can only update their own account
-            if (req.user.accountId !== parseInt(req.params.id)) {
+            // First fetch the account to check ownership
+            const existingAccount = await accountService.getAccountById(req.params.id);
+            if (!existingAccount) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Account not found"
+                });
+            }
+
+            // Authorization: User can only update accounts belonging to their customer
+            if (parseInt(req.user.customerId) !== parseInt(existingAccount.customerId)) {
                 return res.status(403).json({
                     success: false,
-                    message: "Access denied: You can only update your own account"
+                    message: "Access denied: You can only update your own accounts"
                 });
-            }       
+            }
+
             const account = await accountService.updateAccount(req.params.id, req.body);
 
             res.json({
@@ -138,11 +139,20 @@ class AccountController {
     // DELETE /api/accounts/:id
     async deleteAccount(req, res, next) {
         try {
-            // Authorization: User can only delete their own account
-            if (req.user.accountId !== parseInt(req.params.id)) {
+            // First fetch the account to check ownership
+            const existingAccount = await accountService.getAccountById(req.params.id);
+            if (!existingAccount) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Account not found"
+                });
+            }
+
+            // Authorization: User can only delete accounts belonging to their customer
+            if (parseInt(req.user.customerId) !== parseInt(existingAccount.customerId)) {
                 return res.status(403).json({
                     success: false,
-                    message: "Access denied: You can only delete your own account"
+                    message: "Access denied: You can only delete your own accounts"
                 });
             }
 
