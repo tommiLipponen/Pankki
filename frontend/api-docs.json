@@ -1,0 +1,505 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Bank ATM API",
+    "version": "1.0.0",
+    "description": "REST API for Bank ATM system - Customer management",
+    "contact": {
+      "name": "Bank ATM Team",
+      "email": "team@example.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net",
+      "description": "Production server (Azure)"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "ATM authentication endpoints (2-step flow: insert card ? verify PIN ? get JWT token)"
+    },
+    {
+      "name": "Customers",
+      "description": "Customer management endpoints"
+    },
+    {
+      "name": "Accounts",
+      "description": "Account management endpoints (requires JWT authentication)"
+    },
+    {
+      "name": "Cards",
+      "description": "Card management endpoints (requires JWT authentication)"
+    },
+    {
+      "name": "Transactions",
+      "description": "Transaction processing endpoints with debit/credit mode support (requires JWT authentication)"
+    },
+    {
+      "name": "Health",
+      "description": "System health check"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token obtained from POST /api/auth/verify-pin. Include as: Authorization: Bearer <token>"
+      }
+    },
+    "schemas": {
+      "Customer": {
+        "type": "object",
+        "required": ["firstName", "lastName", "address"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Auto-generated customer ID",
+            "example": 1
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Customer first name",
+            "maxLength": 100,
+            "example": "Matti"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Customer last name",
+            "maxLength": 100,
+            "example": "Meikäläinen"
+          },
+          "address": {
+            "type": "string",
+            "description": "Customer address",
+            "maxLength": 255,
+            "example": "Kauppurienkatu 1, 90100 Oulu"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when customer was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when customer was last updated"
+          }
+        }
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Auto-generated account ID",
+            "example": 1
+          },
+          "customerId": {
+            "type": "integer",
+            "description": "Customer ID who owns this account",
+            "example": 1
+          },
+          "accountNumber": {
+            "type": "string",
+            "description": "Unique account number",
+            "maxLength": 20,
+            "example": "FI1234567890123456"
+          },
+          "balance": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Current account balance",
+            "example": 1000
+          },
+          "creditLimit": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Credit limit for CREDIT mode transactions",
+            "example": 500
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Account active status (soft delete)",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when account was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when account was last updated"
+          }
+        }
+      },
+      "Card": {
+        "type": "object",
+        "required": ["accountId", "cardNumber", "customerId", "pinHash", "expiryDate"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Auto-generated card ID",
+            "example": 1
+          },
+          "accountId": {
+            "type": "integer",
+            "description": "Account ID associated with this card",
+            "example": 1
+          },
+          "cardNumber": {
+            "type": "string",
+            "description": "Unique card number",
+            "maxLength": 16,
+            "minLength": 16,
+            "example": "1234567812345678"
+          },
+          "customerId": {
+            "type": "integer",
+            "description": "Customer ID who owns this card",
+            "example": 1
+          },
+          "pinHash": {
+            "type": "string",
+            "description": "Hashed PIN code for card authentication",
+            "example": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Card expiry date",
+            "example": "2025-12-31T23:59:59Z"
+          },
+          "isLocked": {
+            "type": "boolean",
+            "description": "Card lock status (auto-locked after 3 failed PIN attempts)",
+            "example": false
+          },
+          "failedPinAttempts": {
+            "type": "integer",
+            "description": "Number of consecutive failed PIN attempts",
+            "minimum": 0,
+            "example": 0
+          },
+          "lastFailedAttempt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Timestamp of last failed PIN attempt",
+            "example": "2026-01-29T10:30:00Z"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Card active status (soft delete)",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when card was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when card was last updated"
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "required": ["accountId", "transactionType", "amount"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Auto-generated transaction ID",
+            "example": 1
+          },
+          "accountId": {
+            "type": "integer",
+            "description": "Account ID associated with transaction",
+            "example": 1
+          },
+          "cardId": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Card ID used for transaction (null for system transactions)",
+            "example": 1
+          },
+          "transactionType": {
+            "type": "string",
+            "enum": ["DEPOSIT", "WITHDRAWAL", "TRANSFER_IN", "TRANSFER_OUT"],
+            "description": "Type of transaction",
+            "example": "WITHDRAWAL"
+          },
+          "cardMode": {
+            "type": "string",
+            "enum": ["DEBIT", "CREDIT"],
+            "nullable": true,
+            "description": "Card mode at time of transaction. DEBIT: balance >= 0. CREDIT: balance >= -creditLimit",
+            "example": "DEBIT"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Transaction amount (always positive)",
+            "example": 50
+          },
+          "balanceAfter": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Account balance after transaction",
+            "example": 450
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 255,
+            "nullable": true,
+            "description": "Optional transaction description",
+            "example": "ATM withdrawal"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when transaction was created"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "tags": ["Health"],
+        "description": "Check if the API server is running",
+        "responses": {
+          "200": {
+            "description": "Server is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "OK"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/insert-card": {
+      "post": {
+        "summary": "Step 1 - Insert card and get available modes",
+        "tags": ["Authentication"],
+        "description": "Validates card exists, is active, not locked, and not expired. Returns available card modes (DEBIT, CREDIT).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["cardNumber"],
+                "properties": {
+                  "cardNumber": {
+                    "type": "string",
+                    "pattern": "^\\d{16}$",
+                    "example": "1111222233334444",
+                    "description": "16-digit card number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Card validated successfully"
+          },
+          "404": {
+            "description": "Card not found, inactive, locked, or expired"
+          }
+        }
+      }
+    },
+    "/api/auth/verify-pin": {
+      "post": {
+        "summary": "Step 2 - Verify PIN and get JWT token",
+        "tags": ["Authentication"],
+        "description": "Verifies PIN with bcrypt, generates JWT token for authenticated session. Card locks after 3 failed attempts.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["cardNumber", "pin", "cardMode"],
+                "properties": {
+                  "cardNumber": {
+                    "type": "string",
+                    "pattern": "^\\d{16}$",
+                    "example": "1111222233334444"
+                  },
+                  "pin": {
+                    "type": "string",
+                    "pattern": "^\\d{4}$",
+                    "example": "1234"
+                  },
+                  "cardMode": {
+                    "type": "string",
+                    "enum": ["DEBIT", "CREDIT"],
+                    "example": "DEBIT"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful, JWT token generated"
+          },
+          "401": {
+            "description": "Invalid PIN or card locked"
+          }
+        }
+      }
+    },
+    "/api/customers": {
+      "get": {
+        "summary": "Get all customers",
+        "tags": ["Customers"],
+        "description": "Retrieve a list of all customers from the database",
+        "responses": {
+          "200": {
+            "description": "List of customers retrieved successfully"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new customer",
+        "tags": ["Customers"],
+        "description": "Create a new customer in the database",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["firstName", "lastName", "address"],
+                "properties": {
+                  "firstName": {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  "address": {
+                    "type": "string",
+                    "maxLength": 255
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Customer created successfully"
+          }
+        }
+      }
+    },
+    "/api/accounts": {
+      "get": {
+        "summary": "Get all accounts",
+        "tags": ["Accounts"],
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "List of accounts"
+          }
+        }
+      }
+    },
+    "/api/cards": {
+      "get": {
+        "summary": "Get all cards",
+        "tags": ["Cards"],
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "List of cards"
+          }
+        }
+      }
+    },
+    "/api/transactions": {
+      "post": {
+        "summary": "Create a new transaction",
+        "tags": ["Transactions"],
+        "security": [{"bearerAuth": []}],
+        "description": "Create a new transaction (DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT). DEBIT mode requires balance >= 0. CREDIT mode allows balance >= -creditLimit.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["accountId", "cardId", "transactionType", "cardMode", "amount"],
+                "properties": {
+                  "accountId": {
+                    "type": "integer"
+                  },
+                  "cardId": {
+                    "type": "integer"
+                  },
+                  "transactionType": {
+                    "type": "string",
+                    "enum": ["DEPOSIT", "WITHDRAWAL", "TRANSFER_IN", "TRANSFER_OUT"]
+                  },
+                  "cardMode": {
+                    "type": "string",
+                    "enum": ["DEBIT", "CREDIT"]
+                  },
+                  "amount": {
+                    "type": "number",
+                    "format": "decimal"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Transaction created successfully"
+          }
+        }
+      }
+    }
+  }
+}

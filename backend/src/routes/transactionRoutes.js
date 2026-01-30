@@ -191,7 +191,7 @@ router.get('/:id', transactionController.getTransactionById.bind(transactionCont
  * /api/transactions:
  *   post:
  *     summary: Create a new transaction
- *     description: Create a new transaction (DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT). DEBIT mode requires balance >= 0. CREDIT mode allows balance >= -creditLimit.
+ *     description: Create a new transaction (DEPOSIT, TRANSFER_IN, TRANSFER_OUT). For withdrawals, use POST /api/transactions/withdraw which uses stored procedure with row-level locking. DEBIT mode requires balance >= 0. CREDIT mode allows balance >= -creditLimit.
  *     tags: [Transactions]
  *     security:
  *       - bearerAuth: []
@@ -218,9 +218,9 @@ router.get('/:id', transactionController.getTransactionById.bind(transactionCont
  *                 description: Card ID used for transaction
  *               transactionType:
  *                 type: string
- *                 enum: [DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT]
- *                 example: "WITHDRAWAL"
- *                 description: Type of transaction
+ *                 enum: [DEPOSIT, TRANSFER_IN, TRANSFER_OUT]
+ *                 example: "DEPOSIT"
+ *                 description: "Transaction type (withdrawals use /withdraw endpoint)"
  *               cardMode:
  *                 type: string
  *                 enum: [DEBIT, CREDIT]
@@ -234,7 +234,7 @@ router.get('/:id', transactionController.getTransactionById.bind(transactionCont
  *               description:
  *                 type: string
  *                 maxLength: 255
- *                 example: "ATM withdrawal"
+ *                 example: "Account deposit"
  *                 description: Optional transaction description
  *     responses:
  *       201:
@@ -357,5 +357,101 @@ router.post('/', transactionController.createTransaction.bind(transactionControl
  *         description: Server error
  */
 router.post('/transfer', transactionController.transfer.bind(transactionController));
+
+/**
+ * @swagger
+ * /api/transactions/withdraw:
+ *   post:
+ *     tags:
+ *       - Transactions
+ *     summary: Withdraw money using stored procedure (production method)
+ *     description: |
+ *       Performs a withdrawal using a MySQL stored procedure with row-level locking to prevent race conditions.
+ *       The stored procedure uses `SELECT ... FOR UPDATE` to lock account and card rows during the transaction,
+ *       ensuring atomic balance updates even under concurrent withdrawal requests.
+ *       
+ *       Account and card information are extracted from the JWT token (must be authenticated).
+ *       The stored procedure validates balance limits based on card mode (DEBIT/CREDIT) and card status.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - amount
+ *             properties:
+ *               amount:
+ *                 type: number
+ *                 format: double
+ *                 minimum: 0.01
+ *                 example: 50.00
+ *                 description: Amount to withdraw (must be positive)
+ *           examples:
+ *             smallWithdrawal:
+ *               value:
+ *                 amount: 20.00
+ *               summary: Small withdrawal
+ *             largeWithdrawal:
+ *               value:
+ *                 amount: 500.00
+ *               summary: Large withdrawal
+ *     responses:
+ *       201:
+ *         description: Withdrawal completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Transaction'
+ *                 message:
+ *                   type: string
+ *                   example: "Withdrawal completed successfully"
+ *       400:
+ *         description: Validation error or business logic error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             examples:
+ *               insufficientBalance:
+ *                 value:
+ *                   success: false
+ *                   message: "Insufficient balance for DEBIT withdrawal"
+ *                 summary: Insufficient balance (DEBIT card)
+ *               insufficientCredit:
+ *                 value:
+ *                   success: false
+ *                   message: "Insufficient credit limit for CREDIT withdrawal"
+ *                 summary: Exceeded credit limit (CREDIT card)
+ *               lockedCard:
+ *                 value:
+ *                   success: false
+ *                   message: "Card is locked"
+ *                 summary: Card is locked
+ *               invalidAmount:
+ *                 value:
+ *                   success: false
+ *                   message: "Amount must be a positive number"
+ *                 summary: Invalid amount
+ *       401:
+ *         description: Unauthorized - JWT token missing or invalid
+ *       500:
+ *         description: Server error
+ */
+router.post('/withdraw', transactionController.withdraw.bind(transactionController));
 
 module.exports = router;

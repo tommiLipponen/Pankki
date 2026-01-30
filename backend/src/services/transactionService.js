@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
  * Create a new transaction
  * @param {number} accountId - Account ID
  * @param {number} cardId - Card ID used for transaction
- * @param {string} transactionType - DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT
+ * @param {string} transactionType - DEPOSIT, TRANSFER_IN, TRANSFER_OUT (use withdrawWithStoredProcedure for withdrawals)
  * @param {string} cardMode - DEBIT or CREDIT
  * @param {number} amount - Transaction amount (positive number)
  * @param {string} description - Optional transaction description
@@ -55,12 +55,11 @@ async function createTransaction(accountId, cardId, transactionType, cardMode, a
       case 'TRANSFER_IN':
         newBalance += transactionAmount;
         break;
-      case 'WITHDRAWAL':
       case 'TRANSFER_OUT':
         newBalance -= transactionAmount;
         break;
       default:
-        throw new Error('Invalid transaction type');
+        throw new Error('Invalid transaction type. Use POST /api/transactions/withdraw for withdrawals.');
     }
 
     // Validate balance based on card mode
@@ -240,10 +239,71 @@ async function transfer(fromAccountId, toAccountId, cardId, cardMode, amount, de
   }
 }
 
+/**
+ * Withdraw money using stored procedure (production method with row-level locking)
+ * Prevents race conditions with FOR UPDATE locking
+ * @param {number} accountId - Account ID
+ * @param {number} cardId - Card ID
+ * @param {number} amount - Withdrawal amount
+ * @param {string} cardMode - DEBIT or CREDIT
+ */
+async function withdrawWithStoredProcedure(accountId, cardId, amount, cardMode) {
+  try {
+    // Call the stored procedure
+    // Note: PIN is already verified by JWT authentication middleware
+    await prisma.$executeRaw`
+      CALL usp_withdraw_money(
+        ${accountId},
+        ${cardId},
+        '',
+        ${amount},
+        ${cardMode}
+      )
+    `;
+
+    // Fetch and return the created transaction
+    const transaction = await prisma.transaction.findFirst({
+      where: {
+        accountId,
+        cardId,
+        transactionType: 'WITHDRAWAL',
+        amount
+      },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        account: {
+          include: {
+            customer: true
+          }
+        },
+        card: true
+      }
+    });
+
+    return transaction;
+  } catch (error) {
+    // Parse MySQL error messages
+    if (error.message.includes('Insufficient balance')) {
+      throw new Error('Insufficient balance for DEBIT withdrawal');
+    }
+    if (error.message.includes('Insufficient credit')) {
+      throw new Error('Insufficient credit limit for CREDIT withdrawal');
+    }
+    if (error.message.includes('Card is locked')) {
+      throw new Error('Card is locked');
+    }
+    if (error.message.includes('Card is not active')) {
+      throw new Error('Card is not active');
+    }
+    throw error;
+  }
+}
+
 module.exports = {
   createTransaction,
   getTransactionsByAccount,
   getTransactionsByCard,
   getTransactionById,
-  transfer
+  transfer,
+  withdrawWithStoredProcedure
 };

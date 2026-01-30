@@ -50,6 +50,44 @@ qt_add_executable(frontend
     customer.h
 )
 
+# Add API documentation files (not compiled, for reference only)
+# These files are visible in both Visual Studio and Qt Creator for easy access
+set(API_DOCS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/api-docs.json")
+set(API_REFERENCE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/API_REFERENCE.md")
+
+# Check and add OpenAPI specification
+if(EXISTS "${API_DOCS_FILE}")
+    message(STATUS "OpenAPI specification found: ${API_DOCS_FILE}")
+else()
+    message(WARNING "OpenAPI specification not found. Download from: https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net/api-docs.json")
+endif()
+
+# Check and add API reference guide
+if(EXISTS "${API_REFERENCE_FILE}")
+    message(STATUS "API reference guide found: ${API_REFERENCE_FILE}")
+else()
+    message(WARNING "API_REFERENCE.md not found in ${CMAKE_CURRENT_SOURCE_DIR}")
+endif()
+
+# Add documentation files to project (visible in IDE but not compiled)
+if(EXISTS "${API_DOCS_FILE}" OR EXISTS "${API_REFERENCE_FILE}")
+    set(DOC_FILES "")
+    if(EXISTS "${API_DOCS_FILE}")
+        list(APPEND DOC_FILES ${API_DOCS_FILE})
+    endif()
+    if(EXISTS "${API_REFERENCE_FILE}")
+        list(APPEND DOC_FILES ${API_REFERENCE_FILE})
+    endif()
+    
+    # Mark as header-only (not compiled)
+    set_source_files_properties(${DOC_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
+    
+    # Add to target sources (visible in IDE project tree)
+    target_sources(frontend PRIVATE ${DOC_FILES})
+    
+    message(STATUS "Added ${CMAKE_CURRENT_LIST_LINE} documentation file(s) to project")
+endif()
+
 target_link_libraries(frontend
     PRIVATE
         Qt::Core

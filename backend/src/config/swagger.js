@@ -468,9 +468,9 @@ const options = {
             },
             transactionType: {
               type: 'string',
-              enum: ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER_IN', 'TRANSFER_OUT'],
-              description: 'Type of transaction',
-              example: 'WITHDRAWAL'
+              enum: ['DEPOSIT', 'TRANSFER_IN', 'TRANSFER_OUT'],
+              description: 'Type of transaction (WITHDRAWAL must use dedicated POST /api/transactions/withdraw endpoint)',
+              example: 'DEPOSIT'
             },
             cardMode: {
               type: 'string',
@@ -496,7 +496,7 @@ const options = {
               maxLength: 255,
               nullable: true,
               description: 'Optional transaction description',
-              example: 'ATM withdrawal'
+              example: 'Account deposit'
             },
             createdAt: {
               type: 'string',
