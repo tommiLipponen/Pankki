@@ -48,6 +48,7 @@ qt_add_executable(frontend
     apiclient.h
     customer.cpp
     customer.h
+
 )
 
 # Add API documentation files (not compiled, for reference only)

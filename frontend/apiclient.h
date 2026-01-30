@@ -17,6 +17,7 @@
 #include <QNetworkReply>
 #include <QList>
 #include "customer.h"
+#include <QStringList>
 
 class ApiClient : public QObject
 {
@@ -25,6 +26,9 @@ class ApiClient : public QObject
 public:
     explicit ApiClient(QObject *parent = nullptr);
     ~ApiClient();
+
+    //Insert Pin Window
+    void insertCard(const QString &cardNumber);
     
     // Set API base URL (default: production)
     void setBaseUrl(const QString &url);
@@ -48,6 +52,11 @@ signals:
     void customerUpdated(const Customer &customer);
     void customerDeleted(int id);
     void healthCheckSuccess(const QString &status);
+
+    //Insert card settiä
+
+    void insertCardSuccess(QStringList modes);
+    void insertCardError(QString message);
     
     // Error signal
     void errorOccurred(const QString &errorMessage);
@@ -70,6 +79,10 @@ private:
     void handleDeleteResponse(QNetworkReply *reply, const QByteArray &responseData);
     void handleHealthResponse(const QByteArray &responseData);
     void handleError(QNetworkReply *reply);
+
+    QNetworkAccessManager manager;
+    const QString baseUrl = "https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net";
+
 };
 
 #endif // APICLIENT_H

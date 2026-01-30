@@ -1,4 +1,5 @@
 #include "apiclient.h"
+#include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -18,6 +19,48 @@ ApiClient::ApiClient(QObject *parent)
 
 ApiClient::~ApiClient()
 {
+}
+
+void ApiClient::insertCard(const QString &cardNumber)
+{
+    QUrl url(baseUrl + "/api/auth/insert-card");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+
+    QJsonObject body;
+    body["cardNumber"] = cardNumber;
+
+    auto reply = manager.post(
+        request,
+        QJsonDocument(body).toJson()
+        );
+
+    connect(reply, &QNetworkReply::finished,this,[=](){
+        QByteArray response = reply->readAll();
+
+        if(reply->error() != QNetworkReply::NoError){
+        emit insertCardError(response);
+        reply->deleteLater();
+        return;
+            }
+
+        QJsonObject json =
+                QJsonDocument::fromJson(response).object();
+
+            if(!json["success"].toBool()){
+            emit insertCardError(json["message"].toString());
+            reply->deleteLater();
+            return;
+            }
+
+            QJsonObject data = json["data"].toObject();
+            QStringList modes = data["availableCardMode"].toVariant().toStringList();
+
+            emit insertCardSuccess(modes);
+            reply->deleteLater();
+    });
+
+
 }
 
 void ApiClient::setBaseUrl(const QString &url)
