@@ -33,7 +33,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -41,11 +41,18 @@ private slots:
     void onHealthCheckClicked();
     void onCustomersReceived(const QList<Customer> &customers);
     void onHealthCheckSuccess(const QString &status);
-    void onApiError(const QString &errorMessage);
+
+    void onInsertCardClicked();
+    void onInsertCardSuccess(QStringList modes);
+    void onApiError(QString message);
+
 
 private:
     Ui::MainWindow *ui;
     ApiClient *apiClient;
+
+    QString currentCardNumber;
+    QStringList availableCardModes;
     
     void setupUI();
     void setupConnections();
