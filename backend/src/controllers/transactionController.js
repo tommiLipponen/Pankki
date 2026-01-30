@@ -27,12 +27,12 @@ class TransactionController {
         });
       }
 
-      // Validate transactionType
-      const validTypes = ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER_IN', 'TRANSFER_OUT'];
+      // Validate transactionType (WITHDRAWAL must use dedicated /withdraw endpoint)
+      const validTypes = ['DEPOSIT', 'TRANSFER_IN', 'TRANSFER_OUT'];
       if (!validTypes.includes(transactionType)) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid transactionType. Must be: DEPOSIT, WITHDRAWAL, TRANSFER_IN, or TRANSFER_OUT'
+          message: 'Invalid transactionType. Must be: DEPOSIT, TRANSFER_IN, or TRANSFER_OUT. Use POST /api/transactions/withdraw for withdrawals.'
         });
       }
 
@@ -278,6 +278,51 @@ class TransactionController {
           error.message.includes('does not belong') ||
           error.message.includes('locked') ||
           error.message.includes('Insufficient')) {
+        return res.status(400).json({
+          success: false,
+          message: error.message
+        });
+      }
+      next(error);
+    }
+  }
+
+  // POST /api/transactions/withdraw
+  async withdraw(req, res, next) {
+    try {
+      const { amount } = req.body;
+
+      // Get account and card from JWT token
+      const accountId = req.user.accountId;
+      const cardId = req.user.cardId;
+      const cardMode = req.user.cardMode;
+
+      // Validate amount
+      if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Amount must be a positive number'
+        });
+      }
+
+      // Use stored procedure for production (prevents race conditions)
+      const transaction = await transactionService.withdrawWithStoredProcedure(
+        accountId,
+        cardId,
+        parseFloat(amount),
+        cardMode
+      );
+
+      res.status(201).json({
+        success: true,
+        data: transaction,
+        message: 'Withdrawal completed successfully'
+      });
+    } catch (error) {
+      // Handle business logic errors
+      if (error.message.includes('Insufficient') ||
+          error.message.includes('locked') ||
+          error.message.includes('not active')) {
         return res.status(400).json({
           success: false,
           message: error.message
