@@ -19,7 +19,10 @@ const authController = require('../controllers/authController');
  *   post:
  *     summary: Step 1 - Insert card and get available modes
  *     tags: [Authentication]
- *     description: Validates card exists, is active, and not expired. Returns available card modes (DEBIT, CREDIT).
+ *     description: |
+ *       Validates card exists, is active, not locked, and not expired. Returns available card modes (DEBIT, CREDIT).
+ *       
+ *       **Security**: Card must not be locked (isLocked = false). Cards are auto-locked after 3 failed PIN attempts.
  *     requestBody:
  *       required: true
  *       content:
@@ -67,11 +70,32 @@ const authController = require('../controllers/authController');
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
- *         description: Card not found, inactive, or expired
+ *         description: Card not found, inactive, locked, or expired
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               notFound:
+ *                 summary: Card not found
+ *                 value:
+ *                   success: false
+ *                   message: "Card not found"
+ *               locked:
+ *                 summary: Card locked
+ *                 value:
+ *                   success: false
+ *                   message: "Card is locked due to multiple failed PIN attempts. Please contact customer service."
+ *               inactive:
+ *                 summary: Card inactive
+ *                 value:
+ *                   success: false
+ *                   message: "Card is not active"
+ *               expired:
+ *                 summary: Card expired
+ *                 value:
+ *                   success: false
+ *                   message: "Card has expired"
  *       500:
  *         description: Server error
  *         content:
@@ -87,7 +111,20 @@ router.post('/insert-card', authController.insertCard.bind(authController));
  *   post:
  *     summary: Step 2 - Verify PIN and get JWT token
  *     tags: [Authentication]
- *     description: Verifies PIN with bcrypt, generates JWT token for authenticated session. Token expires in 60 days (development mode).
+ *     description: |
+ *       Verifies PIN with bcrypt, generates JWT token for authenticated session. Token expires in 60 days.
+ *       
+ *       **Security Features**:
+ *       - Failed PIN attempts are tracked in database (failedPinAttempts counter)
+ *       - Card auto-locks after 3 consecutive failed attempts (isLocked = true)
+ *       - Counter resets to 0 on successful login
+ *       - Error responses include remaining attempts count
+ *       
+ *       **JWT Token Payload**:
+ *       - cardId: The card being used
+ *       - accountId: Account linked to the card
+ *       - customerId: Customer who owns the card
+ *       - cardMode: Selected transaction mode (DEBIT/CREDIT)
  *     requestBody:
  *       required: true
  *       content:
@@ -173,11 +210,32 @@ router.post('/insert-card', authController.insertCard.bind(authController));
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
- *         description: Invalid card number or PIN
+ *         description: Invalid PIN or card locked
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
+ *               $ref: '#/components/schemas/AuthErrorResponse'
+ *             examples:
+ *               wrongPin1:
+ *                 summary: Wrong PIN - 1st attempt
+ *                 value:
+ *                   success: false
+ *                   message: "Invalid PIN. 2 attempts remaining."
+ *               wrongPin2:
+ *                 summary: Wrong PIN - 2nd attempt
+ *                 value:
+ *                   success: false
+ *                   message: "Invalid PIN. 1 attempts remaining."
+ *               wrongPin3:
+ *                 summary: Wrong PIN - 3rd attempt (card locked)
+ *                 value:
+ *                   success: false
+ *                   message: "Card is now locked due to 3 failed PIN attempts. Please contact customer service."
+ *               alreadyLocked:
+ *                 summary: Card already locked
+ *                 value:
+ *                   success: false
+ *                   message: "Card is locked due to multiple failed PIN attempts. Please contact customer service."
  *       500:
  *         description: Server error
  *         content:
