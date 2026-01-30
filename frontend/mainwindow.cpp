@@ -29,12 +29,20 @@
  */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-    , apiClient(new ApiClient(this))  // API client for Azure backend
-{
+    , ui(new Ui::MainWindow){
+
     ui->setupUi(this);
-    setupUI();          // Build the test interface
-    setupConnections(); // Connect signals/slots
+    apiClient = (new ApiClient(this));  // API client for Azure backend
+
+    //setupUI();          // Build the test interface
+    //setupConnections(); // Connect signals/slots
+
+    connect(ui->insertCardButton, &QPushButton::clicked,this,&MainWindow::onInsertCardClicked);
+    connect(apiClient, &ApiClient::insertCardSuccess,this,&MainWindow::onInsertCardSuccess);
+    connect(apiClient, &ApiClient::insertCardError,this,&MainWindow::onApiError);
+
+    ui->stackedWidget->setCurrentIndex(0);
+
 }
 
 /**
@@ -336,26 +344,48 @@ void MainWindow::onCustomersReceived(const QList<Customer> &customers)
  * 
  * Provides troubleshooting tips to user
  */
-void MainWindow::onApiError(const QString &errorMessage)
+//void MainWindow::onApiError(const QString &errorMessage)
+//{
+//    QLabel *statusLabel = findChild<QLabel*>("labelStatus");
+//    QTextEdit *outputText = findChild<QTextEdit*>("textOutput");
+//
+//    if (statusLabel) {
+//        statusLabel->setText("Status: ? Error - Connection failed");
+//    }
+//
+//    if (outputText) {
+//        outputText->append("=== ERROR ===");
+//        outputText->append(errorMessage);
+//        outputText->append("");
+//        outputText->append("Troubleshooting:");
+//        outputText->append("1. Check your internet connection");
+//        outputText->append("2. Verify Azure backend is running");
+//        outputText->append("3. Wait 60 seconds and try again (Azure cold start)");
+//    }
+//
+//    // Show error popup with troubleshooting hint
+//    QMessageBox::warning(this, "API Connection Error",
+//                         QString("Failed to connect to Azure API:\n\n%1\n\nThe server may be waking up. Try again in 30-60 seconds.").arg(errorMessage));
+//    }
+
+void MainWindow::onInsertCardClicked()
 {
-    QLabel *statusLabel = findChild<QLabel*>("labelStatus");
-    QTextEdit *outputText = findChild<QTextEdit*>("textOutput");
-    
-    if (statusLabel) {
-        statusLabel->setText("Status: ? Error - Connection failed");
-    }
-    
-    if (outputText) {
-        outputText->append("=== ERROR ===");
-        outputText->append(errorMessage);
-        outputText->append("");
-        outputText->append("Troubleshooting:");
-        outputText->append("1. Check your internet connection");
-        outputText->append("2. Verify Azure backend is running");
-        outputText->append("3. Wait 60 seconds and try again (Azure cold start)");
-    }
-    
-    // Show error popup with troubleshooting hint
-    QMessageBox::warning(this, "API Connection Error", 
-                         QString("Failed to connect to Azure API:\n\n%1\n\nThe server may be waking up. Try again in 30-60 seconds.").arg(errorMessage));
+    ui->errorLabel->clear();
+    currentCardNumber = ui ->CardNumberEdit->text();
+    apiClient->insertCard(currentCardNumber);
+}
+
+void MainWindow::onInsertCardSuccess(QStringList modes)
+{
+    availableCardModes = modes;
+
+    //ui->cardModeCombo->clear();//vaiha ku pin ikkuna ok
+    //ui->cardModeCombo->addItems(modes); // vaiha ku pin ikkuna ok
+
+    ui->stackedWidget->setCurrentIndex(1);//change to pin window
+}
+
+void MainWindow::onApiError(QString message)
+{
+    ui ->errorLabel->setText(message);
 }
