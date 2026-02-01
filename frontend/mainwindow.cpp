@@ -37,11 +37,22 @@ MainWindow::MainWindow(QWidget *parent)
     //setupUI();          // Build the test interface
     //setupConnections(); // Connect signals/slots
 
+    // Card view
     connect(ui->insertCardButton, &QPushButton::clicked,this,&MainWindow::onInsertCardClicked);
     connect(apiClient, &ApiClient::insertCardSuccess,this,&MainWindow::onInsertCardSuccess);
     connect(apiClient, &ApiClient::insertCardError,this,&MainWindow::onApiError);
 
     ui->stackedWidget->setCurrentIndex(0);
+
+    QWidget* pinPage = ui->stackedWidget->widget(1);
+
+    QPushButton* verifyBtn =
+        pinPage->findChild<QPushButton*>("verifyPinButton");
+
+    // Pin view
+    connect(verifyBtn, &QPushButton::clicked, this, &MainWindow::onVerifyPinClicked);
+    connect(apiClient, &ApiClient::verifyPinSuccess, this, &MainWindow::onVerifyPinSuccess);
+    connect(apiClient, &ApiClient::verifyPinError, this, &MainWindow::onApiError);
 
 }
 
@@ -383,6 +394,15 @@ void MainWindow::onInsertCardSuccess(QStringList modes)
     //ui->cardModeCombo->addItems(modes); // vaiha ku pin ikkuna ok
 
     ui->stackedWidget->setCurrentIndex(1);//change to pin window
+}
+
+void MainWindow::onVerifyPinClicked()
+{
+    ui->errorLabel->clear();
+}
+
+void MainWindow::onVerifyPinSuccess(QString token)
+{
 }
 
 void MainWindow::onApiError(QString message)

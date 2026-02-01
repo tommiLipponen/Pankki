@@ -29,6 +29,7 @@ public:
 
     //Insert Pin Window
     void insertCard(const QString &cardNumber);
+    void verifyPin(const QString& cardNumber, const QString& pin, const QString& cardMode);
     
     // Set API base URL (default: production)
     void setBaseUrl(const QString &url);
@@ -57,6 +58,8 @@ signals:
 
     void insertCardSuccess(QStringList modes);
     void insertCardError(QString message);
+    void verifyPinSuccess(QString token);
+    void verifyPinError(QString message);
     
     // Error signal
     void errorOccurred(const QString &errorMessage);
