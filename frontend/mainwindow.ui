@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="InsertCard">
      <widget class="QLineEdit" name="CardNumberEdit">
@@ -88,7 +88,7 @@
        </rect>
       </property>
      </widget>
-     <widget class="QComboBox" name="comboBox">
+     <widget class="QComboBox" name="pinComboBox">
       <property name="geometry">
        <rect>
         <x>420</x>

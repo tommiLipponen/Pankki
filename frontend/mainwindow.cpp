@@ -44,13 +44,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->stackedWidget->setCurrentIndex(0);
 
-    QWidget* pinPage = ui->stackedWidget->widget(1);
-
-    QPushButton* verifyBtn =
-        pinPage->findChild<QPushButton*>("verifyPinButton");
-
     // Pin view
-    connect(verifyBtn, &QPushButton::clicked, this, &MainWindow::onVerifyPinClicked);
+    connect(ui->verifyPinButton, &QPushButton::clicked, this, &MainWindow::onVerifyPinClicked);
     connect(apiClient, &ApiClient::verifyPinSuccess, this, &MainWindow::onVerifyPinSuccess);
     connect(apiClient, &ApiClient::verifyPinError, this, &MainWindow::onApiError);
 
@@ -390,8 +385,8 @@ void MainWindow::onInsertCardSuccess(QStringList modes)
 {
     availableCardModes = modes;
 
-    //ui->cardModeCombo->clear();//vaiha ku pin ikkuna ok
-    //ui->cardModeCombo->addItems(modes); // vaiha ku pin ikkuna ok
+    ui->comboBox->clear();//vaiha ku pin ikkuna ok
+    ui->comboBox->addItems(modes); // vaiha ku pin ikkuna ok
 
     ui->stackedWidget->setCurrentIndex(1);//change to pin window
 }
@@ -399,10 +394,28 @@ void MainWindow::onInsertCardSuccess(QStringList modes)
 void MainWindow::onVerifyPinClicked()
 {
     ui->errorLabel->clear();
+    QString pin = ui->pinNumberEdit->text();
+    QString cardModes = ui->comboBox->currentText();
+
+    if (pin.length() != 4 )
+    {
+        ui->pinErrorLabel->setText("Pin must be 4 numbers");
+        return;
+    }
+
+    if (cardModes.isEmpty()) {
+        ui->pinErrorLabel->setText("Select a card mode");
+        return;
+    }
+
+    apiClient->verifyPin(currentCardNumber, pin, cardModes);
 }
 
 void MainWindow::onVerifyPinSuccess(QString token)
 {
+    jwtToken = token;
+
+    ui->pinErrorLabel->setText("Correct pin");
 }
 
 void MainWindow::onApiError(QString message)
