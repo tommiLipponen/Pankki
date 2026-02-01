@@ -62,7 +62,7 @@ void ApiClient::verifyPin(const QString& cardNumber, const QString& pin, const Q
 
     QJsonObject body;
     body["cardNumber"] = cardNumber;
-    body["pinHash"] = pin;
+    body["pin"] = pin;
     body["cardMode"] = cardMode;
 
     auto reply = manager.post(
