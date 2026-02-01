@@ -385,8 +385,8 @@ void MainWindow::onInsertCardSuccess(QStringList modes)
 {
     availableCardModes = modes;
 
-    ui->comboBox->clear();//vaiha ku pin ikkuna ok
-    ui->comboBox->addItems(modes); // vaiha ku pin ikkuna ok
+    ui->pinComboBox->clear();//vaiha ku pin ikkuna ok
+    ui->pinComboBox->addItems(modes); // vaiha ku pin ikkuna ok
 
     ui->stackedWidget->setCurrentIndex(1);//change to pin window
 }
@@ -394,8 +394,9 @@ void MainWindow::onInsertCardSuccess(QStringList modes)
 void MainWindow::onVerifyPinClicked()
 {
     ui->errorLabel->clear();
+
     QString pin = ui->pinNumberEdit->text();
-    QString cardModes = ui->comboBox->currentText();
+    QString cardMode = ui->pinComboBox->currentText();
 
     if (pin.length() != 4 )
     {
@@ -403,12 +404,12 @@ void MainWindow::onVerifyPinClicked()
         return;
     }
 
-    if (cardModes.isEmpty()) {
+    if (cardMode.isEmpty()) {
         ui->pinErrorLabel->setText("Select a card mode");
         return;
     }
 
-    apiClient->verifyPin(currentCardNumber, pin, cardModes);
+    apiClient->verifyPin(currentCardNumber, pin, cardMode);
 }
 
 void MainWindow::onVerifyPinSuccess(QString token)
@@ -416,6 +417,8 @@ void MainWindow::onVerifyPinSuccess(QString token)
     jwtToken = token;
 
     ui->pinErrorLabel->setText("Correct pin");
+
+    ui->stackedWidget->setCurrentIndex(2);
 }
 
 void MainWindow::onApiError(QString message)
