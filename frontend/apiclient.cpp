@@ -38,12 +38,6 @@ void ApiClient::insertCard(const QString &cardNumber)
     connect(reply, &QNetworkReply::finished,this,[=](){
         QByteArray response = reply->readAll();
 
-        if(reply->error() != QNetworkReply::NoError){
-        emit insertCardError(response);
-        reply->deleteLater();
-        return;
-            }
-
         QJsonObject json =
                 QJsonDocument::fromJson(response).object();
 
@@ -59,8 +53,39 @@ void ApiClient::insertCard(const QString &cardNumber)
             emit insertCardSuccess(modes);
             reply->deleteLater();
     });
+}
 
+void ApiClient::verifyPin(const QString& cardNumber, const QString& pin, const QString& cardMode) {
+    QUrl url(baseUrl + "/api/auth/verify-pin");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
+    QJsonObject body;
+    body["cardNumber"] = cardNumber;
+    body["pinHash"] = pin;
+    body["cardMode"] = cardMode;
+
+    auto reply = manager.post(
+        request,
+        QJsonDocument(body).toJson()
+    );
+
+    connect(reply, &QNetworkReply::finished, this, [=]() {
+        QByteArray response = reply->readAll();
+
+        QJsonObject json =
+            QJsonDocument::fromJson(response).object();
+        if (!json["success"].toBool()) {
+            emit verifyPinError(json["message"].toString());
+            reply->deleteLater();
+            return;
+        }
+        QJsonObject data = json["data"].toObject();
+        QString token = data["token"].toString();
+
+        emit verifyPinSuccess(token);
+        reply->deleteLater();
+        });
 }
 
 void ApiClient::setBaseUrl(const QString &url)

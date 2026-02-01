@@ -44,6 +44,10 @@ private slots:
 
     void onInsertCardClicked();
     void onInsertCardSuccess(QStringList modes);
+
+    void onVerifyPinClicked();
+    void onVerifyPinSuccess(QString token);
+
     void onApiError(QString message);
 
 
@@ -51,8 +55,12 @@ private:
     Ui::MainWindow *ui;
     ApiClient *apiClient;
 
+    // Card view
     QString currentCardNumber;
     QStringList availableCardModes;
+
+    // Pin view
+    QString jwtToken;
     
     void setupUI();
     void setupConnections();
