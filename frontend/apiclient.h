@@ -84,7 +84,8 @@ private:
     void handleError(QNetworkReply *reply);
 
     QNetworkAccessManager manager;
-    const QString baseUrl = "https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net";
+    //const QString baseUrl = "https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net";
+    const QString baseUrl = "http://localhost:3000";
 
 };
 

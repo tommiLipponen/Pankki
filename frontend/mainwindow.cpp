@@ -14,12 +14,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "apiclient.h"
+#include <QDebug>
 #include <QPushButton>
 #include <QTextEdit>
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QMessageBox>
+
 
 /**
  * Constructor
@@ -398,15 +400,15 @@ void MainWindow::onVerifyPinClicked()
     QString pin = ui->pinNumberEdit->text();
     QString cardMode = ui->pinComboBox->currentText();
 
+    qDebug() << "Painettu";
+
     if (pin.length() != 4 )
     {
         ui->pinErrorLabel->setText("Pin must be 4 numbers");
-        return;
     }
 
     if (cardMode.isEmpty()) {
         ui->pinErrorLabel->setText("Select a card mode");
-        return;
     }
 
     apiClient->verifyPin(currentCardNumber, pin, cardMode);
