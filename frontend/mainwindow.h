@@ -46,7 +46,14 @@ private slots:
     void onInsertCardSuccess(QStringList modes);
 
     void onVerifyPinClicked();
-    void onVerifyPinSuccess(QString token);
+    void onVerifyPinSuccess(
+        QString token, 
+        QString username,
+        QString customerId,
+        QString accountId,
+        QString accountNumber,
+        QString balance,
+        QString creditLimit);
 
     void onApiError(QString message);
 
@@ -63,6 +70,15 @@ private:
 
     // Pin view
     QString jwtToken;
+    QString cardMode;
+
+    // Overview
+    QString username;
+    QString customerId;
+    QString accountId;
+    QString accountNumber;
+    QString balance;
+    QString creditLimit;
     
     void setupUI();
     void setupConnections();

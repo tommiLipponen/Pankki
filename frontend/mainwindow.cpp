@@ -21,6 +21,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QTime>
 
 
 /**
@@ -421,7 +422,7 @@ void MainWindow::onVerifyPinClicked()
     ui->errorLabel->clear();
 
     QString pin = ui->pinNumberEdit->text();
-    QString cardMode = ui->pinComboBox->currentText();
+    cardMode = ui->pinComboBox->currentText();
 
     qDebug() << "Painettu";
 
@@ -437,11 +438,34 @@ void MainWindow::onVerifyPinClicked()
     apiClient->verifyPin(currentCardNumber, pin, cardMode);
 }
 
-void MainWindow::onVerifyPinSuccess(QString token)
+void MainWindow::onVerifyPinSuccess(
+    QString token, 
+    QString userName,
+    QString customerIdX,
+    QString accountIdX,
+    QString accountNumberX,
+    QString balanceAmount,
+    QString creditLimit)
 {
     jwtToken = token;
+    username = userName;
+    customerId = customerIdX;
+    balance = balanceAmount;
+    accountId = accountIdX;
+    accountNumber = accountNumberX;
+
 
     ui->pinErrorLabel->setText("Correct pin");
+    ui->usernameLabel->setText(username);
+    ui->balanceLabel->setText(balance);
+    ui->accountNumberLabel->setText(accountNumber);
+    ui->cardModeLabel->setText(cardMode);
+
+    qDebug() << username << "Tässä pitäs olla jotaki!";
+    qDebug() << balance << "Tässä pitäs olla jotaki!";
+    qDebug() << accountId << "Tässä pitäs olla jotaki!";
+    qDebug() << accountNumber << "Tässä pitäs olla jotaki!";
+
 
     showDashboard();
 }
