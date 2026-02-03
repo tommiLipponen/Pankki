@@ -58,7 +58,13 @@ signals:
 
     void insertCardSuccess(QStringList modes);
     void insertCardError(QString message);
-    void verifyPinSuccess(QString token);
+    void verifyPinSuccess(QString token,
+        QString firstName,
+        QString customerId,
+        QString accountId,
+        QString accountNumber,
+        QString balance,
+        QString creditLimit);
     void verifyPinError(QString message);
     
     // Error signal

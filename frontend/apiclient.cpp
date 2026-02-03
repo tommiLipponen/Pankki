@@ -93,9 +93,22 @@ void ApiClient::verifyPin(const QString& cardNumber, const QString& pin, const Q
             return;
         }
         QJsonObject data = json["data"].toObject();
-        QString token = data["token"].toString();
+        QString token = data.value("token").toString();
+        
+        QJsonObject customer = data.value("customer").toObject();
+        QString username = customer.value("firstName").toString() + " " + customer.value("lastName").toString();
+        QString customerId = QString::number(customer.value("id").toDouble());
 
-        emit verifyPinSuccess(token);
+        QJsonObject account = data.value("account").toObject();
+        QString accountNumber = account.value("accountNumber").toString();
+        QString accountId = QString::number(account.value("id").toDouble());
+        QString balance = QString::number(account.value("balance").toDouble(), 'f', 2) + "$";
+        QString creditLimit = QString::number(account.value("creditLimit").toDouble());
+
+        qDebug() << accountId << "ACCOUNTTI";
+        qDebug() << balance << "BALANCEEE";
+
+        emit verifyPinSuccess(token, username, customerId, accountId, accountNumber, balance, creditLimit);
         reply->deleteLater();
         });
 }
