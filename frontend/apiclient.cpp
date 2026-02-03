@@ -30,10 +30,16 @@ void ApiClient::insertCard(const QString &cardNumber)
     QJsonObject body;
     body["cardNumber"] = cardNumber;
 
-    auto reply = manager.post(
+    QNetworkReply *reply = manager.post(
         request,
         QJsonDocument(body).toJson()
         );
+
+    if (!reply) {
+        qWarning() << "Failed to create network reply";
+        emit insertCardError("Failed to start request");
+        return;
+    }
 
     connect(reply, &QNetworkReply::finished,this,[=](){
         QByteArray response = reply->readAll();
@@ -65,10 +71,16 @@ void ApiClient::verifyPin(const QString& cardNumber, const QString& pin, const Q
     body["pin"] = pin;
     body["cardMode"] = cardMode;
 
-    auto reply = manager.post(
+    QNetworkReply *reply = manager.post(
         request,
         QJsonDocument(body).toJson()
     );
+
+    if (!reply) {
+        qWarning() << "Failed to create network reply";
+        emit insertCardError("Failed to start request");
+        return;
+    }
 
     connect(reply, &QNetworkReply::finished, this, [=]() {
         QByteArray response = reply->readAll();
