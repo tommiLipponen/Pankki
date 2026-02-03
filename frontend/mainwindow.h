@@ -50,6 +50,8 @@ private slots:
 
     void onApiError(QString message);
 
+    void onLogoutClicked();
+
 
 private:
     Ui::MainWindow *ui;
@@ -64,5 +66,8 @@ private:
     
     void setupUI();
     void setupConnections();
+
+    void showDashboard();
+    void resetSession();
 };
 #endif // MAINWINDOW_H

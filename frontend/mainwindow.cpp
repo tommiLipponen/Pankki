@@ -51,6 +51,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(apiClient, &ApiClient::verifyPinSuccess, this, &MainWindow::onVerifyPinSuccess);
     connect(apiClient, &ApiClient::verifyPinError, this, &MainWindow::onApiError);
 
+    //Logout buttoni
+    connect(ui->logoutButton, &QPushButton::clicked,this, &MainWindow::onLogoutClicked);
+
 }
 
 /**
@@ -170,6 +173,26 @@ void MainWindow::setupConnections()
     connect(apiClient, &ApiClient::customersReceived, this, &MainWindow::onCustomersReceived);
     connect(apiClient, &ApiClient::healthCheckSuccess, this, &MainWindow::onHealthCheckSuccess);
     connect(apiClient, &ApiClient::errorOccurred, this, &MainWindow::onApiError);
+}
+
+void MainWindow::showDashboard()
+{
+    ui->stackedWidget->setCurrentIndex(2);
+}
+
+void MainWindow::resetSession()
+{
+    jwtToken.clear();
+    currentCardNumber.clear();
+    availableCardModes.clear();
+
+    ui->CardNumberEdit->clear();
+    ui->pinNumberEdit->clear();
+    ui->pinComboBox->clear();
+    ui->errorLabel->clear();
+    ui->pinErrorLabel->clear();
+
+    ui->stackedWidget->setCurrentIndex(0); // Insert Card
 }
 
 /**
@@ -420,10 +443,15 @@ void MainWindow::onVerifyPinSuccess(QString token)
 
     ui->pinErrorLabel->setText("Correct pin");
 
-    ui->stackedWidget->setCurrentIndex(2);
+    showDashboard();
 }
 
 void MainWindow::onApiError(QString message)
 {
     ui ->errorLabel->setText(message);
+}
+
+void MainWindow::onLogoutClicked()
+{
+    resetSession();
 }
