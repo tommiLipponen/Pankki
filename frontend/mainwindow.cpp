@@ -55,6 +55,9 @@ MainWindow::MainWindow(QWidget *parent)
     //Logout buttoni
     connect(ui->logoutButton, &QPushButton::clicked,this, &MainWindow::onLogoutClicked);
 
+    //Balance button
+    connect(ui->CheckBalanceButton, &QPushButton::clicked,this, &MainWindow::onBalanceClicked);
+
 }
 
 /**
@@ -476,4 +479,11 @@ void MainWindow::onApiError(QString message)
 void MainWindow::onLogoutClicked()
 {
     resetSession();
+}
+
+void MainWindow::onBalanceClicked()
+{
+    ui->stackedWidget->setCurrentIndex(3);
+
+    ui->balancePageLabel->setText(balance);
 }

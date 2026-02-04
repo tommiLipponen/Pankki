@@ -59,6 +59,8 @@ private slots:
 
     void onLogoutClicked();
 
+    void onBalanceClicked();
+
 
 private:
     Ui::MainWindow *ui;
