@@ -39,7 +39,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="InsertCard">
        <layout class="QGridLayout" name="gridLayout_5">
