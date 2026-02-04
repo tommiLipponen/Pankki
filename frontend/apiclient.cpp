@@ -94,6 +94,7 @@ void ApiClient::verifyPin(const QString& cardNumber, const QString& pin, const Q
         }
         QJsonObject data = json["data"].toObject();
         QString token = data.value("token").toString();
+        qDebug() << token << "Tämä on token data";
         
         QJsonObject customer = data.value("customer").toObject();
         QString username = customer.value("firstName").toString() + " " + customer.value("lastName").toString();
@@ -111,6 +112,46 @@ void ApiClient::verifyPin(const QString& cardNumber, const QString& pin, const Q
         emit verifyPinSuccess(token, username, customerId, accountId, accountNumber, balance, creditLimit);
         reply->deleteLater();
         });
+}
+
+void ApiClient::getTransactionsByAccountId(QString& accountId, QString jwtToken)
+{
+    QUrl url(baseUrl + "/api/transactions/account/" + accountId);
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader(
+        "Authorization",
+        QByteArray("Bearer ") + jwtToken.toUtf8()
+    );
+
+    QNetworkReply* reply = manager.get(
+        request
+    );
+
+
+    if (!reply) {
+        qWarning() << "Failed to create network reply";
+        emit insertCardError("Failed to start request");
+        return;
+    }
+
+    connect(reply, &QNetworkReply::finished, this, [=]() {
+        QByteArray response = reply->readAll();
+
+        QJsonObject json =
+            QJsonDocument::fromJson(response).object();
+        qDebug() << json;
+
+        if (!json["success"].toBool()) {
+            emit verifyPinError(json["message"].toString());
+            reply->deleteLater();
+            return;
+        }
+
+        QJsonArray data = json["data"].toArray();
+        emit verifyTransactionSuccess(data);
+        reply->deleteLater();
+    });
 }
 
 void ApiClient::setBaseUrl(const QString &url)

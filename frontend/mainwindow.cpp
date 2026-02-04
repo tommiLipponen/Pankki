@@ -57,6 +57,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Balance button
     connect(ui->CheckBalanceButton, &QPushButton::clicked,this, &MainWindow::onBalanceClicked);
+    connect(ui->balanceToDashboardButton, &QPushButton::clicked, this, &MainWindow::onBalanceToDashBoardClicked);
+
+    //Transaction button
+    connect(ui->transactionButton, &QPushButton::clicked, this, &MainWindow::onTransactionClicked);
+    connect(apiClient, &ApiClient::verifyTransactionSuccess, this, &MainWindow::onTransactionSuccess);
+    connect(ui->transactionToDashboardButton, &QPushButton::clicked, this, &MainWindow::onTransactionToDasboardClicked);
 
 }
 
@@ -481,9 +487,49 @@ void MainWindow::onLogoutClicked()
     resetSession();
 }
 
+void MainWindow::onTransactionToDasboardClicked()
+{
+    ui->stackedWidget->setCurrentIndex(2);
+}
+
+void MainWindow::onBalanceToDashBoardClicked()
+{
+    ui->stackedWidget->setCurrentIndex(2);
+}
+
 void MainWindow::onBalanceClicked()
 {
     ui->stackedWidget->setCurrentIndex(3);
 
     ui->balancePageLabel->setText(balance);
+}
+
+void MainWindow::onTransactionClicked() 
+{
+    ui->stackedWidget->setCurrentIndex(4);
+    apiClient->getTransactionsByAccountId(accountId, jwtToken);
+}
+
+void MainWindow::onTransactionSuccess(QJsonArray transactions)
+{
+    qDebug() << transactions << "Tässä on transactionit slotissa";
+    QTableWidget* table = ui->transactionWidget;
+    int rowAmount = transactions.size();
+    table->setRowCount(rowAmount);
+
+    for (int row = 0; row < rowAmount; row++) {
+        QJsonObject transactionRow = transactions[row].toObject();
+        QString type = transactionRow["transactionType"].toString();
+        QString amount = transactionRow["amount"].toString();
+        QString balanceAfter = transactionRow["balanceAfter"].toString();
+        QString date = transactionRow["createdAt"].toString();
+
+        qDebug() << "Tässä rowit" << type << amount << balanceAfter << date;
+
+        table->setItem(row, 0, new QTableWidgetItem(type));
+        table->setItem(row, 1, new QTableWidgetItem(amount));
+        table->setItem(row, 2, new QTableWidgetItem(balanceAfter));
+        table->setItem(row, 3, new QTableWidgetItem(date));
+    }
+
 }

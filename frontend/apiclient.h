@@ -18,6 +18,7 @@
 #include <QList>
 #include "customer.h"
 #include <QStringList>
+#include <QJsonArray>
 
 class ApiClient : public QObject
 {
@@ -45,6 +46,9 @@ public:
     // Health check
     void checkHealth();
 
+    // Transaction endpoints
+    void getTransactionsByAccountId(QString& accountId, QString jwtToken);
+
 signals:
     // Success signals
     void customersReceived(const QList<Customer> &customers);
@@ -66,6 +70,9 @@ signals:
         QString balance,
         QString creditLimit);
     void verifyPinError(QString message);
+
+    //Transaction
+    void verifyTransactionSuccess(QJsonArray transactions);
     
     // Error signal
     void errorOccurred(const QString &errorMessage);
