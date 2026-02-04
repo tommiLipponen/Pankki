@@ -39,7 +39,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="InsertCard">
        <layout class="QGridLayout" name="gridLayout_5">
@@ -525,6 +525,36 @@ QPushButton:Hover {
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="BalancePage">
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>240</x>
+          <y>260</y>
+          <width>161</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>CURRENT BALANCE:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_5">
+        <property name="geometry">
+         <rect>
+          <x>420</x>
+          <y>260</y>
+          <width>161</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="withdrawPage"/>
+      <widget class="QWidget" name="TransactionPage"/>
      </widget>
     </item>
     <item row="0" column="0">
