@@ -424,8 +424,6 @@ void MainWindow::onVerifyPinClicked()
     QString pin = ui->pinNumberEdit->text();
     cardMode = ui->pinComboBox->currentText();
 
-    qDebug() << "Painettu";
-
     if (pin.length() != 4 )
     {
         ui->pinErrorLabel->setText("Pin must be 4 numbers");
