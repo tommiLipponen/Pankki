@@ -44,7 +44,6 @@ private slots:
 
     void onInsertCardClicked();
     void onInsertCardSuccess(QStringList modes);
-
     void onVerifyPinClicked();
     void onVerifyPinSuccess(
         QString token, 
@@ -55,9 +54,14 @@ private slots:
         QString balance,
         QString creditLimit);
 
+    void onTransactionClicked();
+    void onTransactionSuccess(QJsonArray transactions);
+
     void onApiError(QString message);
 
     void onLogoutClicked();
+    void onTransactionToDasboardClicked();
+    void onBalanceToDashBoardClicked();
 
     void onBalanceClicked();
 
@@ -81,6 +85,7 @@ private:
     QString accountNumber;
     QString balance;
     QString creditLimit;
+
     
     void setupUI();
     void setupConnections();

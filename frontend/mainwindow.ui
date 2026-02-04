@@ -337,7 +337,7 @@ QPushButton:Hover {
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QPushButton" name="pushButton_3">
+         <widget class="QPushButton" name="transactionButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -552,8 +552,65 @@ QPushButton:Hover {
          <string>TextLabel</string>
         </property>
        </widget>
+       <widget class="QPushButton" name="balanceToDashboardButton">
+        <property name="geometry">
+         <rect>
+          <x>719</x>
+          <y>530</y>
+          <width>181</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Back to dashboard</string>
+        </property>
+       </widget>
       </widget>
-      <widget class="QWidget" name="withdrawPage"/>
+      <widget class="QWidget" name="withdrawPage">
+       <widget class="QTableWidget" name="transactionWidget">
+        <property name="geometry">
+         <rect>
+          <x>270</x>
+          <y>150</y>
+          <width>461</width>
+          <height>311</height>
+         </rect>
+        </property>
+        <column>
+         <property name="text">
+          <string>Type</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Amount</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Balance after</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Date</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QPushButton" name="transactionToDashboardButton">
+        <property name="geometry">
+         <rect>
+          <x>780</x>
+          <y>540</y>
+          <width>161</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Back to dashboard</string>
+        </property>
+       </widget>
+      </widget>
       <widget class="QWidget" name="TransactionPage"/>
      </widget>
     </item>
