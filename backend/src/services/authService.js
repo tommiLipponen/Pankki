@@ -23,14 +23,14 @@ class AuthService {
                 throw new Error("Card not found");
             }
 
-            // Check if card is active
-            if (!existingCard.isActive) {
-                throw new Error("Card is inactive");
+            // Check if card is expired (FIRST - more specific than inactive)
+            if (new Date() > existingCard.expiryDate) {
+                throw new Error("Card has expired");
             }
 
-            // Check if card is expired
-            if (new Date() > existingCard.expiryDate) {
-                throw new Error("Card is expired");
+            // Check if card is active
+            if (!existingCard.isActive) {
+                throw new Error("Card is not active");
             }
 
             // Determine available card mode based on credit limit
@@ -65,6 +65,16 @@ class AuthService {
         // Validate if card exists
         if (!card) {
             throw new Error("Card not found");
+        }
+
+        // Check if card is expired (BEFORE checking lock status)
+        if (new Date() > card.expiryDate) {
+            throw new Error("Card has expired. Please contact customer service.");
+        }
+
+        // Check if card is active
+        if (!card.isActive) {
+            throw new Error("Card is not active. Please contact customer service.");
         }
 
         // Check if card is locked due to failed PIN attempts

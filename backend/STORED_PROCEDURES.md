@@ -44,6 +44,7 @@ Copy and paste the following SQL script into a new query tab:
 -- =============================================
 -- Stored Procedure: usp_withdraw_money
 -- Description: Handles ATM withdrawal with row-level locking
+-- ⚠️ IMPORTANT: Use camelCase column names (Prisma convention)
 -- =============================================
 
 DELIMITER $$
@@ -63,10 +64,17 @@ BEGIN
     DECLARE v_is_active BOOLEAN;
     DECLARE v_account_is_active BOOLEAN;
     
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+    
     -- Start transaction
     START TRANSACTION;
     
     -- Lock account row for update (prevents concurrent withdrawals)
+    -- ⚠️ Use camelCase: creditLimit, isActive (NOT credit_limit, is_active)
     SELECT balance, creditLimit, isActive
     INTO v_current_balance, v_credit_limit, v_account_is_active
     FROM accounts
@@ -85,6 +93,7 @@ BEGIN
     END IF;
     
     -- Lock card row for update
+    -- ⚠️ Use camelCase: accountId, isLocked, isActive
     SELECT isLocked, isActive
     INTO v_is_locked, v_is_active
     FROM cards
@@ -129,12 +138,14 @@ BEGIN
     END IF;
     
     -- Update account balance
+    -- ⚠️ Use camelCase: updatedAt (NOT updated_at)
     UPDATE accounts
     SET balance = v_new_balance,
         updatedAt = CURRENT_TIMESTAMP
     WHERE id = p_account_id;
     
     -- Create transaction record
+    -- ⚠️ Use camelCase: accountId, cardId, transactionType, cardMode, balanceAfter, createdAt
     INSERT INTO transactions (accountId, cardId, transactionType, cardMode, amount, balanceAfter, createdAt)
     VALUES (p_account_id, p_card_id, 'WITHDRAWAL', p_card_mode, p_amount, v_new_balance, CURRENT_TIMESTAMP);
     
