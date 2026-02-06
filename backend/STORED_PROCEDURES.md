@@ -44,6 +44,8 @@ Copy and paste the following SQL script into a new query tab:
 -- =============================================
 -- Stored Procedure: usp_withdraw_money
 -- Description: Handles ATM withdrawal with row-level locking
+-- ⚠️ IMPORTANT: Use snake_case column names (actual MySQL database columns)
+-- ⚠️ Prisma uses camelCase in JavaScript, but MySQL database uses snake_case
 -- =============================================
 
 DELIMITER $$
@@ -63,11 +65,18 @@ BEGIN
     DECLARE v_is_active BOOLEAN;
     DECLARE v_account_is_active BOOLEAN;
     
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+    
     -- Start transaction
     START TRANSACTION;
     
     -- Lock account row for update (prevents concurrent withdrawals)
-    SELECT balance, creditLimit, isActive
+    -- ⚠️ Use snake_case: credit_limit, is_active (NOT camelCase)
+    SELECT balance, credit_limit, is_active
     INTO v_current_balance, v_credit_limit, v_account_is_active
     FROM accounts
     WHERE id = p_account_id
@@ -85,10 +94,11 @@ BEGIN
     END IF;
     
     -- Lock card row for update
-    SELECT isLocked, isActive
+    -- ⚠️ Use snake_case: account_id, is_locked, is_active
+    SELECT is_locked, is_active
     INTO v_is_locked, v_is_active
     FROM cards
-    WHERE id = p_card_id AND accountId = p_account_id
+    WHERE id = p_card_id AND account_id = p_account_id
     FOR UPDATE;
     
     -- Check if card exists
@@ -129,13 +139,15 @@ BEGIN
     END IF;
     
     -- Update account balance
+    -- ⚠️ Use snake_case: updated_at (NOT camelCase)
     UPDATE accounts
     SET balance = v_new_balance,
-        updatedAt = CURRENT_TIMESTAMP
+        updated_at = CURRENT_TIMESTAMP
     WHERE id = p_account_id;
     
     -- Create transaction record
-    INSERT INTO transactions (accountId, cardId, transactionType, cardMode, amount, balanceAfter, createdAt)
+    -- ⚠️ Use snake_case: account_id, card_id, transaction_type, card_mode, balance_after, created_at
+    INSERT INTO transactions (account_id, card_id, transaction_type, card_mode, amount, balance_after, created_at)
     VALUES (p_account_id, p_card_id, 'WITHDRAWAL', p_card_mode, p_amount, v_new_balance, CURRENT_TIMESTAMP);
     
     -- Commit transaction

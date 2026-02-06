@@ -154,15 +154,16 @@ class AuthController {
     } catch (error) {
       // Handle authentication errors with appropriate HTTP status codes
       
-      // 401 Unauthorized: Invalid credentials or locked card
-      // Security: Don't reveal whether card or PIN was wrong (prevents enumeration attacks)
-      // Note: Service throws dynamic messages like "Invalid PIN. 2 attempts remaining."
+      // 401 Unauthorized: Invalid credentials, locked card, expired, or inactive
+      // Pass through dynamic messages for user feedback (attempt counter, lock status)
       if (error.message === 'Card not found' || 
           error.message.includes('Invalid PIN') ||
-          error.message.includes('locked')) {
+          error.message.includes('locked') ||
+          error.message.includes('expired') ||
+          error.message.includes('inactive')) {
         return res.status(401).json({
           success: false,
-          message: 'Invalid card number or PIN'
+          message: error.message  // Dynamic message with attempt counter
         });
       }
       
