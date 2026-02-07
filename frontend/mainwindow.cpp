@@ -59,10 +59,22 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->CheckBalanceButton, &QPushButton::clicked,this, &MainWindow::onBalanceClicked);
     connect(ui->balanceToDashboardButton, &QPushButton::clicked, this, &MainWindow::onBalanceToDashBoardClicked);
 
-    //Transaction button
+    //Transaction History button
+    // HUOM: transactionWidget sijaitsee vahingossa withdrawPage-sivulla (indeksi 4)
+    // Mutta se toimii oikein tapahtumien nayttamiseen
     connect(ui->transactionButton, &QPushButton::clicked, this, &MainWindow::onTransactionClicked);
     connect(apiClient, &ApiClient::verifyTransactionSuccess, this, &MainWindow::onTransactionSuccess);
     connect(ui->transactionToDashboardButton, &QPushButton::clicked, this, &MainWindow::onTransactionToDasboardClicked);
+
+    //Withdraw Cash button
+    // Nosto-sivu on indeksissä 5 (correctWithdrawPage)
+    connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::onWithdrawClicked);
+    connect(apiClient, &ApiClient::withdrawSuccess, this, &MainWindow::onWithdrawSuccess);
+    connect(apiClient, &ApiClient::withdrawError, this, &MainWindow::onApiError);
+    
+    // Withdraw page buttons (UI elements now exist!)
+    connect(ui->withdrawSubmitButton, &QPushButton::clicked, this, &MainWindow::onWithdrawSubmitClicked);
+    connect(ui->withdrawToDashboardButton, &QPushButton::clicked, this, &MainWindow::onWithdrawToDashboardClicked);
 
 }
 
@@ -433,15 +445,20 @@ void MainWindow::onVerifyPinClicked()
     QString pin = ui->pinNumberEdit->text();
     cardMode = ui->pinComboBox->currentText();
 
+    // Tarkista PIN-koodin pituus (taytyy olla 4 numeroa)
     if (pin.length() != 4 )
     {
         ui->pinErrorLabel->setText("Pin must be 4 numbers");
+        return;  // Lopeta jos validointi epaonnistuu
     }
 
+    // Tarkista etta korttimoodi on valittu
     if (cardMode.isEmpty()) {
         ui->pinErrorLabel->setText("Select a card mode");
+        return;  // Lopeta jos korttimoodi puuttuu
     }
 
+    // Laheta PIN-vahvistuspyynto API:lle
     apiClient->verifyPin(currentCardNumber, pin, cardMode);
 }
 
@@ -462,7 +479,7 @@ void MainWindow::onVerifyPinSuccess(
     accountNumber = accountNumberX;
 
 
-    ui->pinErrorLabel->setText("Correct pin");
+    ui->pinErrorLabel->clear();
     ui->usernameLabel->setText(username);
     ui->balanceLabel->setText(balance);
     ui->accountNumberLabel->setText(accountNumber);
@@ -489,11 +506,18 @@ void MainWindow::onLogoutClicked()
 
 void MainWindow::onTransactionToDasboardClicked()
 {
+    // Palaa dashboardiin tapahtumahistoriasta
     ui->stackedWidget->setCurrentIndex(2);
 }
 
 void MainWindow::onBalanceToDashBoardClicked()
 {
+    ui->stackedWidget->setCurrentIndex(2);
+}
+
+void MainWindow::onWithdrawToDashboardClicked()
+{
+    // Palaa takaisin dashboardiin nosto-sivulta
     ui->stackedWidget->setCurrentIndex(2);
 }
 
@@ -506,13 +530,15 @@ void MainWindow::onBalanceClicked()
 
 void MainWindow::onTransactionClicked() 
 {
+    // Nayta tapahtumahistoria (indeksi 4, vaikka sivu on nimetty vahingossa withdrawPage)
     ui->stackedWidget->setCurrentIndex(4);
     apiClient->getTransactionsByAccountId(accountId, jwtToken);
 }
 
 void MainWindow::onTransactionSuccess(QJsonArray transactions)
 {
-    qDebug() << transactions << "Tässä on transactionit slotissa";
+    // Tayta tapahtumataulukko datalla
+    qDebug() << "Loading" << transactions.size() << "transactions to table";
     QTableWidget* table = ui->transactionWidget;
     int rowAmount = transactions.size();
     table->setRowCount(rowAmount);
@@ -524,7 +550,7 @@ void MainWindow::onTransactionSuccess(QJsonArray transactions)
         QString balanceAfter = transactionRow["balanceAfter"].toString();
         QString date = transactionRow["createdAt"].toString();
 
-        qDebug() << "Tässä rowit" << type << amount << balanceAfter << date;
+        qDebug() << "Transaction row" << row << ":" << type << amount << balanceAfter << date;
 
         table->setItem(row, 0, new QTableWidgetItem(type));
         table->setItem(row, 1, new QTableWidgetItem(amount));
@@ -532,4 +558,84 @@ void MainWindow::onTransactionSuccess(QJsonArray transactions)
         table->setItem(row, 3, new QTableWidgetItem(date));
     }
 
+}
+
+void MainWindow::onWithdrawClicked()
+{
+    // Siirry nosto-sivulle (indeksi 5 - correctWithdrawPage)
+    qDebug() << "Navigating to withdraw page (index 5 - correctWithdrawPage)";
+    ui->stackedWidget->setCurrentIndex(5);
+    qDebug() << "Current page index:" << ui->stackedWidget->currentIndex();
+}
+
+void MainWindow::onWithdrawSubmitClicked()
+{
+    // Hae nostomaara kayttajalta
+    QString amountText = ui->withdrawAmountEdit->text();
+    
+    // Tyhjenna aiemmat virheet
+    ui->withdrawErrorLabel->clear();
+    
+    // Tarkista etta summa on syotetty
+    if (amountText.isEmpty()) {
+        ui->withdrawErrorLabel->setText("Please enter amount");
+        return;
+    }
+    
+    // Muunna summaksi
+    bool ok;
+    double amount = amountText.toDouble(&ok);
+    
+    // Tarkista etta summa on kelvollinen
+    if (!ok || amount <= 0) {
+        ui->withdrawErrorLabel->setText("Invalid amount");
+        return;
+    }
+    
+    // Laheta nosto-pyynto
+    qDebug() << "Withdrawing amount:" << amount;
+    apiClient->withdrawMoney(amount, jwtToken);
+}
+
+void MainWindow::onWithdrawSuccess(QJsonObject transaction)
+{
+    // DEBUG: Log raw response
+    qDebug() << "=== WITHDRAW SUCCESS HANDLER ===";
+    qDebug() << "Full transaction object:" << transaction;
+    qDebug() << "balanceAfter field:" << transaction["balanceAfter"];
+    qDebug() << "amount field:" << transaction["amount"];
+    
+    // Tarkista etta vastaus sisaltaa tarvittavat kentat
+    if (!transaction.contains("balanceAfter") || !transaction.contains("amount")) {
+        qDebug() << "ERROR: Missing required fields!";
+        QMessageBox::warning(this, "Error", "Invalid response from server");
+        return;
+    }
+    
+    // FIXED: Backend sends strings, not numbers! Convert toString() first, then toDouble()
+    QString newBalance = QString::number(transaction["balanceAfter"].toString().toDouble(), 'f', 2);
+    QString amount = QString::number(transaction["amount"].toString().toDouble(), 'f', 2);
+    
+    qDebug() << "Parsed newBalance string:" << newBalance;
+    qDebug() << "Parsed amount string:" << amount;
+    
+    // Paivita saldo (kayta euroa suomalaiselle pankille)
+    balance = newBalance + "€";
+    
+    qDebug() << "Updated balance variable:" << balance;
+    
+    // Paivita dashboard-nayton saldo
+    ui->balanceLabel->setText(balance);
+    
+    // Tyhjenna syotekentta ja virheet
+    ui->withdrawAmountEdit->clear();
+    ui->withdrawErrorLabel->clear();
+    
+    // Nayta vahvistus
+    QMessageBox::information(this, "Success", 
+        "Withdrawal successful!\nAmount: €" + amount + 
+        "\nNew balance: €" + newBalance);
+    
+    // Palaa dashboardiin
+    ui->stackedWidget->setCurrentIndex(2);
 }

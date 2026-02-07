@@ -23,36 +23,42 @@ ApiClient::~ApiClient()
 
 void ApiClient::insertCard(const QString &cardNumber)
 {
-    QUrl url(baseUrl + "/api/auth/insert-card");
+    // Laheta kortin syotto-pyynto palvelimelle
+    QUrl url(m_baseUrl + "/api/auth/insert-card");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
 
+    // Rakenna JSON-pyynto korttinumerolla
     QJsonObject body;
     body["cardNumber"] = cardNumber;
 
-    QNetworkReply *reply = manager.post(
+    QNetworkReply *reply = m_networkManager->post(
         request,
         QJsonDocument(body).toJson()
         );
 
+    // Tarkista etta verkkopyynto luotiin onnistuneesti
     if (!reply) {
         qWarning() << "Failed to create network reply";
         emit insertCardError("Failed to start request");
         return;
     }
 
+    // Kasittele vastaus asynkronisesti
     connect(reply, &QNetworkReply::finished,this,[=](){
         QByteArray response = reply->readAll();
 
         QJsonObject json =
                 QJsonDocument::fromJson(response).object();
 
+            // Tarkista API-vastauksen onnistuminen
             if(!json["success"].toBool()){
             emit insertCardError(json["message"].toString());
             reply->deleteLater();
             return;
             }
 
+            // Purkaa saatavilla olevat korttimodit (DEBIT/CREDIT)
             QJsonObject data = json["data"].toObject();
             QStringList modes = data["availableCardMode"].toVariant().toStringList();
 
@@ -62,44 +68,56 @@ void ApiClient::insertCard(const QString &cardNumber)
 }
 
 void ApiClient::verifyPin(const QString& cardNumber, const QString& pin, const QString& cardMode) {
-    QUrl url(baseUrl + "/api/auth/verify-pin");
-    QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+// Laheta PIN-vahvistuspyynto palvelimelle
+QUrl url(m_baseUrl + "/api/auth/verify-pin");
+QNetworkRequest request(url);
+request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    QJsonObject body;
-    body["cardNumber"] = cardNumber;
-    body["pin"] = pin;
-    body["cardMode"] = cardMode;
+// Rakenna JSON-pyynto: korttinumero, PIN ja korttimoodi (DEBIT/CREDIT)
+QJsonObject body;
+body["cardNumber"] = cardNumber;
+body["pin"] = pin;
+body["cardMode"] = cardMode;
 
-    QNetworkReply *reply = manager.post(
-        request,
-        QJsonDocument(body).toJson()
-    );
+QNetworkReply *reply = m_networkManager->post(
+    request,
+    QJsonDocument(body).toJson()
+);
 
+    // Tarkista etta verkkopyynto luotiin onnistuneesti
     if (!reply) {
         qWarning() << "Failed to create network reply";
-        emit insertCardError("Failed to start request");
+        emit errorOccurred("Failed to start request");  // Korjattu: kayta oikeaa virhe-signaalia
         return;
     }
 
+    // Kasittele vastaus asynkronisesti
     connect(reply, &QNetworkReply::finished, this, [=]() {
         QByteArray response = reply->readAll();
 
         QJsonObject json =
             QJsonDocument::fromJson(response).object();
+        
+        // Tarkista API-vastauksen onnistuminen
         if (!json["success"].toBool()) {
             emit verifyPinError(json["message"].toString());
             reply->deleteLater();
             return;
         }
+        
+        // Purkaa vastausdata: JWT-token, asiakas- ja tilitiedot
         QJsonObject data = json["data"].toObject();
+        
+        // JWT-token (kaytetaan seuraaviin API-pyyntoihin)
         QString token = data.value("token").toString();
         qDebug() << token << "Tämä on token data";
         
+        // Asiakastiedot
         QJsonObject customer = data.value("customer").toObject();
         QString username = customer.value("firstName").toString() + " " + customer.value("lastName").toString();
         QString customerId = QString::number(customer.value("id").toDouble());
 
+        // Tilitiedot
         QJsonObject account = data.value("account").toObject();
         QString accountNumber = account.value("accountNumber").toString();
         QString accountId = QString::number(account.value("id").toDouble());
@@ -109,6 +127,7 @@ void ApiClient::verifyPin(const QString& cardNumber, const QString& pin, const Q
         qDebug() << accountId << "ACCOUNTTI";
         qDebug() << balance << "BALANCEEE";
 
+        // Laheta kaikki tiedot eteenpain signaalilla
         emit verifyPinSuccess(token, username, customerId, accountId, accountNumber, balance, creditLimit);
         reply->deleteLater();
         });
@@ -116,25 +135,29 @@ void ApiClient::verifyPin(const QString& cardNumber, const QString& pin, const Q
 
 void ApiClient::getTransactionsByAccountId(QString& accountId, QString jwtToken)
 {
-    QUrl url(baseUrl + "/api/transactions/account/" + accountId);
+    // Hae tilin tapahtumat (vaatii JWT-tokenin autentikoinnille)
+    QUrl url(m_baseUrl + "/api/transactions/account/" + accountId);
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    
+    // Lisaa JWT-token Authorization-headeriin (Bearer-token RFC 6750)
     request.setRawHeader(
         "Authorization",
         QByteArray("Bearer ") + jwtToken.toUtf8()
     );
 
-    QNetworkReply* reply = manager.get(
+    QNetworkReply* reply = m_networkManager->get(
         request
     );
 
-
+    // Tarkista etta verkkopyynto luotiin onnistuneesti
     if (!reply) {
         qWarning() << "Failed to create network reply";
-        emit insertCardError("Failed to start request");
+        emit errorOccurred("Failed to start request");  // Korjattu: kayta oikeaa virhe-signaalia
         return;
     }
 
+    // Kasittele vastaus asynkronisesti
     connect(reply, &QNetworkReply::finished, this, [=]() {
         QByteArray response = reply->readAll();
 
@@ -142,14 +165,68 @@ void ApiClient::getTransactionsByAccountId(QString& accountId, QString jwtToken)
             QJsonDocument::fromJson(response).object();
         qDebug() << json;
 
+        // Tarkista API-vastauksen onnistuminen
         if (!json["success"].toBool()) {
-            emit verifyPinError(json["message"].toString());
+            emit errorOccurred(json["message"].toString());  // Korjattu: kayta yleista virhe-signaalia
             reply->deleteLater();
             return;
         }
 
+        // Purkaa tapahtumalista JSON-arraysta
         QJsonArray data = json["data"].toArray();
         emit verifyTransactionSuccess(data);
+        reply->deleteLater();
+    });
+}
+
+void ApiClient::withdrawMoney(double amount, QString jwtToken)
+{
+    // Nosta rahaa (kayttaa tallennettua proseduuriaa tietokannassa)
+    QUrl url(m_baseUrl + "/api/transactions/withdraw");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    
+    // Lisaa JWT-token Authorization-headeriin
+    request.setRawHeader(
+        "Authorization",
+        QByteArray("Bearer ") + jwtToken.toUtf8()
+    );
+
+    // Rakenna JSON-pyynto summalla
+    QJsonObject body;
+    body["amount"] = amount;
+
+    QNetworkReply* reply = m_networkManager->post(
+        request,
+        QJsonDocument(body).toJson()
+    );
+
+    // Tarkista etta verkkopyynto luotiin onnistuneesti
+    if (!reply) {
+        qWarning() << "Failed to create network reply";
+        emit withdrawError("Failed to start request");
+        return;
+    }
+
+    // Kasittele vastaus asynkronisesti
+    connect(reply, &QNetworkReply::finished, this, [=]() {
+        QByteArray response = reply->readAll();
+
+        QJsonObject json =
+            QJsonDocument::fromJson(response).object();
+        
+        qDebug() << "Withdraw response:" << json;
+
+        // Tarkista API-vastauksen onnistuminen
+        if (!json["success"].toBool()) {
+            emit withdrawError(json["message"].toString());
+            reply->deleteLater();
+            return;
+        }
+
+        // Nosto onnistui, palauta tapahtuma
+        QJsonObject data = json["data"].toObject();
+        emit withdrawSuccess(data);
         reply->deleteLater();
     });
 }
