@@ -263,3 +263,6 @@ htmlcov/
 *.orig
 *.rej
 frontend/CMakeUserPresets.json
+
+# Pink theme planning (local only)
+frontend/PINK_THEME_MASTER_PLAN.md
