@@ -64,6 +64,10 @@ private slots:
     void onBalanceToDashBoardClicked();
 
     void onBalanceClicked();
+    void onWithdrawClicked();
+    void onWithdrawSubmitClicked();
+    void onWithdrawSuccess(QJsonObject transaction);
+    void onWithdrawToDashboardClicked();
 
 
 private:

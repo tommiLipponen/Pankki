@@ -48,6 +48,7 @@ public:
 
     // Transaction endpoints
     void getTransactionsByAccountId(QString& accountId, QString jwtToken);
+    void withdrawMoney(double amount, QString jwtToken);
 
 signals:
     // Success signals
@@ -73,6 +74,8 @@ signals:
 
     //Transaction
     void verifyTransactionSuccess(QJsonArray transactions);
+    void withdrawSuccess(QJsonObject transaction);
+    void withdrawError(QString message);
     
     // Error signal
     void errorOccurred(const QString &errorMessage);
