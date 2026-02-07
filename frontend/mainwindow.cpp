@@ -22,6 +22,8 @@
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QTime>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 
 /**
@@ -70,11 +72,66 @@ MainWindow::MainWindow(QWidget *parent)
     // Nosto-sivu on indeksissä 5 (correctWithdrawPage)
     connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::onWithdrawClicked);
     connect(apiClient, &ApiClient::withdrawSuccess, this, &MainWindow::onWithdrawSuccess);
-    connect(apiClient, &ApiClient::withdrawError, this, &MainWindow::onApiError);
+    connect(apiClient, &ApiClient::withdrawError, this, &MainWindow::onWithdrawError);  // Fixed: Separate handler for withdraw errors
     
     // Withdraw page buttons (UI elements now exist!)
     connect(ui->withdrawSubmitButton, &QPushButton::clicked, this, &MainWindow::onWithdrawSubmitClicked);
     connect(ui->withdrawToDashboardButton, &QPushButton::clicked, this, &MainWindow::onWithdrawToDashboardClicked);
+    
+    // Quick withdraw buttons
+    connect(ui->withdraw_20, &QPushButton::clicked, this, &MainWindow::onQuickWithdraw20);
+    connect(ui->withdraw_50, &QPushButton::clicked, this, &MainWindow::onQuickWithdraw50);
+    connect(ui->withdraw_90, &QPushButton::clicked, this, &MainWindow::onQuickWithdraw90);
+    connect(ui->withdraw_140, &QPushButton::clicked, this, &MainWindow::onQuickWithdraw140);
+    connect(ui->withdraw_200, &QPushButton::clicked, this, &MainWindow::onQuickWithdraw200);
+    
+    // Initialize header labels on withdraw page
+    ui->connectionIndicator->setText("● Connecting...");
+    ui->connectionIndicator->setStyleSheet("QLabel { color: #FFA500; font: 700 12pt 'Segoe UI'; background: transparent; }");
+    
+    ui->atmSerialNumber->setText("ATM #4000");
+    ui->atmSerialNumber->setStyleSheet("QLabel { color: #B85C8A; font: 600 11pt 'Segoe UI'; background: transparent; }");
+    
+    ui->dateTime->setStyleSheet("QLabel { color: #B85C8A; font: 600 11pt 'Segoe UI'; background: transparent; }");
+    
+    // Style quick withdraw buttons
+    QString quickButtonStyle = "QPushButton { "
+        "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FFB6D9, stop:1 #FF85C0); "
+        "border: none; border-radius: 20px; color: white; font: bold 14pt 'Segoe UI'; } "
+        "QPushButton:hover { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FF85C0, stop:1 #FF5CAA); } "
+        "QPushButton:pressed { background: #FF5CAA; }";
+    
+    ui->withdraw_20->setStyleSheet(quickButtonStyle);
+    ui->withdraw_20->setText("€20");
+    ui->withdraw_50->setStyleSheet(quickButtonStyle);
+    ui->withdraw_50->setText("€50");
+    ui->withdraw_90->setStyleSheet(quickButtonStyle);
+    ui->withdraw_90->setText("€90");
+    ui->withdraw_140->setStyleSheet(quickButtonStyle);
+    ui->withdraw_140->setText("€140");
+    ui->withdraw_200->setStyleSheet(quickButtonStyle);
+    ui->withdraw_200->setText("€200");
+    
+    // Style cancel button
+    ui->withdrawToDashboardButton->setStyleSheet(
+        "QPushButton { "
+        "background-color: rgba(255, 255, 255, 180); border: 2px solid #FFB6D9; "
+        "border-radius: 25px; color: #B85C8A; font: 600 12pt 'Segoe UI'; padding: 10px; } "
+        "QPushButton:hover { background-color: #FFF0F5; border: 2px solid #FF85C0; } "
+        "QPushButton:pressed { background-color: #FFE5EC; }");
+    ui->withdrawToDashboardButton->setText("← CANCEL");
+    
+    // Setup datetime timer to update every second
+    dateTimeTimer = new QTimer(this);
+    connect(dateTimeTimer, &QTimer::timeout, this, &MainWindow::updateDateTime);
+    dateTimeTimer->start(1000); // Update every 1 second
+    updateDateTime(); // Initial update
+    
+    // Setup health check timer to poll backend every 30 seconds
+    healthCheckTimer = new QTimer(this);
+    connect(healthCheckTimer, &QTimer::timeout, this, &MainWindow::checkConnectionStatus);
+    healthCheckTimer->start(30000); // Poll every 30 seconds
+    checkConnectionStatus(); // Initial check
 
 }
 
@@ -211,7 +268,7 @@ void MainWindow::resetSession()
     ui->CardNumberEdit->clear();
     ui->pinNumberEdit->clear();
     ui->pinComboBox->clear();
-    ui->errorLabel->clear();
+    ui->errorLabel_2->clear();
     ui->pinErrorLabel->clear();
 
     ui->stackedWidget->setCurrentIndex(0); // Insert Card
@@ -423,7 +480,7 @@ void MainWindow::onCustomersReceived(const QList<Customer> &customers)
 
 void MainWindow::onInsertCardClicked()
 {
-    ui->errorLabel->clear();
+    ui->errorLabel_2->clear();
     currentCardNumber = ui ->CardNumberEdit->text();
     apiClient->insertCard(currentCardNumber);
 }
@@ -440,7 +497,7 @@ void MainWindow::onInsertCardSuccess(QStringList modes)
 
 void MainWindow::onVerifyPinClicked()
 {
-    ui->errorLabel->clear();
+    ui->errorLabel_2->clear();
 
     QString pin = ui->pinNumberEdit->text();
     cardMode = ui->pinComboBox->currentText();
@@ -496,7 +553,7 @@ void MainWindow::onVerifyPinSuccess(
 
 void MainWindow::onApiError(QString message)
 {
-    ui ->errorLabel->setText(message);
+    ui->errorLabel_2->setText(message);
 }
 
 void MainWindow::onLogoutClicked()
@@ -565,6 +622,10 @@ void MainWindow::onWithdrawClicked()
     // Siirry nosto-sivulle (indeksi 5 - correctWithdrawPage)
     qDebug() << "Navigating to withdraw page (index 5 - correctWithdrawPage)";
     ui->stackedWidget->setCurrentIndex(5);
+    
+    // Clear focus so placeholder text is visible
+    ui->withdrawAmountEdit->clearFocus();
+    
     qDebug() << "Current page index:" << ui->stackedWidget->currentIndex();
 }
 
@@ -632,10 +693,92 @@ void MainWindow::onWithdrawSuccess(QJsonObject transaction)
     ui->withdrawErrorLabel->clear();
     
     // Nayta vahvistus
-    QMessageBox::information(this, "Success", 
-        "Withdrawal successful!\nAmount: €" + amount + 
+    QMessageBox::information(this, "✓ Success", 
+        "Withdrawal successful!\n\nAmount: €" + amount + 
         "\nNew balance: €" + newBalance);
     
     // Palaa dashboardiin
     ui->stackedWidget->setCurrentIndex(2);
+}
+
+void MainWindow::onWithdrawError(QString errorMessage)
+{
+    // Nayta virheilmoitus nosto-sivun virhelabelissa
+    qDebug() << "Withdraw error:" << errorMessage;
+    ui->withdrawErrorLabel->setText(errorMessage);
+    
+    // Tyhjenna syotekentta
+    ui->withdrawAmountEdit->clear();
+}
+
+void MainWindow::updateDateTime()
+{
+    // Paivita kellonaika suomalaisessa muodossa (24h)
+    ui->dateTime->setText(QDateTime::currentDateTime().toString("dd.MM.yyyy HH:mm"));
+}
+
+void MainWindow::checkConnectionStatus()
+{
+    // Laheta health check -pyynto taustalla (ei blokkaa UI:ta)
+    // Kasitellaan vastaus onConnectionStatusReceived() -slotissa
+    qDebug() << "Checking backend connection status...";
+    
+    // Vaihda indikaattori odotustilaan
+    ui->connectionIndicator->setText("● Checking...");
+    ui->connectionIndicator->setStyleSheet("QLabel { color: #FFA500; font: 700 12pt 'Segoe UI'; background: transparent; }");
+    
+    // Kutsu ApiClient health check -metodia
+    // Huom: Tama ei tallenna tulosta, vaan paivittaa vain indikaattorin
+    QNetworkAccessManager *tempManager = new QNetworkAccessManager(this);
+    QUrl url(apiClient->getBaseUrl() + "/health");
+    QNetworkRequest request(url);
+    
+    QNetworkReply* reply = tempManager->get(request);
+    
+    // Kasittele vastaus
+    connect(reply, &QNetworkReply::finished, this, [=]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            // Yhteys toimii
+            ui->connectionIndicator->setText("● Online");
+            ui->connectionIndicator->setStyleSheet("QLabel { color: #4CAF50; font: 700 12pt 'Segoe UI'; background: transparent; }");
+            qDebug() << "Backend connection: ONLINE";
+        } else {
+            // Yhteys ei toimi
+            ui->connectionIndicator->setText("● Offline");
+            ui->connectionIndicator->setStyleSheet("QLabel { color: #F44336; font: 700 12pt 'Segoe UI'; background: transparent; }");
+            qDebug() << "Backend connection: OFFLINE -" << reply->errorString();
+        }
+        reply->deleteLater();
+        tempManager->deleteLater();
+    });
+}
+
+void MainWindow::onQuickWithdraw20()
+{
+    qDebug() << "Quick withdraw: €20";
+    apiClient->withdrawMoney(20.0, jwtToken);
+}
+
+void MainWindow::onQuickWithdraw50()
+{
+    qDebug() << "Quick withdraw: €50";
+    apiClient->withdrawMoney(50.0, jwtToken);
+}
+
+void MainWindow::onQuickWithdraw90()
+{
+    qDebug() << "Quick withdraw: €90";
+    apiClient->withdrawMoney(90.0, jwtToken);
+}
+
+void MainWindow::onQuickWithdraw140()
+{
+    qDebug() << "Quick withdraw: €140";
+    apiClient->withdrawMoney(140.0, jwtToken);
+}
+
+void MainWindow::onQuickWithdraw200()
+{
+    qDebug() << "Quick withdraw: €200";
+    apiClient->withdrawMoney(200.0, jwtToken);
 }

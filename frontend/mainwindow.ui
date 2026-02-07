@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1208</width>
-    <height>927</height>
+    <width>1102</width>
+    <height>766</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -20,30 +20,11 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <layout class="QGridLayout" name="gridLayout_4">
-    <item row="2" column="0">
-     <widget class="QLabel" name="errorLabel">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignmentFlag::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
+    <item row="4" column="1">
      <spacer name="verticalSpacer_6">
       <property name="orientation">
        <enum>Qt::Orientation::Vertical</enum>
@@ -56,72 +37,7 @@
       </property>
      </spacer>
     </item>
-    <item row="0" column="0">
-     <widget class="QFrame" name="detailFrame">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>40</height>
-       </size>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Shape::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Shadow::Raised</enum>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="3">
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="connectionLabel">
-         <property name="text">
-          <string>5G</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="timeLabel">
-         <property name="text">
-          <string>Kellonaika</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="4">
-        <widget class="QLabel" name="atmLabel">
-         <property name="text">
-          <string>ATM #4000</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="1" column="1">
+    <item row="5" column="1">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="enabled">
        <bool>true</bool>
@@ -137,6 +53,11 @@
         <width>1000</width>
         <height>600</height>
        </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QStackedWidget {
+    background: transparent;
+}</string>
       </property>
       <property name="currentIndex">
        <number>5</number>
@@ -432,7 +353,7 @@ QPushButton:Hover {
 }</string>
           </property>
           <property name="text">
-           <string>Withdraw Cash</string>
+           <string>♥ Withdraw Cash</string>
           </property>
          </widget>
         </item>
@@ -712,75 +633,240 @@ QPushButton:Hover {
        </widget>
       </widget>
       <widget class="QWidget" name="correctWithdrawPage">
+       <property name="minimumSize">
+        <size>
+         <width>1000</width>
+         <height>600</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QWidget#correctWithdrawPage {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #FFE5EC, stop:1 #FFC9DE);
+}</string>
+       </property>
        <widget class="QLabel" name="withdrawTitleLabel">
         <property name="geometry">
          <rect>
-          <x>350</x>
-          <y>20</y>
-          <width>171</width>
-          <height>31</height>
+          <x>300</x>
+          <y>70</y>
+          <width>300</width>
+          <height>50</height>
          </rect>
         </property>
         <property name="styleSheet">
-         <string notr="true">font: 600 18pt &quot;Segoe UI&quot;;</string>
+         <string notr="true">font: 700 22pt &quot;Segoe UI&quot;;
+color: #B85C8A;
+background: transparent;
+padding: 10px;</string>
         </property>
         <property name="text">
-         <string>Withdraw Cash</string>
+         <string>♥ Withdraw Cash</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
        <widget class="QLineEdit" name="withdrawAmountEdit">
         <property name="geometry">
          <rect>
-          <x>350</x>
-          <y>100</y>
-          <width>151</width>
-          <height>41</height>
+          <x>480</x>
+          <y>180</y>
+          <width>300</width>
+          <height>50</height>
          </rect>
         </property>
         <property name="styleSheet">
-         <string notr="true">font: 14pt &quot;Segoe UI&quot;;</string>
+         <string notr="true">QLineEdit {
+    background-color: #FFF0F5;
+    border: 2px solid #FFB6D9;
+    border-radius: 15px;
+    padding: 8px 15px;
+    font: 14pt &quot;Segoe UI&quot;;
+    color: #9D4E6F;
+}
+
+QLineEdit:focus {
+    border: 3px solid #FF85C0;
+    background-color: #FFFFFF;
+}</string>
         </property>
         <property name="text">
          <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
+        <property name="placeholderText">
+         <string>Enter amount ►</string>
         </property>
        </widget>
        <widget class="QPushButton" name="withdrawSubmitButton">
         <property name="geometry">
          <rect>
-          <x>380</x>
-          <y>200</y>
-          <width>80</width>
-          <height>24</height>
+          <x>490</x>
+          <y>270</y>
+          <width>280</width>
+          <height>55</height>
          </rect>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FFB6D9, stop:1 #FF85C0);
+    border: none;
+    border-radius: 27px;
+    color: white;
+    font: bold 14pt &quot;Segoe UI&quot;;
+    padding: 10px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FF85C0, stop:1 #FF5CAA);
+}
+
+QPushButton:pressed {
+    background: #FF5CAA;
+}</string>
+        </property>
         <property name="text">
-         <string>Withdraw</string>
+         <string>WITHDRAW ►</string>
         </property>
        </widget>
        <widget class="QPushButton" name="withdrawToDashboardButton">
         <property name="geometry">
          <rect>
-          <x>700</x>
-          <y>110</y>
-          <width>111</width>
-          <height>24</height>
+          <x> 750</x>
+          <y> 520</y>
+          <width> 150</width>
+          <height> 50</height>
          </rect>
         </property>
         <property name="text">
-         <string>Back to dashboard</string>
+         <string>CANCEL</string>
         </property>
        </widget>
        <widget class="QLabel" name="withdrawErrorLabel">
         <property name="geometry">
          <rect>
-          <x>240</x>
-          <y>360</y>
-          <width>361</width>
-          <height>71</height>
+          <x>200</x>`n           <y>400</y>`n           <width>600</width>`n           <height>40</height>
          </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel {
+    color: #E91E63;
+    font: 600 11pt &quot;Segoe UI&quot;;
+    background: transparent;
+    padding: 3px;
+}</string>
         </property>
         <property name="text">
          <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="connectionIndicator">
+        <property name="geometry">
+         <rect>
+          <x> 10</x>
+          <y>10</y>
+          <width> 120</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="dateTime">
+        <property name="geometry">
+         <rect>
+          <x> 150</x>
+          <y>10</y>
+          <width> 150</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="atmSerialNumber">
+        <property name="geometry">
+         <rect>
+          <x> 320</x>
+          <y>10</y>
+          <width> 120</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="withdraw_20">
+        <property name="geometry">
+         <rect>
+          <x> 50</x>
+          <y> 180</y>
+          <width> 120</width>
+          <height> 50</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>20</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="withdraw_50">
+        <property name="geometry">
+         <rect>
+          <x> 50</x>
+          <y> 260</y>
+          <width> 120</width>
+          <height> 50</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>50</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="withdraw_90">
+        <property name="geometry">
+         <rect>
+          <x> 50</x>
+          <y> 340</y>
+          <width> 120</width>
+          <height> 50</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>90</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="withdraw_140">
+        <property name="geometry">
+         <rect>
+          <x> 50</x>
+          <y> 420</y>
+          <width> 120</width>
+          <height> 50</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>140</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="withdraw_200">
+        <property name="geometry">
+         <rect>
+          <x> 50</x>
+          <y> 500</y>
+          <width> 120</width>
+          <height> 50</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>200</string>
         </property>
        </widget>
       </widget>
@@ -793,7 +879,7 @@ QPushButton:Hover {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1208</width>
+     <width>1102</width>
      <height>21</height>
     </rect>
    </property>
@@ -803,3 +889,16 @@ QPushButton:Hover {
  <resources/>
  <connections/>
 </ui>
+
+
+
+
+
+
+
+
+
+
+
+
+

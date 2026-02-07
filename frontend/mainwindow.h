@@ -20,6 +20,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
 #include "apiclient.h"
 
 QT_BEGIN_NAMESPACE
@@ -67,14 +68,28 @@ private slots:
     void onWithdrawClicked();
     void onWithdrawSubmitClicked();
     void onWithdrawSuccess(QJsonObject transaction);
+    void onWithdrawError(QString errorMessage);
     void onWithdrawToDashboardClicked();
+    
+    // Quick withdraw buttons
+    void onQuickWithdraw20();
+    void onQuickWithdraw50();
+    void onQuickWithdraw90();
+    void onQuickWithdraw140();
+    void onQuickWithdraw200();
+    
+    // DateTime update
+    void updateDateTime();
+    void checkConnectionStatus();
 
 
 private:
-    Ui::MainWindow *ui;
-    ApiClient *apiClient;
+Ui::MainWindow *ui;
+ApiClient *apiClient;
+QTimer *dateTimeTimer;  // Timer for updating datetime label
+QTimer *healthCheckTimer;  // Timer for polling backend health status
 
-    // Card view
+// Card view
     QString currentCardNumber;
     QStringList availableCardModes;
 
