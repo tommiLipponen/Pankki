@@ -21,7 +21,12 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QList>
 #include "apiclient.h"
+
+// Forward declarations
+class QLabel;
+class QFrame;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -105,11 +110,19 @@ QTimer *healthCheckTimer;  // Timer for polling backend health status
     QString balance;
     QString creditLimit;
 
-    
+    // Single shared header bar
+    QFrame* headerBar;
+    QLabel* connectionIndicator;
+    QLabel* dateTimeLabel;
+    QLabel* atmSerialLabel;
+
     void setupUI();
     void setupConnections();
 
     void showDashboard();
     void resetSession();
+
+    // Header creation helper
+    void createHeaderBar();
 };
 #endif // MAINWINDOW_H
