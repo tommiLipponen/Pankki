@@ -538,11 +538,18 @@ void MainWindow::onVerifyPinSuccess(
     jwtToken = token;
     username = userName;
     customerId = customerIdX;
-    balance = balanceAmount;
     accountId = accountIdX;
     accountNumber = accountNumberX;
-    creditLimit = creditLimitAmount;
 
+    // FIXED: Backend sends balance with "$" suffix (e.g., "490.00$")
+    // Strip currency symbols before storing
+    balance = balanceAmount;
+    balance.remove('$');  // Remove dollar sign if present
+    balance = balance.trimmed();  // Remove any whitespace
+
+    creditLimit = creditLimitAmount;
+    creditLimit.remove('$');
+    creditLimit = creditLimit.trimmed();
 
     ui->pinErrorLabel->clear();
     ui->usernameLabel->setText(username);
@@ -550,11 +557,13 @@ void MainWindow::onVerifyPinSuccess(
     // Calculate and display available balance based on card mode
     QString displayBalance;
     if (cardMode == "CREDIT") {
-        // CREDIT mode: show total available (balance + credit limit)
+        // CREDIT mode: show three lines (Debit, Credit Limit, Available)
         double balanceValue = balance.toDouble();
         double creditValue = creditLimit.toDouble();
         double availableCredit = balanceValue + creditValue;
-        displayBalance = QString::number(availableCredit, 'f', 2) + "€ (incl. credit)";
+        displayBalance = "Debit " + QString::number(balanceValue, 'f', 2) + "€\n" +
+                        "Credit Limit " + QString::number(creditValue, 'f', 2) + "€\n" +
+                        "Available " + QString::number(availableCredit, 'f', 2) + "€";
     } else {
         // DEBIT mode: show only account balance
         displayBalance = balance + "€";
@@ -565,8 +574,10 @@ void MainWindow::onVerifyPinSuccess(
     ui->cardModeLabel->setText(cardMode);
 
     qDebug() << "User:" << username;
-    qDebug() << "Account balance:" << balance;
-    qDebug() << "Credit limit:" << creditLimit;
+    qDebug() << "Raw balance from backend:" << balanceAmount;
+    qDebug() << "Cleaned balance:" << balance;
+    qDebug() << "Raw credit from backend:" << creditLimitAmount;
+    qDebug() << "Cleaned credit:" << creditLimit;
     qDebug() << "Card mode:" << cardMode;
     qDebug() << "Displayed balance:" << displayBalance;
 
@@ -608,11 +619,13 @@ void MainWindow::onBalanceClicked()
     // Calculate and display available balance based on card mode
     QString displayBalance;
     if (cardMode == "CREDIT") {
-        // CREDIT mode: show total available (balance + credit limit)
+        // CREDIT mode: show three lines (Debit, Credit Limit, Available)
         double balanceValue = balance.toDouble();
         double creditValue = creditLimit.toDouble();
         double availableCredit = balanceValue + creditValue;
-        displayBalance = QString::number(availableCredit, 'f', 2) + "€ (incl. credit)";
+        displayBalance = "Debit " + QString::number(balanceValue, 'f', 2) + "€\n" +
+                        "Credit Limit " + QString::number(creditValue, 'f', 2) + "€\n" +
+                        "Available " + QString::number(availableCredit, 'f', 2) + "€";
     } else {
         // DEBIT mode: show only account balance
         displayBalance = balance + "€";
@@ -726,9 +739,11 @@ void MainWindow::onWithdrawSuccess(QJsonObject transaction)
     double creditValue = creditLimit.toDouble();
     QString displayBalance;
     if (cardMode == "CREDIT") {
-        // CREDIT mode: show total available (balance + credit limit)
+        // CREDIT mode: show three lines (Debit, Credit Limit, Available)
         double availableCredit = balanceValue + creditValue;
-        displayBalance = QString::number(availableCredit, 'f', 2) + "€ (incl. credit)";
+        displayBalance = "Debit " + QString::number(balanceValue, 'f', 2) + "€\n" +
+                        "Credit Limit " + QString::number(creditValue, 'f', 2) + "€\n" +
+                        "Available " + QString::number(availableCredit, 'f', 2) + "€";
     } else {
         // DEBIT mode: show only account balance
         displayBalance = balance + "€";
@@ -745,7 +760,7 @@ void MainWindow::onWithdrawSuccess(QJsonObject transaction)
     QString successMessage = "Withdrawal successful!\n\nAmount: €" + amount + 
         "\nNew account balance: €" + newBalance;
     if (cardMode == "CREDIT") {
-        successMessage += "\nAvailable credit: €" + QString::number(balanceValue + creditValue, 'f', 2);
+        successMessage += "\nAvailable with credit: €" + QString::number(balanceValue + creditValue, 'f', 2);
     }
     QMessageBox::information(this, "Success", successMessage);
 
