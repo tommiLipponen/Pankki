@@ -60,7 +60,7 @@
 }</string>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="InsertCard">
        <layout class="QGridLayout" name="gridLayout_5">
@@ -629,6 +629,32 @@ QPushButton:Hover {
         </property>
         <property name="text">
          <string>Back to dashboard</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="prevTransactionsButton">
+        <property name="geometry">
+         <rect>
+          <x>380</x>
+          <y>470</y>
+          <width>80</width>
+          <height>24</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>prev</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="nextTransactionsButton">
+        <property name="geometry">
+         <rect>
+          <x>520</x>
+          <y>470</y>
+          <width>80</width>
+          <height>24</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>next</string>
         </property>
        </widget>
       </widget>

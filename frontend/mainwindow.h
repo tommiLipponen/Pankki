@@ -23,6 +23,7 @@
 #include <QTimer>
 #include <QList>
 #include "apiclient.h"
+#include "transactionsdata.h"
 
 // Forward declarations
 class QLabel;
@@ -60,8 +61,12 @@ private slots:
         QString balance,
         QString creditLimit);
 
+    // Transaction
     void onTransactionClicked();
     void onTransactionSuccess(QJsonArray transactions);
+	void setTenTransactionsToTable(int pageNumber);
+	void onPrevTransactionsClicked();
+	void onNextTransactionsClicked();
 
     void onApiError(QString message);
 
@@ -109,6 +114,9 @@ QTimer *healthCheckTimer;  // Timer for polling backend health status
     QString accountNumber;
     QString balance;
     QString creditLimit;
+
+    // TransactionData object
+    TransactionsData objTransactions;
 
     // Single shared header bar
     QFrame* headerBar;

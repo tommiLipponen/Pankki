@@ -110,7 +110,6 @@ QNetworkReply *reply = m_networkManager->post(
         
         // JWT-token (kaytetaan seuraaviin API-pyyntoihin)
         QString token = data.value("token").toString();
-        qDebug() << token << "Tämä on token data";
         
         // Asiakastiedot
         QJsonObject customer = data.value("customer").toObject();
