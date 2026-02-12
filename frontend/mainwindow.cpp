@@ -24,6 +24,9 @@
 #include <QTime>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QFrame>
+#include <QDateTime>
+#include <QResizeEvent>
 
 
 /**
@@ -84,16 +87,28 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->withdraw_90, &QPushButton::clicked, this, &MainWindow::onQuickWithdraw90);
     connect(ui->withdraw_140, &QPushButton::clicked, this, &MainWindow::onQuickWithdraw140);
     connect(ui->withdraw_200, &QPushButton::clicked, this, &MainWindow::onQuickWithdraw200);
-    
-    // Initialize header labels on withdraw page
-    ui->connectionIndicator->setText("● Connecting...");
-    ui->connectionIndicator->setStyleSheet("QLabel { color: #FFA500; font: 700 12pt 'Segoe UI'; background: transparent; }");
-    
-    ui->atmSerialNumber->setText("ATM #4000");
-    ui->atmSerialNumber->setStyleSheet("QLabel { color: #B85C8A; font: 600 11pt 'Segoe UI'; background: transparent; }");
-    
-    ui->dateTime->setStyleSheet("QLabel { color: #B85C8A; font: 600 11pt 'Segoe UI'; background: transparent; }");
-    
+
+    // Hide menubar and statusbar if they exist (they take up space at top/bottom)
+    if (this->menuBar()) {
+        this->menuBar()->hide();
+        qDebug() << "MenuBar hidden";
+    }
+    if (this->statusBar()) {
+        this->statusBar()->hide();
+        qDebug() << "StatusBar hidden";
+    }
+
+    // Create single shared header for entire application
+    createHeaderBar();
+
+    // Apply pink theme to main window
+    this->setStyleSheet(
+        "QMainWindow { "
+        "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, "
+        "stop:0 #FFE5EC, stop:1 #FFC9DE); "
+        "}"
+    );
+
     // Style quick withdraw buttons
     QString quickButtonStyle = "QPushButton { "
         "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FFB6D9, stop:1 #FF85C0); "
@@ -780,39 +795,38 @@ void MainWindow::onWithdrawError(QString errorMessage)
 
 void MainWindow::updateDateTime()
 {
-    // Paivita kellonaika suomalaisessa muodossa (24h)
-    ui->dateTime->setText(QDateTime::currentDateTime().toString("dd.MM.yyyy HH:mm"));
+    // Update datetime on header (Finnish format - 24h)
+    QString currentTime = QDateTime::currentDateTime().toString("dd.MM.yyyy HH:mm");
+    dateTimeLabel->setText(currentTime);
 }
 
 void MainWindow::checkConnectionStatus()
 {
-    // Laheta health check -pyynto taustalla (ei blokkaa UI:ta)
-    // Kasitellaan vastaus onConnectionStatusReceived() -slotissa
+    // Poll backend health status in background (non-blocking)
     qDebug() << "Checking backend connection status...";
-    
-    // Vaihda indikaattori odotustilaan
-    ui->connectionIndicator->setText("● Checking...");
-    ui->connectionIndicator->setStyleSheet("QLabel { color: #FFA500; font: 700 12pt 'Segoe UI'; background: transparent; }");
-    
-    // Kutsu ApiClient health check -metodia
-    // Huom: Tama ei tallenna tulosta, vaan paivittaa vain indikaattorin
+
+    // Set indicator to "Checking..." state
+    connectionIndicator->setText("● Checking...");
+    connectionIndicator->setStyleSheet("QLabel { color: #FFA500; font: 700 12pt 'Segoe UI'; background: transparent; }");
+
+    // Make async health check request
     QNetworkAccessManager *tempManager = new QNetworkAccessManager(this);
     QUrl url(apiClient->getBaseUrl() + "/health");
     QNetworkRequest request(url);
-    
+
     QNetworkReply* reply = tempManager->get(request);
-    
-    // Kasittele vastaus
+
+    // Handle response
     connect(reply, &QNetworkReply::finished, this, [=]() {
         if (reply->error() == QNetworkReply::NoError) {
-            // Yhteys toimii
-            ui->connectionIndicator->setText("● Online");
-            ui->connectionIndicator->setStyleSheet("QLabel { color: #4CAF50; font: 700 12pt 'Segoe UI'; background: transparent; }");
+            // Connection successful
+            connectionIndicator->setText("● Online");
+            connectionIndicator->setStyleSheet("QLabel { color: #4CAF50; font: 700 12pt 'Segoe UI'; background: transparent; }");
             qDebug() << "Backend connection: ONLINE";
         } else {
-            // Yhteys ei toimi
-            ui->connectionIndicator->setText("● Offline");
-            ui->connectionIndicator->setStyleSheet("QLabel { color: #F44336; font: 700 12pt 'Segoe UI'; background: transparent; }");
+            // Connection failed
+            connectionIndicator->setText("● Offline");
+            connectionIndicator->setStyleSheet("QLabel { color: #F44336; font: 700 12pt 'Segoe UI'; background: transparent; }");
             qDebug() << "Backend connection: OFFLINE -" << reply->errorString();
         }
         reply->deleteLater();
@@ -848,4 +862,129 @@ void MainWindow::onQuickWithdraw200()
 {
     qDebug() << "Quick withdraw: €200";
     apiClient->withdrawMoney(200.0, jwtToken);
+}
+
+/**
+ * Create single header bar for MainWindow
+ * Positioned above stackedWidget, visible on all pages
+ * 
+ * Header layout: [● Online] [dd.MM.yyyy HH:mm] [ATM #4000]
+ */
+void MainWindow::createHeaderBar()
+{
+    // Get the central widget
+    QWidget* centralWidget = this->centralWidget();
+    if (!centralWidget) {
+        qDebug() << "ERROR: No central widget found!";
+        return;
+    }
+
+    // CRITICAL FIX: Remove any size constraints from Qt Designer
+    centralWidget->setMinimumSize(0, 0);
+    centralWidget->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    centralWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    // Force the central widget to resize to match MainWindow
+    centralWidget->resize(this->size());
+    centralWidget->updateGeometry();
+
+    qDebug() << "=== WIDGET HIERARCHY DEBUG ===";
+    qDebug() << "MainWindow size:" << this->size();
+    qDebug() << "MainWindow geometry:" << this->geometry();
+    qDebug() << "CentralWidget size AFTER resize:" << centralWidget->size();
+    qDebug() << "CentralWidget geometry:" << centralWidget->geometry();
+    qDebug() << "CentralWidget parent:" << centralWidget->parent();
+    qDebug() << "StackedWidget size:" << ui->stackedWidget->size();
+    qDebug() << "StackedWidget geometry:" << ui->stackedWidget->geometry();
+    qDebug() << "Central widget layout type:" << (centralWidget->layout() ? centralWidget->layout()->metaObject()->className() : "none");
+
+    // Check for menubar or statusbar
+    qDebug() << "MenuBar:" << this->menuBar() << "visible:" << (this->menuBar() ? this->menuBar()->isVisible() : false);
+    qDebug() << "StatusBar:" << this->statusBar() << "visible:" << (this->statusBar() ? this->statusBar()->isVisible() : false);
+    qDebug() << "=============================";
+
+    // Create header frame
+    headerBar = new QFrame(centralWidget);
+    headerBar->setStyleSheet(
+        "QFrame { "
+        "background: transparent; "  // Transparent - shows MainWindow gradient through
+        "border: none; "  // Completely seamless, no separation
+        "}"
+    );
+    headerBar->setMinimumHeight(50);
+    headerBar->setMaximumHeight(50);
+    headerBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    headerBar->setContentsMargins(0, 0, 0, 0);  // No internal margins
+
+    // Create horizontal layout for header
+    QHBoxLayout* headerLayout = new QHBoxLayout(headerBar);
+    headerLayout->setContentsMargins(15, 5, 15, 5);
+    headerLayout->setSpacing(10);
+
+    // Connection status label (left)
+    connectionIndicator = new QLabel("● Connecting...", headerBar);
+    connectionIndicator->setStyleSheet("QLabel { color: #FFA500; font: 700 12pt 'Segoe UI'; background: transparent; }");
+    connectionIndicator->setMinimumWidth(120);  // Fixed width to prevent layout shift
+    connectionIndicator->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    // DateTime label (center)
+    dateTimeLabel = new QLabel("", headerBar);
+    dateTimeLabel->setStyleSheet("QLabel { color: #B85C8A; font: 600 11pt 'Segoe UI'; background: transparent; }");
+    dateTimeLabel->setAlignment(Qt::AlignCenter);
+
+    // ATM serial number label (right)
+    atmSerialLabel = new QLabel("ATM #4000", headerBar);
+    atmSerialLabel->setStyleSheet("QLabel { color: #B85C8A; font: 600 11pt 'Segoe UI'; background: transparent; }");
+    atmSerialLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
+    // Add labels to header layout
+    headerLayout->addWidget(connectionIndicator, 0);
+    headerLayout->addStretch(1);
+    headerLayout->addWidget(dateTimeLabel, 0);
+    headerLayout->addStretch(1);
+    headerLayout->addWidget(atmSerialLabel, 0);
+
+    // Strategy: Rebuild the central widget layout completely
+    // This ensures proper VBoxLayout regardless of Qt Designer setup
+
+    // 1. Remove existing layout if any (but keep widgets)
+    QLayout* oldLayout = centralWidget->layout();
+    if (oldLayout) {
+        qDebug() << "Removing old layout:" << oldLayout->metaObject()->className();
+        // Don't delete widgets, just remove from layout
+        QLayoutItem* item;
+        while ((item = oldLayout->takeAt(0)) != nullptr) {
+            // Don't delete widgets, they're still parented to centralWidget
+            delete item;
+        }
+        delete oldLayout;
+    }
+
+    // 2. Create new VBoxLayout for central widget
+    QVBoxLayout* mainLayout = new QVBoxLayout(centralWidget);
+    mainLayout->setContentsMargins(0, 0, 0, 10);  // Left, Top, Right, Bottom - Header touches top & sides!
+    mainLayout->setSpacing(10);  // Space between header and stackedWidget
+
+    // Ensure stackedWidget can expand
+    ui->stackedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    // 3. Add header at top
+    mainLayout->addWidget(headerBar);
+
+    // 4. Add stackedWidget below (it's still a child of centralWidget)
+    mainLayout->addWidget(ui->stackedWidget, 1);  // Stretch factor 1 = take remaining space
+
+    // 5. Apply the layout
+    centralWidget->setLayout(mainLayout);
+
+    // Force immediate layout update
+    mainLayout->activate();
+    centralWidget->adjustSize();
+    this->update();
+
+    qDebug() << "Created single header bar on MainWindow with full-width VBoxLayout";
+    qDebug() << "StackedWidget size AFTER layout:" << ui->stackedWidget->size();
+    qDebug() << "CentralWidget size AFTER layout:" << centralWidget->size();
+    qDebug() << "Header size AFTER layout:" << headerBar->size();
+    qDebug() << "Header geometry AFTER layout:" << headerBar->geometry();
 }
