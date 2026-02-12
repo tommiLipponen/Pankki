@@ -264,6 +264,13 @@ void MainWindow::resetSession()
     jwtToken.clear();
     currentCardNumber.clear();
     availableCardModes.clear();
+    balance.clear();
+    creditLimit.clear();
+    cardMode.clear();
+    accountId.clear();
+    accountNumber.clear();
+    username.clear();
+    customerId.clear();
 
     ui->CardNumberEdit->clear();
     ui->pinNumberEdit->clear();
@@ -526,7 +533,7 @@ void MainWindow::onVerifyPinSuccess(
     QString accountIdX,
     QString accountNumberX,
     QString balanceAmount,
-    QString creditLimit)
+    QString creditLimitAmount)
 {
     jwtToken = token;
     username = userName;
@@ -534,18 +541,34 @@ void MainWindow::onVerifyPinSuccess(
     balance = balanceAmount;
     accountId = accountIdX;
     accountNumber = accountNumberX;
+    creditLimit = creditLimitAmount;
 
 
     ui->pinErrorLabel->clear();
     ui->usernameLabel->setText(username);
-    ui->balanceLabel->setText(balance);
+
+    // Calculate and display available balance based on card mode
+    QString displayBalance;
+    if (cardMode == "CREDIT") {
+        // CREDIT mode: show total available (balance + credit limit)
+        double balanceValue = balance.toDouble();
+        double creditValue = creditLimit.toDouble();
+        double availableCredit = balanceValue + creditValue;
+        displayBalance = QString::number(availableCredit, 'f', 2) + "€ (incl. credit)";
+    } else {
+        // DEBIT mode: show only account balance
+        displayBalance = balance + "€";
+    }
+
+    ui->balanceLabel->setText(displayBalance);
     ui->accountNumberLabel->setText(accountNumber);
     ui->cardModeLabel->setText(cardMode);
 
-    qDebug() << username << "Tässä pitäs olla jotaki!";
-    qDebug() << balance << "Tässä pitäs olla jotaki!";
-    qDebug() << accountId << "Tässä pitäs olla jotaki!";
-    qDebug() << accountNumber << "Tässä pitäs olla jotaki!";
+    qDebug() << "User:" << username;
+    qDebug() << "Account balance:" << balance;
+    qDebug() << "Credit limit:" << creditLimit;
+    qDebug() << "Card mode:" << cardMode;
+    qDebug() << "Displayed balance:" << displayBalance;
 
 
     showDashboard();
@@ -582,7 +605,20 @@ void MainWindow::onBalanceClicked()
 {
     ui->stackedWidget->setCurrentIndex(3);
 
-    ui->balancePageLabel->setText(balance);
+    // Calculate and display available balance based on card mode
+    QString displayBalance;
+    if (cardMode == "CREDIT") {
+        // CREDIT mode: show total available (balance + credit limit)
+        double balanceValue = balance.toDouble();
+        double creditValue = creditLimit.toDouble();
+        double availableCredit = balanceValue + creditValue;
+        displayBalance = QString::number(availableCredit, 'f', 2) + "€ (incl. credit)";
+    } else {
+        // DEBIT mode: show only account balance
+        displayBalance = balance + "€";
+    }
+
+    ui->balancePageLabel->setText(displayBalance);
 }
 
 void MainWindow::onTransactionClicked() 
@@ -665,38 +701,54 @@ void MainWindow::onWithdrawSuccess(QJsonObject transaction)
     qDebug() << "Full transaction object:" << transaction;
     qDebug() << "balanceAfter field:" << transaction["balanceAfter"];
     qDebug() << "amount field:" << transaction["amount"];
-    
+
     // Tarkista etta vastaus sisaltaa tarvittavat kentat
     if (!transaction.contains("balanceAfter") || !transaction.contains("amount")) {
         qDebug() << "ERROR: Missing required fields!";
         QMessageBox::warning(this, "Error", "Invalid response from server");
         return;
     }
-    
+
     // FIXED: Backend sends strings, not numbers! Convert toString() first, then toDouble()
     QString newBalance = QString::number(transaction["balanceAfter"].toString().toDouble(), 'f', 2);
     QString amount = QString::number(transaction["amount"].toString().toDouble(), 'f', 2);
-    
+
     qDebug() << "Parsed newBalance string:" << newBalance;
     qDebug() << "Parsed amount string:" << amount;
-    
-    // Paivita saldo (kayta euroa suomalaiselle pankille)
-    balance = newBalance + "€";
-    
+
+    // Update internal balance (actual account balance)
+    balance = newBalance;
+
     qDebug() << "Updated balance variable:" << balance;
-    
-    // Paivita dashboard-nayton saldo
-    ui->balanceLabel->setText(balance);
-    
+
+    // Calculate and display available balance based on card mode
+    double balanceValue = balance.toDouble();
+    double creditValue = creditLimit.toDouble();
+    QString displayBalance;
+    if (cardMode == "CREDIT") {
+        // CREDIT mode: show total available (balance + credit limit)
+        double availableCredit = balanceValue + creditValue;
+        displayBalance = QString::number(availableCredit, 'f', 2) + "€ (incl. credit)";
+    } else {
+        // DEBIT mode: show only account balance
+        displayBalance = balance + "€";
+    }
+
+    // Update dashboard display with calculated available balance
+    ui->balanceLabel->setText(displayBalance);
+
     // Tyhjenna syotekentta ja virheet
     ui->withdrawAmountEdit->clear();
     ui->withdrawErrorLabel->clear();
-    
-    // Nayta vahvistus
-    QMessageBox::information(this, "✓ Success", 
-        "Withdrawal successful!\n\nAmount: €" + amount + 
-        "\nNew balance: €" + newBalance);
-    
+
+    // Nayta vahvistus (show actual account balance in confirmation)
+    QString successMessage = "Withdrawal successful!\n\nAmount: €" + amount + 
+        "\nNew account balance: €" + newBalance;
+    if (cardMode == "CREDIT") {
+        successMessage += "\nAvailable credit: €" + QString::number(balanceValue + creditValue, 'f', 2);
+    }
+    QMessageBox::information(this, "Success", successMessage);
+
     // Palaa dashboardiin
     ui->stackedWidget->setCurrentIndex(2);
 }
