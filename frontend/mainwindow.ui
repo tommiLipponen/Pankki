@@ -60,7 +60,7 @@
 }</string>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="InsertCard">
        <layout class="QGridLayout" name="gridLayout_5">

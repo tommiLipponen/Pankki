@@ -92,12 +92,25 @@ private slots:
     void updateDateTime();
     void checkConnectionStatus();
 
+	// Session management
+	void onSessionTimeout();
+    void startSessionTimer(int seconds);
+    void stopSessionTimer();
+    void resetSessionTimer();
+    void updateSessionCountdown();
+    void onUserActivity();
 
 private:
 Ui::MainWindow *ui;
 ApiClient *apiClient;
+// Timers
+QTimer *sessionTimer;
+QTimer *sessionCountdownTimer;
 QTimer *dateTimeTimer;  // Timer for updating datetime label
 QTimer *healthCheckTimer;  // Timer for polling backend health status
+
+int sessionTimeoutSeconds = 0;
+int sessionRemainingSeconds = 0;
 
 // Card view
     QString currentCardNumber;
@@ -123,6 +136,7 @@ QTimer *healthCheckTimer;  // Timer for polling backend health status
     QLabel* connectionIndicator;
     QLabel* dateTimeLabel;
     QLabel* atmSerialLabel;
+    QLabel* sessionTimerLabel;
 
     void setupUI();
     void setupConnections();
