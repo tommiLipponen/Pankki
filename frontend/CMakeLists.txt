@@ -48,6 +48,8 @@ qt_add_executable(frontend
     apiclient.h
     customer.cpp
     customer.h
+    transactionsdata.cpp
+    transactionsdata.h
 
 )
 

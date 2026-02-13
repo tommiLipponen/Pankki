@@ -70,6 +70,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->transactionButton, &QPushButton::clicked, this, &MainWindow::onTransactionClicked);
     connect(apiClient, &ApiClient::verifyTransactionSuccess, this, &MainWindow::onTransactionSuccess);
     connect(ui->transactionToDashboardButton, &QPushButton::clicked, this, &MainWindow::onTransactionToDasboardClicked);
+	connect(ui->prevTransactionsButton, &QPushButton::clicked, this, &MainWindow::onPrevTransactionsClicked);
+	connect(ui->nextTransactionsButton, &QPushButton::clicked, this, &MainWindow::onNextTransactionsClicked);
 
     //Withdraw Cash button
     // Nosto-sivu on indeksissä 5 (correctWithdrawPage)
@@ -658,27 +660,42 @@ void MainWindow::onTransactionClicked()
 
 void MainWindow::onTransactionSuccess(QJsonArray transactions)
 {
-    // Tayta tapahtumataulukko datalla
-    qDebug() << "Loading" << transactions.size() << "transactions to table";
-    QTableWidget* table = ui->transactionWidget;
-    int rowAmount = transactions.size();
-    table->setRowCount(rowAmount);
+    objTransactions.setTransactions(transactions);
+	setTenTransactionsToTable(1);
+}
 
+void MainWindow::setTenTransactionsToTable(int pageNumber)
+{
+    QTableWidget* table = ui->transactionWidget;
+    QJsonArray tenTransactions = objTransactions.getTenTransactionsWithPageNumber(pageNumber);
+    int rowAmount = tenTransactions.size();
+    table->setRowCount(rowAmount);
     for (int row = 0; row < rowAmount; row++) {
-        QJsonObject transactionRow = transactions[row].toObject();
+        QJsonObject transactionRow = tenTransactions[row].toObject();
         QString type = transactionRow["transactionType"].toString();
         QString amount = transactionRow["amount"].toString();
         QString balanceAfter = transactionRow["balanceAfter"].toString();
-        QString date = transactionRow["createdAt"].toString();
-
-        qDebug() << "Transaction row" << row << ":" << type << amount << balanceAfter << date;
+        QString date = QDateTime::fromString(transactionRow["createdAt"].toString(), Qt::ISODate).toString("yyyy-MM-dd HH:mm:ss");
 
         table->setItem(row, 0, new QTableWidgetItem(type));
         table->setItem(row, 1, new QTableWidgetItem(amount));
         table->setItem(row, 2, new QTableWidgetItem(balanceAfter));
         table->setItem(row, 3, new QTableWidgetItem(date));
     }
+}
 
+void MainWindow::onPrevTransactionsClicked()
+{
+    int currentPage = objTransactions.getCurrentPage() > 1 ? objTransactions.getCurrentPage() - 1 : 1;
+	objTransactions.setCurrentPage(currentPage);
+    setTenTransactionsToTable(currentPage);
+}
+
+void MainWindow::onNextTransactionsClicked()
+{
+    int maxPage = (objTransactions.getTotalTransactions() + 9) / 10;
+	setTenTransactionsToTable((objTransactions.getCurrentPage() < maxPage) ? objTransactions.getCurrentPage() + 1 : maxPage);
+	objTransactions.setCurrentPage((objTransactions.getCurrentPage() < maxPage) ? objTransactions.getCurrentPage() + 1 : maxPage);
 }
 
 void MainWindow::onWithdrawClicked()
