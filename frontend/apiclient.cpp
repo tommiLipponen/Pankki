@@ -162,7 +162,6 @@ void ApiClient::getTransactionsByAccountId(QString& accountId, QString jwtToken)
 
         QJsonObject json =
             QJsonDocument::fromJson(response).object();
-        qDebug() << json;
 
         // Tarkista API-vastauksen onnistuminen
         if (!json["success"].toBool()) {

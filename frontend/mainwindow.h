@@ -64,6 +64,7 @@ private slots:
     // Transaction
     void onTransactionClicked();
     void onTransactionSuccess(QJsonArray transactions);
+	void onTransactionError(QString errorMessage);
 	void setTenTransactionsToTable(int pageNumber);
 	void onPrevTransactionsClicked();
 	void onNextTransactionsClicked();

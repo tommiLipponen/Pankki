@@ -311,7 +311,7 @@ void MainWindow::showDashboard()
 
 void MainWindow::resetSession()
 {
-	stopSessionTimer();
+    stopSessionTimer();
     jwtToken.clear();
     currentCardNumber.clear();
     availableCardModes.clear();
@@ -323,13 +323,24 @@ void MainWindow::resetSession()
     username.clear();
     customerId.clear();
 
-    ui->CardNumberEdit->clear();
-    ui->pinNumberEdit->clear();
-    ui->pinComboBox->clear();
-    ui->errorLabel_2->clear();
-    ui->pinErrorLabel->clear();
+    if (ui) {
+        ui->CardNumberEdit->clear();
+        ui->pinNumberEdit->clear();
+        ui->pinComboBox->clear();
+        ui->errorLabel_2->clear();
+        ui->pinErrorLabel->clear();
+    }
 
-    ui->stackedWidget->setCurrentIndex(0); // Insert Card
+    // Clear cached transaction data
+    objTransactions.setTransactions(QJsonArray());
+    objTransactions.setCurrentPage(1);
+    if (ui && ui->transactionWidget) {
+        ui->transactionWidget->clearContents();
+        ui->transactionWidget->setRowCount(0);
+    }
+
+    // Return to insert card page
+    if (ui) ui->stackedWidget->setCurrentIndex(0);
 }
 
 /**
@@ -632,7 +643,8 @@ void MainWindow::onVerifyPinSuccess(
     qDebug() << "Cleaned credit:" << creditLimit;
     qDebug() << "Card mode:" << cardMode;
     qDebug() << "Displayed balance:" << displayBalance;
-    // Start/refresh a longer session for logged-in user (30 seconds)
+    
+    // Starting or refressing session timer for dashboard view
     startSessionTimer(30);
     showDashboard();
 }
@@ -697,6 +709,12 @@ void MainWindow::onTransactionSuccess(QJsonArray transactions)
 {
     objTransactions.setTransactions(transactions);
 	setTenTransactionsToTable(1);
+}
+
+void MainWindow::onTransactionError(QString errorMessage)
+{
+    qDebug() << "Transaction error:" << errorMessage;
+    ui->transactionErrorLabel->setText(errorMessage);
 }
 
 void MainWindow::setTenTransactionsToTable(int pageNumber)
