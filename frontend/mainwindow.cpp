@@ -121,13 +121,219 @@ MainWindow::MainWindow(QWidget *parent)
         "}"
     );
 
+    // === PINK THEME: Insert Card Page (Index 0) ===
+
+    // Title label (label_10) - Add top/bottom margins for spacing
+    if (ui->label_10) {
+        ui->label_10->setStyleSheet(
+            "QLabel { "
+            "color: #B85C8A; "
+            "font: 700 22pt 'Segoe UI'; "
+            "background: transparent; "
+            "margin-top: 30px; "
+            "margin-bottom: 40px; "
+            "}"
+        );
+        ui->label_10->setAlignment(Qt::AlignCenter);
+        ui->label_10->setText("♥ Welcome to ATM");
+    }
+
+    // Input field - Add margins for spacing
+    styleInputField(ui->CardNumberEdit, "Enter card number ♥");
+    ui->CardNumberEdit->setStyleSheet(
+        ui->CardNumberEdit->styleSheet() + 
+        "QLineEdit { margin-top: 20px; margin-bottom: 20px; }"
+    );
+
+    // Button - Add margins for spacing
+    stylePrimaryButton(ui->insertCardButton, "INSERT CARD ►");
+    ui->insertCardButton->setStyleSheet(
+        ui->insertCardButton->styleSheet() + 
+        "QPushButton { margin-top: 15px; margin-bottom: 15px; }"
+    );
+
+    // Error label styling (Insert Card page uses errorLabel, not errorLabel_2!)
+    styleErrorLabel(ui->errorLabel);
+    ui->errorLabel->setMinimumHeight(60);  // Increased height for larger text
+    ui->errorLabel->setAlignment(Qt::AlignCenter);
+    ui->errorLabel->setWordWrap(true);  // Allow wrapping - multi-line for long messages
+    ui->errorLabel->setVisible(true);
+    ui->errorLabel->raise();
+    ui->errorLabel->setContentsMargins(10, 20, 10, 10);  // Add padding around error text
+
+    // Override error label with larger font
+    ui->errorLabel->setStyleSheet(
+        "QLabel { "
+        "color: #E91E63; "
+        "font: 700 14pt 'Segoe UI'; "  // Larger, bolder font (was 11pt, now 14pt)
+        "background: transparent; "
+        "padding: 10px; "
+        "}"
+    );
+
+    // === PINK THEME: PIN Page (Index 1) ===
+
+    // Style title/instruction labels with spacing
+    if (ui->label_2) {
+        ui->label_2->setStyleSheet(
+            "QLabel { "
+            "color: #B85C8A; "
+            "font: 700 18pt 'Segoe UI'; "
+            "background: transparent; "
+            "margin-top: 30px; "
+            "margin-bottom: 20px; "
+            "}"
+        );
+        ui->label_2->setAlignment(Qt::AlignCenter);
+    }
+    if (ui->label_3) {
+        ui->label_3->setStyleSheet(
+            "QLabel { "
+            "color: #9D4E6F; "
+            "font: 600 12pt 'Segoe UI'; "
+            "background: transparent; "
+            "margin-bottom: 30px; "
+            "}"
+        );
+        ui->label_3->setAlignment(Qt::AlignCenter);
+    }
+
+    // PIN input field with margins
+    styleInputField(ui->pinNumberEdit, "Enter 4-digit PIN");
+    ui->pinNumberEdit->setStyleSheet(
+        ui->pinNumberEdit->styleSheet() + 
+        "QLineEdit { margin-top: 15px; margin-bottom: 15px; }"
+    );
+
+    // ComboBox with margins
+    ui->pinComboBox->setStyleSheet(
+        "QComboBox { "
+        "background-color: #FFF0F5; border: 2px solid #FFB6D9; border-radius: 15px; "
+        "padding: 8px 15px; font: 14pt 'Segoe UI'; color: #9D4E6F; min-height: 40px; "
+        "margin-top: 15px; margin-bottom: 15px; } "
+        "QComboBox:hover { border: 2px solid #FF85C0; } "
+        "QComboBox::drop-down { border: none; width: 30px; } "
+        "QComboBox::down-arrow { image: none; border: 5px solid #B85C8A; "
+        "border-top-color: transparent; border-left-color: transparent; border-right-color: transparent; "
+        "margin-top: -5px; } "
+        "QComboBox QAbstractItemView { background-color: #FFF0F5; border: 2px solid #FFB6D9; "
+        "selection-background-color: #FFB6D9; selection-color: white; }"
+    );
+
+    // Buttons with margins
+    stylePrimaryButton(ui->verifyPinButton, "VERIFY PIN ✓");
+    ui->verifyPinButton->setStyleSheet(
+        ui->verifyPinButton->styleSheet() + 
+        "QPushButton { margin-top: 15px; margin-bottom: 10px; }"
+    );
+
+    styleCancelButton(ui->pinCancelButton, "✕ CANCEL");
+    ui->pinCancelButton->setStyleSheet(
+        ui->pinCancelButton->styleSheet() + 
+        "QPushButton { margin-top: 10px; margin-bottom: 15px; }"
+    );
+
+    // Error labels
+    styleErrorLabel(ui->errorLabel_2);
+    ui->errorLabel_2->setMinimumHeight(40);
+    ui->errorLabel_2->setAlignment(Qt::AlignCenter);
+    styleErrorLabel(ui->pinErrorLabel);
+
+    // === PINK THEME: Dashboard (Index 2) ===
+
+    // Style static description labels
+    if (ui->label_7) {
+        ui->label_7->setStyleSheet("QLabel { color: #B85C8A; font: 600 12pt 'Segoe UI'; background: transparent; }");
+    }
+    if (ui->label_4) {
+        ui->label_4->setStyleSheet("QLabel { color: #B85C8A; font: 600 12pt 'Segoe UI'; background: transparent; }");
+    }
+    if (ui->label_6) {
+        ui->label_6->setStyleSheet("QLabel { color: #B85C8A; font: 600 12pt 'Segoe UI'; background: transparent; }");
+    }
+
+    // Style action buttons
+    styleSecondaryButton(ui->CheckBalanceButton, "💰 Check Balance");
+    styleSecondaryButton(ui->transactionButton, "📜 Transaction History");
+    styleSecondaryButton(ui->pushButton_2, "💵 Withdraw Cash");
+    styleCancelButton(ui->logoutButton, "🚪 Logout");
+
+    // Dashboard info labels (dynamic data)
+    if (ui->usernameLabel) {
+        ui->usernameLabel->setStyleSheet("QLabel { color: #B85C8A; font: 700 16pt 'Segoe UI'; background: transparent; }");
+    }
+    if (ui->balanceLabel) {
+        ui->balanceLabel->setStyleSheet("QLabel { color: #9D4E6F; font: 600 20pt 'Segoe UI'; background: transparent; }");
+    }
+    if (ui->accountNumberLabel) {
+        ui->accountNumberLabel->setStyleSheet("QLabel { color: #B85C8A; font: 600 12pt 'Segoe UI'; background: transparent; }");
+    }
+    if (ui->cardModeLabel) {
+        ui->cardModeLabel->setStyleSheet("QLabel { color: #FF85C0; font: 700 14pt 'Segoe UI'; background: transparent; }");
+    }
+
+    // === PINK THEME: Balance Page (Index 3) ===
+
+    // Style static description label
+    if (ui->label) {
+        ui->label->setStyleSheet("QLabel { color: #B85C8A; font: 700 18pt 'Segoe UI'; background: transparent; }");
+        ui->label->setAlignment(Qt::AlignCenter);
+    }
+
+    // Style balance display label - aligned to top-left for better readability
+    if (ui->balancePageLabel) {
+        ui->balancePageLabel->setStyleSheet("QLabel { color: #9D4E6F; font: 700 24pt 'Segoe UI'; background: transparent; }");
+        ui->balancePageLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    }
+
+    styleCancelButton(ui->balanceToDashboardButton, "← BACK");
+
+    // === PINK THEME: Transaction History Page (Index 4) ===
+    if (ui->transactionWidget) {
+        ui->transactionWidget->setStyleSheet(
+            "QTableWidget { background-color: rgba(255, 255, 255, 200); border: 2px solid #FFB6D9; "
+            "border-radius: 10px; gridline-color: #FFB6D9; font: 11pt 'Segoe UI'; color: #9D4E6F; } "
+            "QTableWidget::item { padding: 8px; } "
+            "QTableWidget::item:selected { background-color: #FFB6D9; color: white; } "
+            "QHeaderView::section { background-color: #FF85C0; color: white; font: 700 12pt 'Segoe UI'; "
+            "padding: 10px; border: none; border-right: 1px solid #FFB6D9; }"
+        );
+
+        // Make columns stretch to fill the entire width
+        ui->transactionWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+        // Fix row number clipping - set minimum row height and vertical header styling
+        ui->transactionWidget->verticalHeader()->setDefaultSectionSize(40);  // Minimum row height
+        ui->transactionWidget->verticalHeader()->setStyleSheet(
+            "QHeaderView::section { "
+            "background-color: #FFE5EC; "
+            "color: #B85C8A; "
+            "font: 600 11pt 'Segoe UI'; "
+            "padding: 8px; "
+            "border: none; "
+            "border-bottom: 1px solid #FFB6D9; "
+            "}"
+        );
+    }
+    styleSecondaryButton(ui->prevTransactionsButton, "◄ Previous");
+    styleSecondaryButton(ui->nextTransactionsButton, "Next ►");
+    styleCancelButton(ui->transactionToDashboardButton, "← BACK");
+    styleErrorLabel(ui->transactionErrorLabel);
+
+    // === PINK THEME: Withdraw Page (Index 5) ===
+    styleInputField(ui->withdrawAmountEdit, "Enter amount €");
+    stylePrimaryButton(ui->withdrawSubmitButton, "WITHDRAW ✓");
+    styleErrorLabel(ui->withdrawErrorLabel);
+    ui->withdrawErrorLabel->setMinimumHeight(40);
+    ui->withdrawErrorLabel->setAlignment(Qt::AlignCenter);
+
     // Style quick withdraw buttons
     QString quickButtonStyle = "QPushButton { "
         "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FFB6D9, stop:1 #FF85C0); "
-        "border: none; border-radius: 20px; color: white; font: bold 14pt 'Segoe UI'; } "
+        "border: none; border-radius: 20px; color: white; font: bold 14pt 'Segoe UI'; min-height: 50px; } "
         "QPushButton:hover { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FF85C0, stop:1 #FF5CAA); } "
         "QPushButton:pressed { background: #FF5CAA; }";
-    
+
     ui->withdraw_20->setStyleSheet(quickButtonStyle);
     ui->withdraw_20->setText("€20");
     ui->withdraw_50->setStyleSheet(quickButtonStyle);
@@ -138,15 +344,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->withdraw_140->setText("€140");
     ui->withdraw_200->setStyleSheet(quickButtonStyle);
     ui->withdraw_200->setText("€200");
-    
-    // Style cancel button
-    ui->withdrawToDashboardButton->setStyleSheet(
-        "QPushButton { "
-        "background-color: rgba(255, 255, 255, 180); border: 2px solid #FFB6D9; "
-        "border-radius: 25px; color: #B85C8A; font: 600 12pt 'Segoe UI'; padding: 10px; } "
-        "QPushButton:hover { background-color: #FFF0F5; border: 2px solid #FF85C0; } "
-        "QPushButton:pressed { background-color: #FFE5EC; }");
-    ui->withdrawToDashboardButton->setText("← CANCEL");
+
+    styleCancelButton(ui->withdrawToDashboardButton, "← CANCEL");
     
     // Setup datetime timer to update every second
     dateTimeTimer = new QTimer(this);
@@ -550,8 +749,10 @@ void MainWindow::onCustomersReceived(const QList<Customer> &customers)
 
 void MainWindow::onInsertCardClicked()
 {
-    ui->errorLabel_2->clear();
-    currentCardNumber = ui ->CardNumberEdit->text();
+    qDebug() << "=== INSERT CARD CLICKED ===";
+    ui->errorLabel->clear();  // Clear Insert Card page error label
+    currentCardNumber = ui->CardNumberEdit->text();
+    qDebug() << "Card number entered:" << currentCardNumber;
     apiClient->insertCard(currentCardNumber);
 }
 
@@ -563,7 +764,8 @@ void MainWindow::onInsertCardSuccess(QStringList modes)
     ui->pinComboBox->addItems(modes); // vaiha ku pin ikkuna ok
 
     ui->stackedWidget->setCurrentIndex(1);//change to pin window
-    startSessionTimer(10);
+    // TEMPORARY: Timer disabled for theme testing
+    // startSessionTimer(10);
 }
 
 void MainWindow::onVerifyPinClicked()
@@ -649,15 +851,51 @@ void MainWindow::onVerifyPinSuccess(
     qDebug() << "Cleaned credit:" << creditLimit;
     qDebug() << "Card mode:" << cardMode;
     qDebug() << "Displayed balance:" << displayBalance;
-    
+
+    // TEMPORARY: Timer disabled for theme testing
     // Starting or refressing session timer for dashboard view
-    startSessionTimer(30);
+    // startSessionTimer(30);
     showDashboard();
 }
 
 void MainWindow::onApiError(QString message)
 {
-    ui->errorLabel_2->setText(message);
+    qDebug() << "=== API ERROR ===";
+    qDebug() << "Error message:" << message;
+    qDebug() << "Current page index:" << ui->stackedWidget->currentIndex();
+
+    // Use correct error label based on current page
+    QLabel* errorLabel = nullptr;
+
+    if (ui->stackedWidget->currentIndex() == 0) {
+        // Insert Card page uses errorLabel
+        errorLabel = ui->errorLabel;
+        qDebug() << "Using errorLabel (Insert Card page)";
+    } else if (ui->stackedWidget->currentIndex() == 1) {
+        // PIN page uses errorLabel_2
+        errorLabel = ui->errorLabel_2;
+        qDebug() << "Using errorLabel_2 (PIN page)";
+    }
+
+    if (errorLabel) {
+        qDebug() << "Error label exists:" << (errorLabel != nullptr);
+
+        // Set error message
+        errorLabel->setText(message);
+
+        // Ensure label is visible and on top
+        errorLabel->setVisible(true);
+        errorLabel->raise();
+        errorLabel->update();
+        errorLabel->repaint();
+
+        qDebug() << "Error label text set to:" << errorLabel->text();
+        qDebug() << "Error label visible:" << errorLabel->isVisible();
+        qDebug() << "Error label geometry:" << errorLabel->geometry();
+        qDebug() << "Error label size:" << errorLabel->size();
+    } else {
+        qDebug() << "ERROR: No error label found for current page!";
+    }
 }
 
 void MainWindow::onLogoutClicked()
@@ -1024,6 +1262,156 @@ void MainWindow::onQuickWithdraw200()
 {
     qDebug() << "Quick withdraw: €200";
     apiClient->withdrawMoney(200.0, jwtToken);
+}
+
+/**
+ * Pink theme styling helper functions
+ * Reusable styling methods for consistent theme across all pages
+ */
+
+/**
+ * Style a primary action button (Submit, Verify, Withdraw)
+ * Pink gradient background with hover effects
+ */
+void MainWindow::stylePrimaryButton(QPushButton* btn, const QString& text)
+{
+    if (!btn) return;
+
+    btn->setStyleSheet(
+        "QPushButton { "
+        "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FFB6D9, stop:1 #FF85C0); "
+        "border: none; "
+        "border-radius: 27px; "
+        "color: white; "
+        "font: bold 14pt 'Segoe UI'; "
+        "padding: 12px 24px; "
+        "min-height: 50px; "
+        "} "
+        "QPushButton:hover { "
+        "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FF85C0, stop:1 #FF5CAA); "
+        "} "
+        "QPushButton:pressed { "
+        "background: #FF5CAA; "
+        "}"
+    );
+
+    if (!text.isEmpty()) {
+        btn->setText(text);
+    }
+}
+
+/**
+ * Style a secondary action button (View, Check, Info)
+ * Outlined style with transparent background
+ */
+void MainWindow::styleSecondaryButton(QPushButton* btn, const QString& text)
+{
+    if (!btn) return;
+
+    btn->setStyleSheet(
+        "QPushButton { "
+        "background-color: rgba(255, 255, 255, 180); "
+        "border: 2px solid #FFB6D9; "
+        "border-radius: 25px; "
+        "color: #B85C8A; "
+        "font: 600 12pt 'Segoe UI'; "
+        "padding: 12px 24px; "
+        "min-height: 50px; "
+        "} "
+        "QPushButton:hover { "
+        "background-color: #FFF0F5; "
+        "border: 2px solid #FF85C0; "
+        "} "
+        "QPushButton:pressed { "
+        "background-color: #FFE5EC; "
+        "}"
+    );
+
+    if (!text.isEmpty()) {
+        btn->setText(text);
+    }
+}
+
+/**
+ * Style a cancel/back button
+ * Light background with pink border
+ */
+void MainWindow::styleCancelButton(QPushButton* btn, const QString& text)
+{
+    if (!btn) return;
+
+    btn->setStyleSheet(
+        "QPushButton { "
+        "background-color: rgba(255, 255, 255, 180); "
+        "border: 2px solid #FFB6D9; "
+        "border-radius: 25px; "
+        "color: #B85C8A; "
+        "font: 600 12pt 'Segoe UI'; "
+        "padding: 10px; "
+        "min-width: 150px; "
+        "} "
+        "QPushButton:hover { "
+        "background-color: #FFF0F5; "
+        "border: 2px solid #FF85C0; "
+        "} "
+        "QPushButton:pressed { "
+        "background-color: #FFE5EC; "
+        "}"
+    );
+
+    if (!text.isEmpty()) {
+        btn->setText(text);
+    }
+}
+
+/**
+ * Style an input field (QLineEdit)
+ * Light pink background with focus effects
+ */
+void MainWindow::styleInputField(QLineEdit* input, const QString& placeholder)
+{
+    if (!input) return;
+
+    input->setStyleSheet(
+        "QLineEdit { "
+        "background-color: #FFF0F5; "
+        "border: 2px solid #FFB6D9; "
+        "border-radius: 15px; "
+        "padding: 8px 15px; "
+        "font: 14pt 'Segoe UI'; "
+        "color: #9D4E6F; "
+        "} "
+        "QLineEdit:focus { "
+        "border: 3px solid #FF85C0; "
+        "background-color: #FFFFFF; "
+        "} "
+        "QLineEdit::placeholder { "
+        "color: #B85C8A; "
+        "font-style: italic; "
+        "}"
+    );
+
+    if (!placeholder.isEmpty()) {
+        input->setPlaceholderText(placeholder);
+    }
+}
+
+/**
+ * Style an error label
+ * Pink error text on transparent background
+ */
+void MainWindow::styleErrorLabel(QLabel* label)
+{
+    if (!label) return;
+
+    label->setStyleSheet(
+        "QLabel { "
+        "color: #E91E63; "
+        "font: 600 11pt 'Segoe UI'; "
+        "background: transparent; "
+        "padding: 5px; "
+        "}"
+    );
 }
 
 /**
