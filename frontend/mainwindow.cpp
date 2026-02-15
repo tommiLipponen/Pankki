@@ -65,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->verifyPinButton, &QPushButton::clicked, this, &MainWindow::onVerifyPinClicked);
     connect(apiClient, &ApiClient::verifyPinSuccess, this, &MainWindow::onVerifyPinSuccess);
     connect(apiClient, &ApiClient::verifyPinError, this, &MainWindow::onApiError);
+    connect(ui->pinCancelButton, &QPushButton::clicked, this, &MainWindow::onCancelPinClicked);
 
     //Logout buttoni
     connect(ui->logoutButton, &QPushButton::clicked,this, &MainWindow::onLogoutClicked);
@@ -587,6 +588,11 @@ void MainWindow::onVerifyPinClicked()
 
     // Laheta PIN-vahvistuspyynto API:lle
     apiClient->verifyPin(currentCardNumber, pin, cardMode);
+}
+
+void MainWindow::onCancelPinClicked()
+{
+    resetSession();
 }
 
 void MainWindow::onVerifyPinSuccess(

@@ -52,6 +52,7 @@ private slots:
     void onInsertCardClicked();
     void onInsertCardSuccess(QStringList modes);
     void onVerifyPinClicked();
+    void onCancelPinClicked();
     void onVerifyPinSuccess(
         QString token, 
         QString username,
