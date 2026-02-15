@@ -37,7 +37,16 @@
  */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow){
+    , ui(new Ui::MainWindow)
+    , sessionTimer(nullptr)
+    , sessionCountdownTimer(nullptr)
+    , dateTimeTimer(nullptr)
+    , healthCheckTimer(nullptr)
+    , sessionTimeoutSeconds(0)
+    , sessionRemainingSeconds(0)
+    , sessionTimerLabel(nullptr)
+{
+
 
     ui->setupUi(this);
     apiClient = (new ApiClient(this));  // API client for Azure backend
@@ -149,6 +158,30 @@ MainWindow::MainWindow(QWidget *parent)
     connect(healthCheckTimer, &QTimer::timeout, this, &MainWindow::checkConnectionStatus);
     healthCheckTimer->start(30000); // Poll every 30 seconds
     checkConnectionStatus(); // Initial check
+
+    connect(ui->pinNumberEdit, &QLineEdit::textEdited, this, &MainWindow::onUserActivity);
+    connect(ui->pinNumberEdit, &QLineEdit::returnPressed, this, &MainWindow::onUserActivity);
+	connect(ui->pinComboBox, &QComboBox::currentTextChanged, this, &MainWindow::onUserActivity);
+	connect(ui->pinComboBox, &QComboBox::activated, this, &MainWindow::onUserActivity);
+    connect(ui->verifyPinButton, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+
+	connect(ui->CheckBalanceButton, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+	connect(ui->balanceToDashboardButton, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+
+	connect(ui->transactionButton, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+	connect(ui->transactionToDashboardButton, &QPushButton::clicked, this, &MainWindow::onUserActivity);    
+    connect(ui->prevTransactionsButton, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+	connect(ui->nextTransactionsButton, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+
+	connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+    connect(ui->withdrawAmountEdit, &QLineEdit::textEdited, this, &MainWindow::onUserActivity);
+    connect(ui->withdraw_20, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+    connect(ui->withdraw_50, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+    connect(ui->withdraw_90, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+    connect(ui->withdraw_140, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+    connect(ui->withdraw_200, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+	connect(ui->withdrawSubmitButton, &QPushButton::clicked, this, &MainWindow::onUserActivity);
+	connect(ui->withdrawToDashboardButton, &QPushButton::clicked, this, &MainWindow::onUserActivity);
 
 }
 
@@ -278,6 +311,7 @@ void MainWindow::showDashboard()
 
 void MainWindow::resetSession()
 {
+    stopSessionTimer();
     jwtToken.clear();
     currentCardNumber.clear();
     availableCardModes.clear();
@@ -289,13 +323,24 @@ void MainWindow::resetSession()
     username.clear();
     customerId.clear();
 
-    ui->CardNumberEdit->clear();
-    ui->pinNumberEdit->clear();
-    ui->pinComboBox->clear();
-    ui->errorLabel_2->clear();
-    ui->pinErrorLabel->clear();
+    if (ui) {
+        ui->CardNumberEdit->clear();
+        ui->pinNumberEdit->clear();
+        ui->pinComboBox->clear();
+        ui->errorLabel_2->clear();
+        ui->pinErrorLabel->clear();
+    }
 
-    ui->stackedWidget->setCurrentIndex(0); // Insert Card
+    // Clear cached transaction data
+    objTransactions.setTransactions(QJsonArray());
+    objTransactions.setCurrentPage(1);
+    if (ui && ui->transactionWidget) {
+        ui->transactionWidget->clearContents();
+        ui->transactionWidget->setRowCount(0);
+    }
+
+    // Return to insert card page
+    if (ui) ui->stackedWidget->setCurrentIndex(0);
 }
 
 /**
@@ -517,6 +562,7 @@ void MainWindow::onInsertCardSuccess(QStringList modes)
     ui->pinComboBox->addItems(modes); // vaiha ku pin ikkuna ok
 
     ui->stackedWidget->setCurrentIndex(1);//change to pin window
+    startSessionTimer(10);
 }
 
 void MainWindow::onVerifyPinClicked()
@@ -597,8 +643,9 @@ void MainWindow::onVerifyPinSuccess(
     qDebug() << "Cleaned credit:" << creditLimit;
     qDebug() << "Card mode:" << cardMode;
     qDebug() << "Displayed balance:" << displayBalance;
-
-
+    
+    // Starting or refressing session timer for dashboard view
+    startSessionTimer(30);
     showDashboard();
 }
 
@@ -662,6 +709,12 @@ void MainWindow::onTransactionSuccess(QJsonArray transactions)
 {
     objTransactions.setTransactions(transactions);
 	setTenTransactionsToTable(1);
+}
+
+void MainWindow::onTransactionError(QString errorMessage)
+{
+    qDebug() << "Transaction error:" << errorMessage;
+    ui->transactionErrorLabel->setText(errorMessage);
 }
 
 void MainWindow::setTenTransactionsToTable(int pageNumber)
@@ -851,6 +904,80 @@ void MainWindow::checkConnectionStatus()
     });
 }
 
+void MainWindow::startSessionTimer(int seconds)
+{
+    if (seconds <= 0)
+        return;
+
+    if (!sessionTimer) {
+        sessionTimer = new QTimer(this);
+        sessionTimer->setSingleShot(true);
+        connect(sessionTimer, &QTimer::timeout, this, &MainWindow::onSessionTimeout);
+    } else {
+        sessionTimer->stop();
+    }
+
+    if (!sessionCountdownTimer) {
+        sessionCountdownTimer = new QTimer(this);
+        connect(sessionCountdownTimer, &QTimer::timeout, this, &MainWindow::updateSessionCountdown);
+    } else {
+        sessionCountdownTimer->stop();
+    }
+
+    sessionTimeoutSeconds = seconds;
+    sessionRemainingSeconds = seconds;
+
+    sessionTimer->start(seconds * 1000);
+    sessionCountdownTimer->start(1000);
+
+    if (sessionTimerLabel) {
+        sessionTimerLabel->setVisible(true);
+        sessionTimerLabel->setText(QString("Session: %1s").arg(sessionRemainingSeconds));
+    }
+}
+
+void MainWindow::stopSessionTimer()
+{
+    if (sessionTimer) sessionTimer->stop();
+    if (sessionCountdownTimer) sessionCountdownTimer->stop();
+    sessionRemainingSeconds = 0;
+    sessionTimeoutSeconds = 0;
+    if (sessionTimerLabel) {
+        sessionTimerLabel->setText("");
+        sessionTimerLabel->setVisible(false);
+    }
+}
+
+void MainWindow::resetSessionTimer()
+{
+    if (sessionTimeoutSeconds > 0)
+        startSessionTimer(sessionTimeoutSeconds);
+}
+
+void MainWindow::updateSessionCountdown()
+{
+    if (sessionRemainingSeconds > 0) {
+        --sessionRemainingSeconds;
+        if (sessionTimerLabel) {
+            sessionTimerLabel->setText(QString("Session: %1s").arg(sessionRemainingSeconds));
+        }
+    } else {
+        if (sessionCountdownTimer) sessionCountdownTimer->stop();
+    }
+}
+
+void MainWindow::onUserActivity()
+{
+    resetSessionTimer();
+}
+
+void MainWindow::onSessionTimeout()
+{
+    qDebug() << "Session timed out due to inactivity.";
+    QMessageBox::information(this, "Session Timeout", "Your session has expired due to inactivity. Please insert your card again.");
+	resetSession();
+}
+
 void MainWindow::onQuickWithdraw20()
 {
     qDebug() << "Quick withdraw: €20";
@@ -954,11 +1081,20 @@ void MainWindow::createHeaderBar()
     atmSerialLabel->setStyleSheet("QLabel { color: #B85C8A; font: 600 11pt 'Segoe UI'; background: transparent; }");
     atmSerialLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
+    // Session Timer Label
+    sessionTimerLabel = new QLabel("", headerBar);
+    sessionTimerLabel->setStyleSheet("QLabel { color: #B85C8A; font: 600 11pt 'Segoe UI'; background: transparent; }");
+    sessionTimerLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    sessionTimerLabel->setVisible(false);
+
     // Add labels to header layout
     headerLayout->addWidget(connectionIndicator, 0);
     headerLayout->addStretch(1);
     headerLayout->addWidget(dateTimeLabel, 0);
     headerLayout->addStretch(1);
+    headerLayout->addWidget(atmSerialLabel, 0);
+
+    headerLayout->addWidget(sessionTimerLabel, 0);
     headerLayout->addWidget(atmSerialLabel, 0);
 
     // Strategy: Rebuild the central widget layout completely

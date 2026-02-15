@@ -60,7 +60,7 @@
 }</string>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="InsertCard">
        <layout class="QGridLayout" name="gridLayout_5">
@@ -318,14 +318,7 @@
            <font/>
           </property>
           <property name="styleSheet">
-           <string notr="true">QPushButton {
-	background-color: #333;
-	border-radius: 20px;
-}
-
-QPushButton:Hover {
-	background-color: #fff;
-}</string>
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Check Balance</string>
@@ -347,10 +340,7 @@ QPushButton:Hover {
            </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">QPushButton {
-	background-color: #333;
-	border-radius: 20px;
-}</string>
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>♥ Withdraw Cash</string>
@@ -372,10 +362,7 @@ QPushButton:Hover {
            </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">QPushButton {
-	background-color: #333;
-	border-radius: 20px;
-}</string>
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Transaction History</string>
@@ -397,10 +384,7 @@ QPushButton:Hover {
            </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">QPushButton {
-	background-color: #333;
-	border-radius: 20px;
-}</string>
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Exit Session</string>
@@ -655,6 +639,19 @@ QPushButton:Hover {
         </property>
         <property name="text">
          <string>next</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="transactionErrorLabel">
+        <property name="geometry">
+         <rect>
+          <x>280</x>
+          <y>510</y>
+          <width>451</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </widget>
