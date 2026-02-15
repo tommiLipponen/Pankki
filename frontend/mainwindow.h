@@ -28,6 +28,8 @@
 // Forward declarations
 class QLabel;
 class QFrame;
+class QPushButton;
+class QLineEdit;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -148,5 +150,12 @@ int sessionRemainingSeconds = 0;
 
     // Header creation helper
     void createHeaderBar();
+
+    // Pink theme styling helpers
+    void stylePrimaryButton(QPushButton* btn, const QString& text);
+    void styleSecondaryButton(QPushButton* btn, const QString& text);
+    void styleCancelButton(QPushButton* btn, const QString& text);
+    void styleInputField(QLineEdit* input, const QString& placeholder);
+    void styleErrorLabel(QLabel* label);
 };
 #endif // MAINWINDOW_H
