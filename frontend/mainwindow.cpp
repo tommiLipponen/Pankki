@@ -713,7 +713,7 @@ void MainWindow::onTransactionClicked()
 
 void MainWindow::onTransactionSuccess(QJsonArray transactions)
 {
-    objTransactions.setTransactions(transactions);
+	objTransactions.setTransactions(transactions);
 	setTenTransactionsToTable(1);
 }
 
@@ -728,13 +728,25 @@ void MainWindow::setTenTransactionsToTable(int pageNumber)
     QTableWidget* table = ui->transactionWidget;
     QJsonArray tenTransactions = objTransactions.getTenTransactionsWithPageNumber(pageNumber);
     int rowAmount = tenTransactions.size();
+
     table->setRowCount(rowAmount);
     for (int row = 0; row < rowAmount; row++) {
         QJsonObject transactionRow = tenTransactions[row].toObject();
         QString type = transactionRow["transactionType"].toString();
         QString amount = transactionRow["amount"].toString();
         QString balanceAfter = transactionRow["balanceAfter"].toString();
-        QString date = QDateTime::fromString(transactionRow["createdAt"].toString(), Qt::ISODate).toString("yyyy-MM-dd HH:mm:ss");
+
+        // Parse ISO 8601 date format from backend
+        QString rawDate = transactionRow["createdAt"].toString();
+        QDateTime dateTime = QDateTime::fromString(rawDate, Qt::ISODate);
+        QString date;
+
+        if (dateTime.isValid()) {
+            date = dateTime.toString("yyyy-MM-dd HH:mm:ss");
+        } else {
+            // Fallback: use raw string if parsing fails
+            date = rawDate;
+        }
 
         table->setItem(row, 0, new QTableWidgetItem(type));
         table->setItem(row, 1, new QTableWidgetItem(amount));
