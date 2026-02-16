@@ -43,12 +43,6 @@ jobs:
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-    - name: Seed test database
-      working-directory: ./backend
-      run: npx prisma db seed
-      env:
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
     - name: Run tests
       working-directory: ./backend
       run: npm test
