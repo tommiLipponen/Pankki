@@ -764,8 +764,7 @@ void MainWindow::onInsertCardSuccess(QStringList modes)
     ui->pinComboBox->addItems(modes); // vaiha ku pin ikkuna ok
 
     ui->stackedWidget->setCurrentIndex(1);//change to pin window
-    // TEMPORARY: Timer disabled for theme testing
-    // startSessionTimer(10);
+    startSessionTimer(10);
 }
 
 void MainWindow::onVerifyPinClicked()
@@ -852,9 +851,8 @@ void MainWindow::onVerifyPinSuccess(
     qDebug() << "Card mode:" << cardMode;
     qDebug() << "Displayed balance:" << displayBalance;
 
-    // TEMPORARY: Timer disabled for theme testing
-    // Starting or refressing session timer for dashboard view
-    // startSessionTimer(30);
+    // Starting or refreshing session timer for dashboard view
+    startSessionTimer(30);
     showDashboard();
 }
 
