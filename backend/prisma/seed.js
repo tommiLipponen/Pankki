@@ -8,7 +8,7 @@
 // - 5 customers (Finnish names and addresses)
 // - 8 accounts (mix of DEBIT-only and with creditLimit)
 // - 12 cards (various states for testing)
-// - 30 transactions (all types and modes)
+// - ~60 transactions (all types and modes, realistic history)
 
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
@@ -334,7 +334,7 @@ async function main() {
   console.log(`✅ Created ${cards.length} cards\n`);
 
   // ============================================================================
-  // TRANSACTIONS (30)
+  // TRANSACTIONS (~60)
   // ============================================================================
   console.log('Creating transactions...');
   
@@ -654,6 +654,346 @@ async function main() {
         amount: 200.00,
         balanceAfter: 650.75,
         description: 'Freelance payment'
+      }
+    })
+  );
+
+  // ============================================================================
+  // ADDITIONAL TRANSACTIONS - More realistic transaction history
+  // ============================================================================
+  
+  // Matti's account 1 (DEBIT) - more daily transactions
+  transactions.push(
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[0].id,
+        cardId: cards[0].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 35.50,
+        balanceAfter: 1634.50,
+        description: 'Coffee shop'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[0].id,
+        cardId: cards[0].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 120.00,
+        balanceAfter: 1514.50,
+        description: 'Clothing store'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[0].id,
+        cardId: cards[0].id,
+        transactionType: 'DEPOSIT',
+        cardMode: 'DEBIT',
+        amount: 50.00,
+        balanceAfter: 1564.50,
+        description: 'Cash refund'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[0].id,
+        cardId: cards[0].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 64.50,
+        balanceAfter: 1500.00,
+        description: 'Utility bill'
+      }
+    })
+  );
+
+  // Liisa's account 1 (DEBIT) - shopping and bills
+  transactions.push(
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[2].id,
+        cardId: cards[2].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 89.90,
+        balanceAfter: 3165.30,
+        description: 'Supermarket'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[2].id,
+        cardId: cards[2].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 12.50,
+        balanceAfter: 3152.80,
+        description: 'Parking fee'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[2].id,
+        cardId: cards[2].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 45.00,
+        balanceAfter: 3107.80,
+        description: 'Public transport'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[2].id,
+        cardId: cards[2].id,
+        transactionType: 'DEPOSIT',
+        cardMode: 'DEBIT',
+        amount: 92.70,
+        balanceAfter: 3200.50,
+        description: 'Tax refund'
+      }
+    })
+  );
+
+  // Matti's account 2 (CREDIT) - credit card usage
+  transactions.push(
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[1].id,
+        cardId: cards[1].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'CREDIT',
+        amount: 25.00,
+        balanceAfter: 25.00,
+        description: 'Streaming service'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[1].id,
+        cardId: cards[1].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'CREDIT',
+        amount: 78.50,
+        balanceAfter: -53.50,
+        description: 'Online shopping'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[1].id,
+        cardId: cards[1].id,
+        transactionType: 'DEPOSIT',
+        cardMode: 'CREDIT',
+        amount: 553.50,
+        balanceAfter: 500.00,
+        description: 'Credit card payment'
+      }
+    })
+  );
+
+  // Jukka's account (DEBIT) - regular spending
+  transactions.push(
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[4].id,
+        cardId: cards[4].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 15.50,
+        balanceAfter: 810.25,
+        description: 'Lunch'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[4].id,
+        cardId: cards[4].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 60.00,
+        balanceAfter: 750.25,
+        description: 'Gym membership'
+      }
+    })
+  );
+
+  // Anna's account (CREDIT) - various purchases
+  transactions.push(
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[5].id,
+        cardId: cards[6].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'CREDIT',
+        amount: 150.00,
+        balanceAfter: 2250.00,
+        description: 'Electronics store'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[5].id,
+        cardId: cards[6].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'CREDIT',
+        amount: 85.00,
+        balanceAfter: 2165.00,
+        description: 'Beauty salon'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[5].id,
+        cardId: cards[6].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'CREDIT',
+        amount: 42.00,
+        balanceAfter: 2123.00,
+        description: 'Cinema tickets'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[5].id,
+        cardId: cards[6].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'CREDIT',
+        amount: 23.00,
+        balanceAfter: 2100.00,
+        description: 'Bookstore'
+      }
+    })
+  );
+
+  // Mikko's account (DEBIT) - daily expenses
+  transactions.push(
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[6].id,
+        cardId: cards[8].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 28.00,
+        balanceAfter: 622.75,
+        description: 'Fast food'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[6].id,
+        cardId: cards[8].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 95.00,
+        balanceAfter: 527.75,
+        description: 'Phone bill'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[6].id,
+        cardId: cards[8].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 77.00,
+        balanceAfter: 450.75,
+        description: 'Internet bill'
+      }
+    })
+  );
+
+  // More mixed transactions across accounts
+  transactions.push(
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[0].id,
+        cardId: cards[10].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 18.90,
+        balanceAfter: 1481.10,
+        description: 'Pet supplies'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[2].id,
+        cardId: cards[11].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 156.00,
+        balanceAfter: 3044.50,
+        description: 'Insurance payment'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[2].id,
+        cardId: cards[2].id,
+        transactionType: 'DEPOSIT',
+        cardMode: 'DEBIT',
+        amount: 156.00,
+        balanceAfter: 3200.50,
+        description: 'Insurance refund'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[4].id,
+        cardId: cards[4].id,
+        transactionType: 'TRANSFER_IN',
+        cardMode: 'DEBIT',
+        amount: 100.00,
+        balanceAfter: 850.25,
+        description: 'Payment from roommate'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[4].id,
+        cardId: cards[4].id,
+        transactionType: 'TRANSFER_OUT',
+        cardMode: 'DEBIT',
+        amount: 100.00,
+        balanceAfter: 750.25,
+        description: 'Rent payment'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[0].id,
+        cardId: cards[0].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'DEBIT',
+        amount: 52.30,
+        balanceAfter: 1428.80,
+        description: 'Hardware store'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[5].id,
+        cardId: cards[6].id,
+        transactionType: 'DEPOSIT',
+        cardMode: 'CREDIT',
+        amount: 250.00,
+        balanceAfter: 2350.00,
+        description: 'Bonus payment'
+      }
+    }),
+    await prisma.transaction.create({
+      data: {
+        accountId: accounts[5].id,
+        cardId: cards[6].id,
+        transactionType: 'WITHDRAWAL',
+        cardMode: 'CREDIT',
+        amount: 250.00,
+        balanceAfter: 2100.00,
+        description: 'Travel booking'
       }
     })
   );
