@@ -36,7 +36,7 @@
 - **Compiler:** MSVC 2022 (64-bit)
 - **Build System:** CMake 3.16+ (Ninja generator)
 - **Language:** C++17
-- **IDE:** Visual Studio 2022 Professional / Qt Creator
+- **IDE:** Visual Studio 2026 Professional / Qt Creator
 - **Network:** Qt Network module with OpenSSL 3.x
 - **UI Components:** QStackedWidget, QTableWidget, QNetworkAccessManager
 
@@ -77,13 +77,13 @@ frontend/
 
 ### Prerequisites
 1. **Qt 6.8.1** installed at `C:\Qt\6.8.1\msvc2022_64\`
-2. **Visual Studio 2022** with Qt Tools extension
+2. **Visual Studio 2026** with Qt Tools extension
 3. **OpenSSL 3.x** installed (for HTTPS): [Download here](https://slproweb.com/products/Win32OpenSSL.html)
 
 ### Building & Running
 
-#### Visual Studio 2022
-1. Open Visual Studio 2022
+#### Visual Studio 2026
+1. Open Visual Studio 2026
 2. **File → Open → Folder** → Select `frontend` folder
 3. CMake will auto-configure (wait for it to finish)
 4. Select configuration: **vs-debug** or **vs-release**
