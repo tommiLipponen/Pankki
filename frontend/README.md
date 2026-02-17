@@ -1,18 +1,18 @@
 # Bank ATM Frontend - Qt C++ Application
 
 **Production-ready Qt Widgets desktop application for ATM banking system**  
-**OAMK Software Development Application Project (Spring 2025) - Group 1**
+**OAMK Software Development Application Project (Spring 2026) - Group 1**
 
 ---
 
-## ✅ Current Status - PRODUCTION READY (January 2025)
+## ✅ Current Status - PRODUCTION READY (February 2026)
 
 ### 🎉 Complete ATM System Implementation
 
 #### ✨ Frontend Features
 - ✅ **Full ATM UI** - 6-page stacked widget interface with pink gradient theme
 - ✅ **Card Authentication** - 16-digit card number validation with Azure MySQL lookup
-- ✅ **JWT Authentication** - bcrypt PIN hashing + 1-hour token expiry
+- ✅ **JWT Authentication** - bcrypt PIN hashing + 60-day token expiry
 - ✅ **Session Management** - 10s PIN timer, 30s dashboard timer with user activity tracking
 - ✅ **Withdrawal System** - MySQL stored procedure (`withdraw_money`) with ACID guarantees
 - ✅ **Transaction History** - Client-side pagination (10 transactions per page)
@@ -41,7 +41,7 @@
 - **UI Components:** QStackedWidget, QTableWidget, QNetworkAccessManager
 
 ### Backend
-- **Runtime:** Node.js 20.x
+- **Runtime:** Node.js 22 LTS
 - **Framework:** Express 4.x
 - **ORM:** Prisma + MySQL2 Pool (hybrid approach)
 - **Database:** Azure MySQL 8.0 (Sweden Central)
@@ -102,9 +102,9 @@ frontend/
 ## 🔌 Backend API Connection
 
 ### Production (Azure)
-- **API Base URL:** `https://bank-atm-backend-h5bybufaegbnbvaf.swedencentral-01.azurewebsites.net`
+- **API Base URL:** `https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net`
 - **Health Check:** `GET /health`
-- **Card Authentication:** `POST /api/cards/authenticate`
+- **Card Insertion:** `POST /api/auth/insert-card`
 - **PIN Verification:** `POST /api/auth/verify-pin` (returns JWT token)
 - **Withdraw Cash:** `POST /api/transactions/withdraw` (JWT required)
 - **Transaction History:** `GET /api/transactions/account/:id` (JWT required)
@@ -187,21 +187,12 @@ void MainWindow::onSessionTimeout() {
 ## 🧪 Testing the ATM Application
 
 ### Step 1: Insert Card
-Run the application and enter a test card number:
+Run the application and enter a test card number.
 
-**Recommended Test Cards:**
-- **Basic DEBIT Card:** `1234567890123456`
-  - Balance: €1,500.00
-  - PIN: 1234
-  - Mode: DEBIT only
-
-- **Dual-Mode Card:** `1234567890123457`
-  - Balance: €500.00
-  - Credit Limit: €1,000.00
-  - PIN: 1234
-  - Modes: DEBIT or CREDIT
-
-**📖 Full Test Credentials:** See `TEST_CREDENTIALS.md` for 10+ test cards
+**📖 Test Credentials:** See [TEST_CREDENTIALS.md](../TEST_CREDENTIALS.md) for:
+- 6 working cards (various balances, DEBIT-only and DEBIT+CREDIT modes)
+- 4 error test cards (locked, expired, inactive)
+- Complete API endpoint examples
 
 ### Step 2: Enter PIN & Select Mode
 1. **PIN:** Enter `1234` (4 digits required)
@@ -352,7 +343,7 @@ Cancel:     Light background, #FFB6D9 border
 
 ## 🎯 Development Roadmap
 
-### ✅ Phase 1-3: COMPLETE (January 2025)
+### ✅ Phase 1-3: COMPLETE (February 2026)
 - [x] Qt 6.8.1 project setup with CMake
 - [x] HTTPS/TLS with OpenSSL 3.x
 - [x] REST API client with JWT authentication
@@ -386,7 +377,7 @@ Cancel:     Light background, #FFB6D9 border
 - **Iisa Metsola** - TransactionManager, frontend-backend integration, balance calculations
 - **Topi Pietilänaho** - MainWindow UI design, pink theme styling, session management, QStackedWidget
 
-**Course:** Software Development Application Project (Spring 2025)  
+**Course:** Software Development Application Project (Spring 2026)  
 **Institution:** Oulu University of Applied Sciences (OAMK)
 
 ---
@@ -433,7 +424,7 @@ This project is for educational purposes as part of OAMK Software Development Ap
 ## 🔐 Security Notes
 
 ### Production Considerations
-- ✅ JWT tokens expire after 1 hour
+- ✅ JWT tokens expire after 60 days
 - ✅ bcrypt PIN hashing (cost factor: 10)
 - ✅ HTTPS/TLS for all API communication
 - ✅ SQL injection prevention (Prisma ORM + Stored Procedures)
@@ -448,7 +439,7 @@ This project is for educational purposes as part of OAMK Software Development Ap
 
 ---
 
-**Last Updated:** January 21, 2025  
+**Last Updated:** February 17, 2026  
 **Status:** ✅ PRODUCTION READY | 🎓 School Project Complete  
 **Version:** 1.0.0  
 **GitHub:** [25kmo-project/group_1](https://github.com/25kmo-project/group_1)
