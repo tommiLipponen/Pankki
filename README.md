@@ -23,7 +23,9 @@ A simulated ATM (Automated Teller Machine) banking system with a Qt desktop appl
 
 **Target Grade:** [1-5]
 
-**Current Progress:**
+**Current Status:** ✅ **Production Ready (February 2026)**
+
+**Completed Milestones:**
 
 ✅ **Week 2 Complete:**
 - Customer CRUD operations
@@ -41,39 +43,68 @@ A simulated ATM (Automated Teller Machine) banking system with a Qt desktop appl
 - PIN attempt tracking (auto-lock after 3 failures)
 - Customer-based authorization
 
-🔄 **Week 5 In Progress:**
-- [ ] Enhanced transaction operations
-
-📋 **Upcoming Features:**
-- [ ] PIN validation with timeout
-- [ ] Card locking after 3 failed attempts
-- [ ] Balance inquiry
-- [ ] Cash withdrawal operations
-- [ ] Transaction history
-- [ ] Debit card support
-- [ ] Credit card support (grade 3+)
-- [ ] Dual cards (grade 5)
+✅ **Week 5 Complete:**
+- Enhanced transaction operations
+- Full ATM UI implementation
+- Production deployment
 
 ---
 
-## 🛠️ Tech Stack
+## ✅ **Implemented Features:**
+- ✅ PIN validation with security tracking
+- ✅ Card locking after 3 failed attempts
+- ✅ Balance inquiry
+- ✅ Cash withdrawal operations (via stored procedure)
+- ✅ Transaction history with pagination
+- ✅ Debit card support
+- ✅ Credit card support with credit limits
+- ✅ Dual cards (customer-based authorization)
+
+---
+
+## � Documentation & APIs
+
+### 🌐 Live Production
+- **Swagger UI**: https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net/api-docs
+- **Production API**: https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net
+- **OpenAPI JSON**: https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net/api-docs.json
+
+### 📖 Technical Documentation
+- **Frontend Architecture**: [Component Diagrams](frontend/docs/component-diagram.md)
+- **Component Descriptions**: [UML & Details](frontend/docs/component-descriptions.md)
+- **UI State Diagram**: [6-Page ATM Flow](frontend/docs/ui-description.md)
+- **OpenAPI Specification**: [REST API Docs](frontend/docs/api-specification.md)
+
+### 🗄️ Database & Backend
+- **Database Schema**: [SCHEMA.md](backend/SCHEMA.md) - ER diagrams and table relationships
+- **Stored Procedures**: [STORED_PROCEDURES.md](backend/STORED_PROCEDURES.md) - MySQL procedures
+- **Test Credentials**: [TEST_CREDENTIALS.md](TEST_CREDENTIALS.md) - 10+ test cards with PINs
+
+### 📝 README Files
+- **Backend README**: [backend/README.md](backend/README.md) - Production API documentation
+- **Frontend README**: [frontend/README.md](frontend/README.md) - Qt C++ application guide
+
+---
+
+## �🛠️ Tech Stack
 
 ### Backend
 - **Runtime:** Node.js 22 LTS
 - **Framework:** Express.js
 - **ORM:** Prisma 5.22.0
-- **Database:** Azure MySQL
-- **Authentication:** JWT (Week 4)
-- **Testing:** Jest
+- **Database:** Azure MySQL 8.0 (Sweden Central)
+- **Authentication:** JWT (bcrypt PIN hashing, 60-day expiry, production-ready)
+- **Testing:** Node:test + supertest
 - **Documentation:** Swagger/OpenAPI
 - **CI/CD:** GitHub Actions
 - **Deployment:** Azure App Service
 
 ### Frontend
-- **Framework:** Qt 6 (C++)
-- **Build System:** CMake
-- **HTTP Client:** Qt Network module
-- **IDE:** Visual Studio 2026 Pro / Qt Creator
+- **Framework:** Qt 6.8.1 Widgets (C++17)
+- **Build System:** CMake 3.16+
+- **Compiler:** MSVC 2022 (64-bit)
+- **HTTP Client:** Qt Network module with OpenSSL 3.x
+- **IDE:** Visual Studio 2026 Professional / Qt Creator
 
 ### Development Tools
 - **Version Control:** Git + GitHub
@@ -180,37 +211,50 @@ OpenAPI Spec (for Qt): `http://localhost:3000/api-docs.json`
 
 ## 🗃️ Database Schema
 
-<!-- TODO: Add ER diagram image here -->
+**Full Documentation:** [backend/SCHEMA.md](backend/SCHEMA.md)
 
 **Main Entities:**
-- Customers (asiakkaat)
-- Accounts (tilit) - Debit/Credit
-- Cards (kortit) - PIN, lock status
-- Transactions (tapahtumat)
-- Card-Account Links (dual card support)
+- **Customers** (asiakkaat) - Customer information
+- **Accounts** (tilit) - Debit/Credit accounts with balances
+- **Cards** (kortit) - Card details, PIN hashes, lock status
+- **Transactions** (tapahtumat) - Transaction history with balance tracking
+- **Card-Account Links** - Dual card support (one card, multiple accounts)
 
-**Security:**
-- PINs stored as bcrypt hashes
-- 10 rounds of hashing
+**Key Features:**
+- PINs stored as bcrypt hashes (10 rounds)
+- Failed PIN attempt tracking (auto-lock after 3 failures)
+- Credit limit support for credit cards
+- Transaction balance validation
+- MySQL stored procedures for atomic operations (e.g., `usp_withdraw_money`)
+
+**Database Type:** Azure MySQL 8.0 (Sweden Central)  
+**ORM:** Prisma 5.x with snake_case naming convention
 
 ---
 
 ## 📡 API Endpoints
 
-### Current (Week 2)
+**Full API Documentation:** [Swagger UI](https://pankki-api-dcb8eubhg5c5eya6.swedencentral-01.azurewebsites.net/api-docs)
+
+### ✅ Implemented Endpoints
+
+#### Core Operations
 - **Customers:** Full CRUD operations
-- **Health Check:** `/health`
-- **API Docs:** `/api-docs`
-
-### Planned Week 3
 - **Accounts:** Full CRUD + balance management
-- **Cards:** Full CRUD (without auth)
-- **Transactions:** Create and view history
+- **Cards:** Full CRUD with authentication
+- **Transactions:** Create, view history with pagination
+- **Health Check:** `/health`
+- **API Docs:** `/api-docs` (Swagger UI)
 
-### Week 4 - Authentication ✅ IMPLEMENTED
-- `POST /api/auth/insert-card` - Step 1: Validate card number
-- `POST /api/auth/verify-pin` - Step 2: Verify PIN, get JWT token
-- All endpoints protected with: `Authorization: Bearer {token}`
+#### Authentication (Week 4)
+- ✅ `POST /api/auth/insert-card` - Step 1: Validate card number
+- ✅ `POST /api/auth/verify-pin` - Step 2: Verify PIN, get JWT token
+- All authenticated endpoints require: `Authorization: Bearer {token}`
+
+#### Transaction Operations (Week 5)
+- ✅ Withdrawal operations (secured with JWT)
+- ✅ Balance inquiry (DEBIT/CREDIT modes)
+- ✅ Transaction history with filtering
 
 ---
 
@@ -531,21 +575,18 @@ req.user = {
 
 ### Testing Credentials
 
-From `backend/prisma/seed.js`:
+**For complete test card numbers and PINs, see:** [TEST_CREDENTIALS.md](TEST_CREDENTIALS.md)
 
-| Card Number | PIN | Customer | Account | Status | Failed Attempts |
-|------------|-----|----------|---------|--------|----------------|
-| 1234567890123456 | 1234 | Matti Virtanen | FI1234567890123456 (Debit) | ✅ Active | 0 |
-| 1234567890123457 | 1234 | Matti Virtanen | FI1234567890123457 (Credit) | ✅ Active | 0 |
-| 2345678901234567 | 1234 | Liisa Korhonen | FI2345678901234567 (Debit) | ✅ Active | 0 |
-| 2345678901234568 | 1234 | Liisa Korhonen | FI2345678901234568 (Credit) | 🔒 **Locked** | 3 |
-| 3456789012345678 | 1234 | Jukka Nieminen | FI3456789012345678 (Debit) | ✅ Active | 0 |
-| 4567890123456789 | 5678 | Anna Mäkinen | FI4567890123456789 (Debit) | ✅ Active | 0 |
-| 5678901234567890 | 5678 | Mikko Lahtinen | FI5678901234567890 (Debit) | ✅ Active | 0 |
-| 5678901234567891 | 9999 | Mikko Lahtinen | FI5678901234567891 (Credit) | 🔒 **Locked** | 3 |
+The seed file includes 10+ test cards with various configurations:
+- Active cards (DEBIT and CREDIT)
+- Locked cards (for testing security features)
+- Multiple customers with different account types
+- Cards with varying credit limits
 
-**Test Locked Card Feature:**
-- Use card `2345678901234568` or `5678901234567891` to see locked card error
+**Quick Test Cards:**
+- Matti Virtanen: `1234567890123456` (PIN: `1234`)
+- Anna Mäkinen: `4567890123456789` (PIN: `5678`)
+- Locked card example: `2345678901234568` (for testing lock feature)
 
 ---
 
@@ -627,11 +668,12 @@ Compiled executables available in GitHub Releases
 
 ## 📚 Documentation
 
-- [Backend API Documentation](./backend/README.md)
-- [Frontend Documentation](./frontend/README.md) ✅ **Updated**
-- [Database Schema](./documents/er-diagram.png)
-- [Technical Specification](./documents/tekninen-maarittely.docx)
-- [Project Plan](./documents/projektidokumentti.docx)
+**📖 See detailed documentation links in the [Documentation & APIs](#-documentation--apis) section above.**
+
+### Project Documents
+- [Technical Specification](./documents/tekninen-maarittely.docx) - Finnish technical specification
+- [Project Plan](./documents/projektidokumentti.docx) - Project documentation
+- [ER Diagram](./documents/er-diagram.png) - Database entity-relationship diagram
 
 ---
 
@@ -643,7 +685,7 @@ Compiled executables available in GitHub Releases
 | 2 | CRUD operations demo, project document complete | ✅ Complete |
 | 3 | Accounts/Cards/Transactions tables & APIs | ✅ Complete |
 | 4 | JWT authentication (card + PIN), auto-lock security | ✅ Complete |
-| 5 | Full transaction system & error handling | 🔄 In Progress |
+| 5 | Full transaction system & error handling | ✅ Complete |
 | 6 | UI polish & comprehensive testing | 📋 Planned |
 | 7 | Technical documentation & poster | 📋 Planned |
 | 8 | Final presentation & demo | 📋 Planned |
@@ -726,11 +768,11 @@ MIT License - Educational Project
 
 ---
 
-## 🔨 Remaining Backend Work
+## ✅ Production Features Summary
 
-### � Completed Features
+All backend features have been successfully implemented and are production-ready:
 
-#### ✅ Authentication System (Week 4)
+### 🔐 Authentication System (Week 4)
 - **Auth Routes:**
   - ✅ `POST /api/auth/insert-card` - Validate card number exists
   - ✅ `POST /api/auth/verify-pin` - Verify PIN hash, return JWT token
@@ -744,58 +786,38 @@ MIT License - Educational Project
   - ✅ Auto-lock after 3 failed PIN attempts
   - ✅ Failed attempt tracking (failedPinAttempts, lastFailedAttempt)
 
-#### ✅ Protected Routes
+### 🔒 Protected Routes
 - ✅ JWT authentication middleware on all routes
 - ✅ Customer-based authorization (users can access all their accounts/cards)
 - ✅ Middleware checks: `Authorization: Bearer {token}`
 
-#### ✅ Card Security Features
-- **PIN Attempt Tracking:**
-  - ✅ Track failed PIN attempts in database
-  - ✅ Lock card after 3 consecutive failures
-  - ✅ Update `is_locked` and `last_failed_attempt` timestamp
-  - ✅ Reset counter on successful login
+### 🛡️ Card Security Features
+- ✅ Track failed PIN attempts in database
+- ✅ Lock card after 3 consecutive failures
+- ✅ Update `is_locked` and `last_failed_attempt` timestamp
+- ✅ Reset counter on successful login
 
-#### ✅ Seed File Implementation
-- ✅ Multiple test customers with realistic data
-- ✅ Accounts (debit + credit types)
-- ✅ Cards with bcrypt-hashed PINs
-- ✅ Sample transactions with correct balances
-- ✅ Test locked cards for security testing
+### 💳 Transaction Operations (Week 5)
+- ✅ Withdrawal operations via MySQL stored procedure (`usp_withdraw_money`)
+- ✅ Balance inquiry with DEBIT/CREDIT mode support
+- ✅ Transaction history with pagination
+- ✅ Sufficient balance validation (balance + credit limit)
+- ✅ Atomic database operations
+- ✅ Transaction recording with `balance_after` tracking
 
----
+### ✔️ Validation & Error Handling
+- ✅ Input validation with express-validator
+- ✅ Sanitization for SQL injection prevention
+- ✅ Custom validators for account numbers, card numbers
+- ✅ Centralized error handler middleware
+- ✅ Consistent JSON error responses
 
-### 🟡 Remaining Backend Work
-
-### 🔴 Critical Priority (Week 5)
-
-#### 3. Transaction Business Logic
-- **POST Routes:**
-  - `POST /api/transactions/withdraw` - Check balance + credit limit
-  - `POST /api/transactions/deposit` - Add funds
-  - `POST /api/transactions/transfer` - Between accounts
-- **Validation:**
-  - Sufficient balance check (balance + credit_limit)
-  - Credit limit enforcement
-  - Update account balance after transaction
-- **Recording:**
-  - Create transaction record with `balance_after`
-  - Atomic operations (use Prisma transactions)
-
-#### 3. Transaction Business Logic
-- **Input Validation:**
-  - Use express-validator or Joi
-  - Sanitization for SQL injection prevention
-  - Custom validators for account numbers, card numbers
-- **Error Handler Middleware:**
-  - Centralized error handler
-  - Consistent JSON error responses
-  - Error logging
-
-#### 4. Validation & Error Handling
-#### 5. Testing
-- Transaction endpoint tests
-- Card locking mechanism tests
+### 🧪 Testing & Quality
+- ✅ Automated test suite (Node:test + supertest)
+- ✅ Transaction endpoint tests
+- ✅ Card locking mechanism tests
+- ✅ CI/CD pipeline with automated testing
+- ✅ Multiple test customers with realistic seed data
 
 ---
 
@@ -804,4 +826,4 @@ MIT License - Educational Project
 
 ---
 
-**Last Updated:** January 29, 2026
+**Last Updated:** February 18, 2026
