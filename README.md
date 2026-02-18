@@ -58,7 +58,7 @@ A simulated ATM (Automated Teller Machine) banking system with a Qt desktop appl
 - ✅ Transaction history with pagination
 - ✅ Debit card support
 - ✅ Credit card support with credit limits
-- ✅ Dual cards (customer-based authorization)
+- ✅ Dual card mode (DEBIT/CREDIT on same account)
 
 ---
 
@@ -215,16 +215,16 @@ OpenAPI Spec (for Qt): `http://localhost:3000/api-docs.json`
 
 **Main Entities:**
 - **Customers** (asiakkaat) - Customer information
-- **Accounts** (tilit) - Debit/Credit accounts with balances
-- **Cards** (kortit) - Card details, PIN hashes, lock status
-- **Transactions** (tapahtumat) - Transaction history with balance tracking
-- **Card-Account Links** - Dual card support (one card, multiple accounts)
+- **Accounts** (tilit) - Debit/Credit accounts with balances and credit limits
+- **Cards** (kortit) - Card details, PIN hashes, lock status, linked to one account
+- **Transactions** (tapahtumat) - Transaction history with balance tracking and cardMode
 
 **Key Features:**
 - PINs stored as bcrypt hashes (10 rounds)
 - Failed PIN attempt tracking (auto-lock after 3 failures)
-- Credit limit support for credit cards
-- Transaction balance validation
+- Dual card mode: Each card can operate in DEBIT or CREDIT mode on the same account
+- Credit limit support for credit cards (when cardMode = CREDIT)
+- Transaction balance validation (balance + credit limit)
 - MySQL stored procedures for atomic operations (e.g., `usp_withdraw_money`)
 
 **Database Type:** Azure MySQL 8.0 (Sweden Central)  
@@ -686,9 +686,9 @@ Compiled executables available in GitHub Releases
 | 3 | Accounts/Cards/Transactions tables & APIs | ✅ Complete |
 | 4 | JWT authentication (card + PIN), auto-lock security | ✅ Complete |
 | 5 | Full transaction system & error handling | ✅ Complete |
-| 6 | UI polish & comprehensive testing | 📋 Planned |
-| 7 | Technical documentation & poster | 📋 Planned |
-| 8 | Final presentation & demo | 📋 Planned |
+| 6 | Qt frontend ATM UI implementation | ✅ Complete |
+| 7 | Frontend polish, testing & technical documentation | ✅ Complete |
+| 8 | Final presentation & demo (Mon Feb 23, 17:00) | 🎯 In Progress |
 
 ---
 
@@ -755,16 +755,43 @@ MIT License - Educational Project
 - [x] Cards table (without authentication)
 - [x] Transactions table
 - [x] Basic transaction operations
-- [ ] Qt models for Account, Card, Transaction
-- [ ] Basic ATM UI design
+- [x] Qt models for Account, Card, Transaction
+- [x] Basic ATM UI design
 
-**Week 4 (Current):**
-- [x] JWT authentication implementation ✅
-- [x] Card + PIN verification flow ✅
-- [x] PIN attempt tracking (lock after 3 failures) ✅
-- [x] Protected API endpoints ✅
-- [x] Customer-based authorization ✅
-- [ ] Qt authentication screens
+**Week 4:**
+- [x] JWT authentication implementation
+- [x] Card + PIN verification flow
+- [x] PIN attempt tracking (lock after 3 failures)
+- [x] Protected API endpoints
+- [x] Customer-based authorization
+- [x] Qt authentication screens (InsertCard, VerifyPin pages)
+
+**Week 5:**
+- [x] MySQL stored procedure for withdrawals (`usp_withdraw_money`)
+- [x] Transaction history API with pagination
+- [x] Backend validation and error handling
+- [x] Seed data enhancement (~60 test transactions)
+- [x] Integration testing with Jest
+- [x] CI/CD pipeline refinement (removed auto-seeding)
+- [x] Documentation updates (TEST_CREDENTIALS.md, STORED_PROCEDURES.md)
+
+**Week 6:**
+- [x] Complete 6-page ATM UI flow (InsertCard → VerifyPin → SelectMode → Dashboard → Withdraw → History)
+- [x] Qt Network integration with production API
+- [x] Balance display with DEBIT/CREDIT mode support
+- [x] Withdrawal UI with amount selection buttons
+- [x] Transaction history display with scrolling
+- [x] Session timeout implementation (10s PIN, 30s dashboard)
+- [x] Pink gradient theme and UI polish
+
+**Week 7:**
+- [x] Frontend comprehensive testing and bug fixes
+- [x] Error handling and user feedback improvements
+- [x] Production deployment verification
+- [x] Complete technical documentation (frontend/backend READMEs)
+- [x] Architecture diagrams (component-diagram.md, ui-description.md)
+- [x] API specification documentation (OpenAPI)
+- [x] Presentation preparation and demo scenarios
 
 ---
 
